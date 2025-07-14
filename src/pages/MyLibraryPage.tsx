@@ -1,13 +1,14 @@
 import React from "react";
 import TempComponent from "../components/TempComponent";
 import CommonButton from "../components/CommonButton";
+import ThumbnailFetch from "../components/ThumbnailFetch";
 
 const MyLibrary: React.FC = () => {
   return (
     <div>
-      MyLibraryㅇㅇ
       <TempComponent />
       <CommonButton />
+      <ThumbnailFetch />
     </div>
   );
 };
