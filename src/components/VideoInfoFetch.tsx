@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import VideoInfo from "./VideoInfo";
 import type { VideoInfoProps } from "./VideoInfo";
 
+// 예시 데이터
 /*const sampleData = [
   {
     imageUrl: "https://t1.daumcdn.net/cfile/tistory/998D344B5BF5070114",
@@ -18,13 +19,14 @@ const VideoInfoFetch: React.FC = () => {
 
   useEffect(() => {
     // fetch로 외부 데이터 받아오기 (예시: /api/videoList)
-    fetch("public/VideoList.json")
+    fetch("public/SampleVideoInfo.json")
       .then(res => res.json())
       .then(data => {
         setVideoList(data); // 배열 저장
         setLoading(false);
       });
-
+    
+    // 예시 데이터 사용
     /*setVideoList(sampleData);
     setLoading(false);*/
   }, []);
