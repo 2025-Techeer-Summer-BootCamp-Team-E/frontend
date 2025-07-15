@@ -1,10 +1,10 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import Books_Selected from "../assets/Icons/Books_Selected.svg";
 import Books_Nonselected from "../assets/Icons/Books_NonSelected.svg";
 import MyVlog_Selected from "../assets/Icons/MyVlog_Selected.svg";
 import MyVlog_Nonselected from "../assets/Icons/MyVlog_NonSelected.svg";
 
-const Toggle = () => {
+const Toggle: React.FC = () => {
   const [selected, setSelected] = useState<"books" | "vlog">("books");
 
   return (
