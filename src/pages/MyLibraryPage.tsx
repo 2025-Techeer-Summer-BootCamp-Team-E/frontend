@@ -3,6 +3,7 @@ import CommonButton from "../components/CommonButton";
 import ThumbnailFetch from "../components/ThumbnailFetch";
 import Toggle from "../components/Toggle";
 import VideoInfoFetch from "../components/VideoInfoFetch";
+import ActCharacterCard from "../components/ActCharacterCard";
 
 const MyLibrary: React.FC = () => {
   return (
@@ -11,6 +12,7 @@ const MyLibrary: React.FC = () => {
       <CommonButton />
       <ThumbnailFetch />
       <VideoInfoFetch />
+      <ActCharacterCard />
     </div>
   );
 };
