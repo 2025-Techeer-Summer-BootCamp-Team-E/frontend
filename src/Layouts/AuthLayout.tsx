@@ -23,11 +23,7 @@ const AuthLayout: React.FC = () => {
     <div className="flex min-h-screen flex-col items-center justify-center bg-[#FBF9F4] p-8 font-['Noto_Sans_KR'] text-[#3D3D3D]">
       <Link to="/" className="mb-8 cursor-pointer text-center">
         <div className="flex items-center justify-center">
-          <img
-            src={Logo}
-            alt="EPILOG Logo"
-            className="mx-4 w-[2rem] text-[#3D3D3D]"
-          />
+          <img src={Logo} alt="EPILOG Logo" className="mx-4 w-[2rem]" />
           <span className="text-[2rem] font-bold font-crimson">EPILOG</span>
         </div>
       </Link>
