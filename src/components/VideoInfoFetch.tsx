@@ -34,7 +34,7 @@ const VideoInfoFetch: React.FC = () => {
 if (loading) return <div>로딩 중...</div>;
 
  return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-[40px]">
       {videoList.map((info, idx) => (
         <VideoInfo key={idx} {...info} />
       ))}
