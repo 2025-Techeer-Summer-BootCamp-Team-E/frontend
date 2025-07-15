@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import MainLayout from "./Layouts/MainLayout";
 import MyLibrary from "./pages/MyLibraryPage";
 import MyVideos from "./pages/MyVideosPage"; // Assuming you have a MyVideos component
+import AuthLayout from "./Layouts/AuthLayout";
 
 const App: React.FC = () => {
   return (
@@ -26,6 +27,7 @@ const App: React.FC = () => {
             </MainLayout>
           }
         />
+        <Route path="/auth" element={<AuthLayout>ㅇㅇ</AuthLayout>} />
       </Routes>
     </Router>
   );
