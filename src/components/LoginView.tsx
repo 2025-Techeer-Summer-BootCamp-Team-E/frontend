@@ -1,16 +1,19 @@
 // src/components/LoginView.tsx
 
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 interface LoginViewProps {
   onSwitchToSignup: () => void;
 }
 
 const LoginView: React.FC<LoginViewProps> = ({ onSwitchToSignup }) => {
+  const navigate = useNavigate();
   const handleLogin = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     alert("로그인 성공! 메인 페이지로 이동합니다.");
-    // window.location.href = '/main';
+    // window.location.href 대신 navigate 함수 사용
+    navigate("/");
   };
 
   return (

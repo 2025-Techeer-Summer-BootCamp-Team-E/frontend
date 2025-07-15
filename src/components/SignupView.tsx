@@ -1,16 +1,20 @@
 // src/components/SignupView.tsx
 
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 interface SignupViewProps {
   onSwitchToLogin: () => void;
 }
 
 const SignupView: React.FC<SignupViewProps> = ({ onSwitchToLogin }) => {
+  const navigate = useNavigate(); // useNavigate 훅 선언
+
   const handleSignup = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     alert("회원가입 성공! 메인 페이지로 이동합니다.");
-    // window.location.href = '/main';
+    // 변경점: window.location.href 대신 navigate 함수 사용
+    navigate("/");
   };
 
   return (
