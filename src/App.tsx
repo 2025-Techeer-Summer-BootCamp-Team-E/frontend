@@ -27,7 +27,7 @@ const App: React.FC = () => {
             </MainLayout>
           }
         />
-        <Route path="/auth" element={<AuthLayout>ㅇㅇ</AuthLayout>} />
+        <Route path="/auth" element={<AuthLayout />} />
       </Routes>
     </Router>
   );
