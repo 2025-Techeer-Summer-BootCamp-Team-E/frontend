@@ -7,11 +7,30 @@ const config: Config = {
     extend: {
       fontFamily: {
         crimson: ["'Crimson Text'", "serif"],
+        NanumMyeongjo: ["'Nanum Myeongjo'", "serif"],
         noto: ['"Noto Sans KR"', "sans-serif"],
         lora: ['Lora', 'serif'],
+
       },
     },
   },
-  plugins: [],
+  plugins: [
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    function ({ addUtilities }: any) {
+      const newUtilities = {
+        ".scrollbar-hide": {
+          /* IE and Edge */
+          "-ms-overflow-style": "none",
+          /* Firefox */
+          "scrollbar-width": "none",
+          /* Safari and Chrome */
+          "&::-webkit-scrollbar": {
+            display: "none",
+          },
+        },
+      };
+      addUtilities(newUtilities);
+    },
+  ],
 };
 export default config;
