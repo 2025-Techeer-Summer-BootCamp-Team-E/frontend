@@ -49,15 +49,20 @@ const BooksSection: React.FC = () => {
 
         // 간격 (강조 옆은 171, 일반은 103)
         let marginRight = 103;
-        if (isHighlight || index === highlightIndex - 1 || index === highlightIndex + 1) {
-          marginRight = 171; 
+        if (
+          isHighlight ||
+          index === highlightIndex - 1 ||
+          index === highlightIndex + 1
+        ) {
+          marginRight = 171;
         }
 
         return (
           <div
             key={index}
             style={{
-              marginRight: index !== books.length - 1 ? `${marginRight}px` : "0",
+              marginRight:
+                index !== books.length - 1 ? `${marginRight}px` : "0",
               transform: `translateY(${translateY})`, // 강조된 책만 아래로 이동
               transition: "transform 0.3s ease",
             }}
