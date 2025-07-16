@@ -11,39 +11,48 @@ type CharacterType = {
 
 const ActCharacterCard: React.FC = () => {
   const [characters, setCharacters] = useState<CharacterType[]>([]);
-  const [flipped, setFlipped] = useState<boolean[]>([]);
+  const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
 
+  //json 파일에서 캐릭터 데이터 불러오기
   useEffect(() => {
     fetch('/SampleCharacterCard.json')
       .then(res => res.json())
       .then(data => {
         setCharacters(data);
-        setFlipped(Array(data.length).fill(false));
+        setSelectedIdx(null);
       });
   }, []);
 
-  const handleFlip = (idx: number) => {
-    setFlipped(prevFlipped => {
-      const updated = [...prevFlipped];
-      updated[idx] = !updated[idx];
-      return updated;
-    });
-  };
-
   if (characters.length === 0) return <div>로딩중...</div>;
 
+  
   return (
+    //카드 강조 효과
     <div className="flex flex-wrap gap-12 justify-center">
-      {characters.map((character, idx) => (
-        <div
-          key={character.name}
-          className="w-[264px] h-[300px] flex justify-center items-center rounded-[30px]"
-        >
-          <button
-            onClick={() => handleFlip(idx)}
-            className="w-full h-full focus:outline-none border-none bg-transparent"
+      {characters.map((character,idx) => {
+        const isSelected = idx === selectedIdx;
+        const width = isSelected ? 330 : 264;
+        const height = isSelected ? 375 : 300;
+        const translateY = isSelected ? "-45px" : "0px";
+        const zIndex = isSelected ? 10 : 1;
+
+        return(
+          <div
+            key={character.name}
+            style={{
+              width,
+              height,
+              transform: `translateY(${translateY})`,
+              borderRadius: 32,
+              zIndex,
+              transition: "all 0.3s cubic-bezier(0.4,0.2,0.3,1)",
+            }}
+            
+            //클릭 시 카드 전환
+            onClick={() => setSelectedIdx(isSelected ? null : idx)}
+            className="flex justify-center items-center cursor-pointer border-2 border-transparent bg-transparent"
           >
-            {flipped[idx] ? (
+            {isSelected ? (
               <BackCharacterCard
                 name={character.name}
                 description={character.description}
@@ -54,9 +63,9 @@ const ActCharacterCard: React.FC = () => {
                 sex={character.sex}
               />
             )}
-          </button>
-        </div>
-      ))}
+          </div>
+        );
+      })}
     </div>
   );
 };
