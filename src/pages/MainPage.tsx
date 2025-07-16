@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "../components/Header";
 import BooksSection from "../components/BooksSection";
 import VideoInfoFetch from "../components/VideoInfoFetch";
@@ -6,6 +6,18 @@ import Toggle from "../components/Toggle";
 
 const MainPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"books" | "vlog">("books");
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // 스크롤이 80px 이상일 때 header 스타일 변경
+      const scrollY = window.scrollY;
+      setIsScrolled(scrollY > 80);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#F8F3ED]">
@@ -15,12 +27,13 @@ const MainPage: React.FC = () => {
         navigationComponent={
           <Toggle selected={activeTab} onSelectionChange={setActiveTab} />
         }
+        isScrolled={isScrolled}
       />
 
       {/* Main Content - with top padding to account for fixed header */}
       <main className="pt-[180px]">
         {/* Hero Section */}
-        <section className="text-center py-[80px] px-4">
+        <section className="text-center py-[2rem] px-4">
           <h1 className="text-[48px] font-bold text-black mb-4 font-NanumMyeongjo">
             어떤 이야기로 VLOG를 만들어볼까요?
           </h1>
