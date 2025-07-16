@@ -15,7 +15,6 @@ const MainPage: React.FC = () => {
         navigationComponent={
           <Toggle selected={activeTab} onSelectionChange={setActiveTab} />
         }
-        isFixed={true}
       />
 
       {/* Main Content - with top padding to account for fixed header */}
