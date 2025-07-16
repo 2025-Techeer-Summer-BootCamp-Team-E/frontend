@@ -8,6 +8,7 @@ const config: Config = {
       fontFamily: {
         crimson: ["'Crimson Text'", "serif"],
         noto: ['"Noto Sans KR"', "sans-serif"],
+        lora: ['Lora', 'serif'],
       },
     },
   },
