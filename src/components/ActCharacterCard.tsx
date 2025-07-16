@@ -33,8 +33,8 @@ const ActCharacterCard: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-wrap gap-12 justify-center">
-      <div className="flex flex-wrap gap-12 justify-center">
+    <div className="flex flex-wrap justify-center jusify-between">
+      <div className="flex flex-wrap justify-center">
         {characters.map((character, idx) => (
           <div
             key={character.name}
