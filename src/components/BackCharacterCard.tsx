@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from "react-router-dom";
 
 interface BackProps {
   name: string;
@@ -6,6 +7,11 @@ interface BackProps {
 }
 
 const BackCharacterCard: React.FC<BackProps> = ({name, description}) => {
+  const navigate = useNavigate();
+
+  const handleScriptCreate = () => {
+    navigate('/script');
+  };
 
   return (
     <div className="w-full h-full bg-[#9B8B7A] rounded-[20px] shadow-lg flex flex-col items-center"
@@ -25,6 +31,7 @@ const BackCharacterCard: React.FC<BackProps> = ({name, description}) => {
         style={{
           letterSpacing: "0.02em",
         }}
+        onClick={handleScriptCreate}
       >
         대본 작성하기
       </button>
