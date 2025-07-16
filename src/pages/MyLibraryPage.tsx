@@ -18,8 +18,8 @@ const MyLibrary: React.FC = () => {
         대본으로 돌아가기
       </CommonButton>
       <ThumbnailFetch />
-      <VideoInfoFetch />
       <ActCharacterCard />
+      <VideoInfoFetch />
     </div>
   );
 };
