@@ -4,6 +4,9 @@ import BooksSection from "../components/BooksSection";
 import VideoInfoFetch from "../components/VideoInfoFetch";
 import Toggle from "../components/Toggle";
 
+// images
+import BookFloor from "../assets/Images/BookFloor.svg";
+
 const MainPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"books" | "vlog">("books");
   const [isScrolled, setIsScrolled] = useState(false);
@@ -31,9 +34,9 @@ const MainPage: React.FC = () => {
       />
 
       {/* Main Content - with top padding to account for fixed header */}
-      <main className="pt-[180px]">
+      <main className="pt-[180px] flex flex-col items-center">
         {/* Hero Section */}
-        <section className="text-center py-[2rem] px-4">
+        <section className="text-center py-[80px] px-4">
           <h1 className="text-[48px] font-bold text-black mb-4 font-NanumMyeongjo">
             어떤 이야기로 VLOG를 만들어볼까요?
           </h1>
@@ -42,39 +45,43 @@ const MainPage: React.FC = () => {
           </p>
         </section>
 
-        {/* Search Section */}
-        <section className="flex justify-center mb-[80px] px-4">
-          <div className="flex items-center gap-4 max-w-4xl w-full">
-            <span className="text-[20px] font-medium text-gray-700">
-              전체보기
-            </span>
-            <div className="flex-1 max-w-md relative">
-              <input
-                type="text"
-                placeholder="작품, 장르나 토픽 검색..."
-                className="w-full px-4 py-3 pr-10 rounded-lg border border-gray-300 bg-white text-[16px] focus:outline-none focus:ring-2 focus:ring-[#DCAC62] focus:border-transparent"
-              />
-              <svg
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+        {/* Search and Books Container */}
+        <div className="w-[1712px] mx-4 mb-0 bg-white rounded-t-[50px] drop-shadow-[0_8px_32px_rgba(0,0,0,0.25)]">
+          {/* Search Section */}
+          <section className="flex justify-center mb-[80px]">
+            <div className="flex items-center gap-4 max-w-4xl w-full">
+              <span className="text-[20px] font-medium text-gray-700">
+                전체보기
+              </span>
+              <div className="flex-1 max-w-md relative">
+                <input
+                  type="text"
+                  placeholder="작품, 장르나 토픽 검색..."
+                  className="w-full px-4 py-3 pr-10 rounded-lg border border-gray-300 bg-white text-[16px] focus:outline-none focus:ring-2 focus:ring-[#DCAC62] focus:border-transparent"
                 />
-              </svg>
+                <svg
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
 
-        {/* Books Grid Section */}
-        <section className="mb-[120px]">
-          <BooksSection />
-        </section>
+          {/* Books Grid Section */}
+          <section>
+            <BooksSection />
+          </section>
+        </div>
+        <img src={BookFloor} alt="BookFloor" className="translate-x-[10px]" />
 
         {/* Video List Section */}
         <section className="px-[52px] pb-[120px]">
