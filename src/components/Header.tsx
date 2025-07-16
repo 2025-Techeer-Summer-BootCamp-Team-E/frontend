@@ -16,7 +16,7 @@ const Header: React.FC = () => {
         <nav className="flex items-center gap-[16px]">
           <Link to="/auth" className="flex items-center gap-[16px]">
             <img src={Login} className="w-[24px] h-[24px]" />
-            <span className="text-[20px]">로그인</span>
+            <span className="text-[20px] font-bold">로그인</span>
           </Link>
         </nav>
       </div>
