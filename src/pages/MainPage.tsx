@@ -21,7 +21,7 @@ const MainPage: React.FC = () => {
       <main className="pt-[180px]">
         {/* Hero Section */}
         <section className="text-center py-[80px] px-4">
-          <h1 className="text-[48px] font-bold text-black mb-4">
+          <h1 className="text-[48px] font-bold text-black mb-4 font-NanumMyeongjo">
             어떤 이야기로 VLOG를 만들어볼까요?
           </h1>
           <p className="text-[20px] text-gray-600">
