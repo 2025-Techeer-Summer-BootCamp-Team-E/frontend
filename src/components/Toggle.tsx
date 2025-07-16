@@ -32,7 +32,7 @@ const Toggle: React.FC<ToggleProps> = ({
   };
 
   return (
-    <div className={`flex gap-[3.5rem] p-2 rounded-full ${className}`}>
+    <div className={`flex gap-[3.5rem] rounded-full ${className}`}>
       {/* Books 버튼 */}
       <button
         onClick={() => handleSelection("books")}
