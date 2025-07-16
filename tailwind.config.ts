@@ -8,6 +8,9 @@ const config: Config = {
       fontFamily: {
         crimson: ["'Crimson Text'", "serif"],
         NanumMyeongjo: ["'Nanum Myeongjo'", "serif"],
+        noto: ['"Noto Sans KR"', "sans-serif"],
+        lora: ['Lora', 'serif'],
+
       },
     },
   },
