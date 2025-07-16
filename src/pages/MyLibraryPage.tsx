@@ -6,10 +6,12 @@ import BooksSection from "../components/BooksSection";
 import VideoInfoFetch from "../components/VideoInfoFetch";
 import ActCharacterCard from "../components/ActCharacterCard";
 import BackIcon from "../assets/Icons/BackIcon.svg";
+import Stepper from "../components/Stepper";
 
 const MyLibrary: React.FC = () => {
   return (
     <div>
+      <Stepper currentStep={3} />
       <BooksSection />
       <Toggle />
       <CommonButton icon={<img src={BackIcon} />}>

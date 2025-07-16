@@ -8,6 +8,7 @@ export default {
     extend: {
       fontFamily: {
         crimson: ["'Crimson Text'", "serif"],
+        noto: ['"Noto Sans KR"', 'sans-serif'],
       },
     },
   },
