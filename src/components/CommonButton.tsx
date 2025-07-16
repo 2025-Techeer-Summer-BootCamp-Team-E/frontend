@@ -13,6 +13,7 @@ const CommonButton: React.FC<CommonButtonProps> = ({
   children,
   icon,
   className,
+  onClick,
 }) => {
   const iconWithClassName = icon
     ? React.cloneElement(icon, { className: "w-[20px] h-[20px]" })
@@ -25,7 +26,7 @@ const CommonButton: React.FC<CommonButtonProps> = ({
         "flex flex-row justify-center gap-[1.25rem] items-center w-[17.5rem] h-[4rem] bg-[#FCFAF7] text-black rounded-full shadow-md",
         className
       )}
-      onClick={() => {}}
+      onClick={onClick}
     >
       {iconWithClassName}
       <span className="text-[20px] text-lg font-bold">{children}</span>
