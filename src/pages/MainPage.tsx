@@ -1,12 +1,25 @@
 import React, { useState, useEffect } from "react";
 import Header from "../components/Header";
 import BooksSection from "../components/BooksSection";
-import VideoInfoFetch from "../components/VideoInfoFetch";
 import Toggle from "../components/Toggle";
 
 // assets
 import BookFloor from "../assets/Images/BookFloor.svg";
 import SearchIcon from "../assets/Icons/SearchIcon.svg";
+import VideoThumbnail from "../components/VideoThumbnail";
+
+// 책 데이터 타입
+interface Book {
+  id: number;
+  src: string;
+  alt: string;
+  title: string;
+}
+
+// 영상 데이터 타입
+interface VideoData {
+  imageUrl: string;
+}
 
 const MainPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"books" | "vlog">("books");
@@ -14,6 +27,57 @@ const MainPage: React.FC = () => {
   const [bookFilter, setBookFilter] = useState<"service" | "uploaded">(
     "service"
   );
+  const [selectedBookIndex, setSelectedBookIndex] = useState<number>(1); // 카라마조프가의 형제들 기본 선택
+
+  // 책 목록 데이터
+  const books: Book[] = [
+    {
+      id: 0,
+      src: "https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/2090000149319.jpg",
+      alt: "긴긴밤",
+      title: "긴긴밤",
+    },
+    {
+      id: 1,
+      src: "https://contents.kyobobook.co.kr/sih/fit-in/400x0/pdt/9788937461545.jpg",
+      alt: "카라마조프가의 형제들",
+      title: "카라마조프가의 형제들",
+    },
+    {
+      id: 2,
+      src: "https://contents.kyobobook.co.kr/sih/fit-in/400x0/pdt/9791165345693.jpg",
+      alt: "달러구트 꿈 백화점",
+      title: "달러구트 꿈 백화점",
+    },
+    {
+      id: 3,
+      src: "https://image.aladin.co.kr/product/27106/90/cover500/e462538205_1.jpg",
+      alt: "짧은 밤이지만 빛나고 있어",
+      title: "짧은 밤이지만 빛나고 있어",
+    },
+  ];
+
+  // 각 책별 영상 데이터
+  const videoDataByBook: Record<number, VideoData[]> = {
+    0: [
+      // 긴긴밤
+      { imageUrl: "https://picsum.photos/400/200?random=1" },
+      { imageUrl: "https://picsum.photos/400/200?random=2" },
+    ],
+    1: [
+      // 카라마조프가의 형제들
+      { imageUrl: "https://picsum.photos/400/200?random=3" },
+      { imageUrl: "https://picsum.photos/400/200?random=4" },
+    ],
+    2: [], // 달러구트 꿈 백화점 - 영상 없음
+    3: [
+      // 짧은 밤이지만 빛나고 있어
+      { imageUrl: "https://picsum.photos/400/200?random=5" },
+    ],
+  };
+
+  const selectedBook = books[selectedBookIndex];
+  const selectedBookVideos = videoDataByBook[selectedBookIndex] || [];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -54,7 +118,6 @@ const MainPage: React.FC = () => {
           {/* Search Section */}
           <section className="flex justify-between mb-[80px] p-[2rem]">
             {/* Book Filter Tabs */}
-
             <div className="flex gap-8 mx-4">
               <button
                 onClick={() => setBookFilter("service")}
@@ -100,7 +163,11 @@ const MainPage: React.FC = () => {
 
           {/* Books Grid Section */}
           <section>
-            <BooksSection />
+            <BooksSection
+              books={books}
+              selectedIndex={selectedBookIndex}
+              onBookSelect={setSelectedBookIndex}
+            />
           </section>
         </div>
         <img
@@ -112,46 +179,17 @@ const MainPage: React.FC = () => {
         {/* Video List Section */}
         <section className="mt-[72px] px-[52px] pb-[120px]">
           <h2 className="text-[32px] font-bold text-black mb-8">
-            카라마조프가의 형제들 로 만든 VLOG 목록
+            <span className="text-[#DCAC62]">{selectedBook.title}</span>
+            <span className="text-black"> 로 만든 VLOG 목록</span>
           </h2>
-          <div className="relative">
-            {/* Navigation arrows */}
-            <button className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50">
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-            </button>
-            <button className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50">
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-            </button>
 
-            {/* Video cards container */}
-            <div className="overflow-x-auto scrollbar-hide">
-              <div className="flex gap-[40px] pb-4 px-12">
-                <VideoInfoFetch />
-                {/* Add empty card for "더 만들어볼까요?" */}
+          {selectedBookVideos.length === 0 ? (
+            // 영상이 없는 경우 (달러구트 꿈 백화점)
+            <div className="text-center">
+              <p className="text-[20px] text-gray-600 mb-8">
+                아직 이 책으로 만든 영상이 없네요!
+              </p>
+              <div className="flex justify-center">
                 <div className="flex-shrink-0 w-[400px] h-[200px] border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center bg-white hover:bg-gray-50 cursor-pointer transition-colors">
                   <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
                     <svg
@@ -174,17 +212,84 @@ const MainPage: React.FC = () => {
                 </div>
               </div>
             </div>
-          </div>
+          ) : (
+            // 영상이 있는 경우
+            <div className="relative">
+              {/* Navigation arrows */}
+              <button className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50">
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+              </button>
+              <button className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50">
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </button>
 
-          {/* Pagination dots */}
-          <div className="flex justify-center mt-8 gap-2">
-            <div className="w-2 h-2 rounded-full bg-[#DCAC62]"></div>
-            <div className="w-2 h-2 rounded-full bg-gray-300"></div>
-            <div className="w-2 h-2 rounded-full bg-gray-300"></div>
-            <div className="w-2 h-2 rounded-full bg-gray-300"></div>
-            <div className="w-2 h-2 rounded-full bg-gray-300"></div>
-            <div className="w-2 h-2 rounded-full bg-gray-300"></div>
-          </div>
+              {/* Video cards container */}
+              <div className="overflow-x-auto scrollbar-hide">
+                <div className="flex gap-[40px] pb-4 px-12">
+                  {selectedBookVideos.map((video, index) => (
+                    <VideoThumbnail key={index} imageUrl={video.imageUrl} />
+                  ))}
+                  {/* Add empty card for "더 만들어볼까요?" */}
+                  <div className="flex-shrink-0 w-[400px] h-[200px] border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center bg-white hover:bg-gray-50 cursor-pointer transition-colors">
+                    <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+                      <svg
+                        className="w-8 h-8 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                        />
+                      </svg>
+                    </div>
+                    <p className="text-gray-600 text-lg font-medium">
+                      영상을 하나 더 만들어볼까요?
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Pagination dots - only show when there are videos */}
+          {selectedBookVideos.length > 0 && (
+            <div className="flex justify-center mt-8 gap-2">
+              <div className="w-2 h-2 rounded-full bg-[#DCAC62]"></div>
+              <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+              <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+              <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+              <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+              <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+            </div>
+          )}
         </section>
       </main>
     </div>
