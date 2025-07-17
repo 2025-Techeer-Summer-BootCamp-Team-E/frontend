@@ -23,7 +23,7 @@ const App: React.FC = () => {
         />
 
         <Route
-          path="/temp"
+          path="/myvid"
           element={
             <MainLayout>
               <MyVideos />
