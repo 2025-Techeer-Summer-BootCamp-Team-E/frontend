@@ -13,7 +13,15 @@ import type { VideoInfoProps } from "./VideoInfo";
   }
 ];*/
 
-const VideoInfoFetch: React.FC = () => {
+interface VideoInfoFetchProps {
+  sortBy?: "latest" | "oldest" | "title";
+  onDataLoaded?: (count: number) => void;
+}
+
+const VideoInfoFetch: React.FC<VideoInfoFetchProps> = ({
+  sortBy = "latest",
+  onDataLoaded,
+}) => {
   const [videoList, setVideoList] = useState<VideoInfoProps[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -24,18 +32,82 @@ const VideoInfoFetch: React.FC = () => {
       .then((data) => {
         setVideoList(data); // 배열 저장
         setLoading(false);
+        // 부모 컴포넌트에 데이터 개수 전달
+        if (onDataLoaded) {
+          onDataLoaded(data.length);
+        }
       });
 
     // 예시 데이터 사용
     /*setVideoList(sampleData);
     setLoading(false);*/
-  }, []);
+  }, [onDataLoaded]);
 
-  if (loading) return <div>로딩 중...</div>;
+  // 정렬된 비디오 목록
+  const sortedVideoList = [...videoList].sort((a, b) => {
+    switch (sortBy) {
+      case "latest":
+        if (!a.createdAt || !b.createdAt) return 0;
+        return (
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+      case "oldest":
+        if (!a.createdAt || !b.createdAt) return 0;
+        return (
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        );
+      case "title":
+        if (!a.title || !b.title) return 0;
+        return a.title.localeCompare(b.title);
+      default:
+        return 0;
+    }
+  });
+
+  if (loading)
+    return (
+      <div className="flex items-center justify-center py-[120px]">
+        <div className="text-[18px] text-gray-600">로딩 중...</div>
+      </div>
+    );
+
+  if (sortedVideoList.length === 0) {
+    return (
+      <div className="text-center py-[120px]">
+        <div className="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-8">
+          <svg
+            className="w-12 h-12 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+            />
+          </svg>
+        </div>
+        <h3 className="text-[24px] font-bold text-gray-700 mb-4">
+          아직 만든 영상이 없네요!
+        </h3>
+        <p className="text-[18px] text-gray-500 mb-8">
+          첫 번째 VLOG를 만들어보시겠어요?
+        </p>
+        <button
+          onClick={() => (window.location.href = "/main")}
+          className="bg-[#DCAC62] text-black px-8 py-3 rounded-full text-[18px] font-bold hover:bg-[#C49952] transition-colors"
+        >
+          영상 만들러 가기
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-[40px]">
-      {videoList.map((info, idx) => (
+      {sortedVideoList.map((info, idx) => (
         <VideoInfo key={idx} {...info} />
       ))}
     </div>
