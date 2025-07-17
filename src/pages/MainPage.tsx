@@ -1,7 +1,5 @@
-import React, { useState, useEffect } from "react";
-import Header from "../components/Header";
+import React, { useState } from "react";
 import BooksSection from "../components/BooksSection";
-import Toggle from "../components/Toggle";
 
 // assets
 import BookFloor from "../assets/Images/BookFloor.svg";
@@ -47,8 +45,6 @@ const getKoreanParticle = (word: string): string => {
 };
 
 const MainPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<"books" | "vlog">("books");
-  const [isScrolled, setIsScrolled] = useState(false);
   const [bookFilter, setBookFilter] = useState<"service" | "uploaded">(
     "service"
   );
@@ -116,17 +112,6 @@ const MainPage: React.FC = () => {
     }, 1000);
   };
 
-  useEffect(() => {
-    const handleScroll = () => {
-      // 스크롤이 80px 이상일 때 header 스타일 변경
-      const scrollY = window.scrollY;
-      setIsScrolled(scrollY > 80);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
   return (
     <div className="min-h-screen bg-[#F8F3ED]">
       {/* Loading Screen */}
@@ -145,15 +130,6 @@ const MainPage: React.FC = () => {
           </div>
         </div>
       )}
-
-      {/* Header with Toggle Navigation */}
-      <Header
-        showNavigation={true}
-        navigationComponent={
-          <Toggle selected={activeTab} onSelectionChange={setActiveTab} />
-        }
-        isScrolled={isScrolled}
-      />
 
       {/* Main Content - with top padding to account for fixed header */}
       <main className="pt-[180px] flex flex-col items-center">

@@ -4,14 +4,44 @@
     "title": "나의 작은 별 B-612에서의 하루",
     "from": "어린 왕자",
     "character": "어린 왕자",
-    "description": "자신이 사는 작은 별을 사랑하고, 장미와의 관계를 통해 사랑의 의미를 배워가는 순수한 영혼"
+    "description": "자신이 사는 작은 별을 사랑하고, 장미와의 관계를 통해 사랑의 의미를 배워가는 순수한 영혼",
+    "duration": "3:24",
+    "createdAt": "2024-01-15"
   },
-
   {
     "imageUrl": "https://an2-img.amz.wtchn.net/image/v2/MW-m7PGikCbg6VwHzmoSew.webp?jwt=ZXlKaGJHY2lPaUpJVXpJMU5pSjkuZXlKdmNIUnpJanBiSW1SZk1USTRNSGczTWpCeE9EQWlYU3dpY0NJNklpOTJNaTl6ZEc5eVpTOXBiV0ZuWlM4eE5qRTFPRGN5TlRRNE5qQTFPVGMwTWpRM0luMC5PRG95X0E5Qkh4Ylc0TnRUSmFMVFllZTVNM0VmbGNNaEFZSzFic241YjhN",
     "title": "햇살이 가득한 날",
     "from": "그림 동화",
     "character": "주인공",
-    "description": "밝은 하루를 보내는 이야기"
+    "description": "밝은 하루를 보내는 이야기",
+    "duration": "2:45",
+    "createdAt": "2024-01-12"
+  },
+  {
+    "imageUrl": "https://picsum.photos/400/200?random=3",
+    "title": "카라마조프가의 형제들 - 에피소드 1",
+    "from": "카라마조프가의 형제들",
+    "character": "드미트리 카라마조프",
+    "description": "정열적이고 충동적인 성격의 장남으로, 사랑과 돈 문제로 아버지와 갈등을 겪는 인물",
+    "duration": "4:12",
+    "createdAt": "2024-01-10"
+  },
+  {
+    "imageUrl": "https://picsum.photos/400/200?random=1",
+    "title": "긴긴밤 - 첫 번째 이야기",
+    "from": "긴긴밤",
+    "character": "고양이",
+    "description": "밤하늘을 바라보며 철학적 사색에 잠긴 지혜로운 고양이의 이야기",
+    "duration": "2:58",
+    "createdAt": "2024-01-08"
+  },
+  {
+    "imageUrl": "https://picsum.photos/400/200?random=5",
+    "title": "짧은 밤이지만 빛나고 있어 - 청춘의 순간",
+    "from": "짧은 밤이지만 빛나고 있어",
+    "character": "나나오",
+    "description": "치명적인 병을 앓고 있지만 밝고 긍정적인 마음으로 하루하루를 소중히 살아가는 소녀",
+    "duration": "3:36",
+    "createdAt": "2024-01-05"
   }
 ]
