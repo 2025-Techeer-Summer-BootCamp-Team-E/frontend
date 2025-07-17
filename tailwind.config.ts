@@ -9,8 +9,11 @@ const config: Config = {
         crimson: ["'Crimson Text'", "serif"],
         NanumMyeongjo: ["'Nanum Myeongjo'", "serif"],
         noto: ['"Noto Sans KR"', "sans-serif"],
-        lora: ['Lora', 'serif'],
-
+        lora: ["Lora", "serif"],
+      },
+      dropShadow: {
+        floor: "0px 20px 24px rgba(0, 0, 0, 0.45)",
+        // 다른 커스텀 그림자도 추가 가능
       },
     },
   },

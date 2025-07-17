@@ -1,41 +1,28 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import BookThumbnail from "./BookThumbnail";
 
 interface Book {
+  id: number;
   src: string;
   alt: string;
+  title: string;
 }
 
-const BooksSection: React.FC = () => {
-  const [books, setBooks] = useState<Book[]>([]);
-  const [highlightIndex, setHighlightIndex] = useState<number>(1); // 두 번째 책 기본 강조
+interface BooksSectionProps {
+  books: Book[];
+  selectedIndex: number;
+  onBookSelect: (index: number) => void;
+}
 
-  useEffect(() => {
-    const sampleBooks: Book[] = [
-      {
-        src: "https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/2090000149319.jpg",
-        alt: "긴긴밤",
-      },
-      {
-        src: "https://contents.kyobobook.co.kr/sih/fit-in/400x0/pdt/9788937461545.jpg",
-        alt: "카라마조프가의 형제들",
-      },
-      {
-        src: "https://contents.kyobobook.co.kr/sih/fit-in/400x0/pdt/9791165345693.jpg",
-        alt: "달러구트 꿈 백화점",
-      },
-      {
-        src: "https://image.aladin.co.kr/product/27106/90/cover500/e462538205_1.jpg",
-        alt: "짧은 밤이지만 빛나고 있어",
-      },
-    ];
-    setBooks(sampleBooks);
-  }, []);
-
+const BooksSection: React.FC<BooksSectionProps> = ({
+  books,
+  selectedIndex,
+  onBookSelect,
+}) => {
   return (
-    <div className="flex justify-center p-10 items-end">
+    <div className="flex justify-center p-10 pb-0 items-end">
       {books.map((book, index) => {
-        const isHighlight = index === highlightIndex;
+        const isHighlight = index === selectedIndex;
 
         // 강조 여부에 따라 크기/그림자 다르게
         const width = isHighlight ? 266 : 196;
@@ -51,22 +38,23 @@ const BooksSection: React.FC = () => {
         let marginRight = 103;
         if (
           isHighlight ||
-          index === highlightIndex - 1 ||
-          index === highlightIndex + 1
+          index === selectedIndex - 1 ||
+          index === selectedIndex + 1
+
         ) {
           marginRight = 171;
         }
 
         return (
           <div
-            key={index}
+            key={book.id}
             style={{
               marginRight:
                 index !== books.length - 1 ? `${marginRight}px` : "0",
               transform: `translateY(${translateY})`, // 강조된 책만 아래로 이동
               transition: "transform 0.3s ease",
             }}
-            onClick={() => setHighlightIndex(index)}
+            onClick={() => onBookSelect(index)}
             className="cursor-pointer"
           >
             <BookThumbnail
