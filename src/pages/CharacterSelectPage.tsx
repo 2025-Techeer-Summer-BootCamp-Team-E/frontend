@@ -42,12 +42,12 @@ const CharacterSelectPage: React.FC = () => {
         isScrolled={isScrolled}
       />
 
-      <main className="pt-[180px] flex flex-col flex-1 items-center">
+      <main className="pt-[180px] flex flex-col flex-1 items-center font-NanumMyeongjo">
         <div className="w-full max-w-6xl flex flex-col items-center pb-6">
           <div className="text-[48px] font-bold text-[#252016]">
             주인공 선택하기
           </div>
-          <div className="mt-1 mb-2 text-base text-[#958A7A]">
+          <div className="mt-1 mb-2 text-base text-[#868686]">
             브이로그의 주인공이 될 등장인물을 선택해주세요.
           </div>
         </div>
@@ -73,7 +73,9 @@ const CharacterSelectPage: React.FC = () => {
               className="border border-[#D2C8BA] bg-white rounded-lg text-[#75624E] flex items-center justify-center w-[150px] h-[40px]"
               onClick={() => setShowMore((prev) => !prev)}
             >
-              <span className="text-[16px] font-bold">인물 더보기</span>
+              <span className="text-[18px] font-NanumSquare font-[1000]">
+                인물 더보기
+              </span>
               <img src={Down_flag} alt="더보기" className="ml-2" />
             </button>
           </div>

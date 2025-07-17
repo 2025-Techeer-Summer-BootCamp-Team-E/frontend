@@ -16,7 +16,7 @@ const BackCharacterCard: React.FC<BackProps> = ({ name, description }) => {
 
   return (
     <div
-      className="w-full h-full bg-[#9B8B7A] rounded-[20px] shadow-lg flex flex-col items-center"
+      className="w-full h-full bg-[#9B8B7A] rounded-[20px] shadow-lg flex flex-col items-center font-NanumMyeongjo "
       style={{
         boxShadow:
           "4px 4px 0 rgba(130, 130, 130, 0.7), 4px 4px 0 rgba(130, 130, 130, 0.7)",
@@ -26,16 +26,16 @@ const BackCharacterCard: React.FC<BackProps> = ({ name, description }) => {
       <div className="font-bold text-[40px]">{name}</div>
       <div className="w-[235px] h-[7px] bg-black flex items-center justify-center"></div>
       <div className="flex-1 flex items-center justify-center text-center px-2">
-        <div className="w-[220px] h-[175px] text-[16px] text-white text-bold">
+        <div className="w-[220px] h-[175px] text-[18px] text-white text-bold">
           {description}
         </div>
       </div>
 
       <button
-        className="w-[190px] h-[42px] flex mt-4 mb-4 rounded-[8px] bg-[#FFF5E3] text-black text-[20px] border-2 border-gray font-bold shadow-[0_4px_12px_0_rgba(0,0,0,0.09)] hover:bg-[#E9E3DC] transition"
+        className="w-[190px] h-[42px] flex mt-8 mb-4 rounded-[8px] bg-[#FFF5E3] text-black text-[20px] border-2 border-gray font-bold shadow-[0_4px_12px_0_rgba(0,0,0,0.09)] hover:bg-[#E9E3DC] transition"
         onClick={handleScriptCreate}
       >
-        <div className="flex mt-1 gap-2">
+        <div className="flex mt-1 gap-2 font-Afacad font-[1000]">
           <img
             src={I_Script}
             alt="대본 생성"

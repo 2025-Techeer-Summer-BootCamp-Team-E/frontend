@@ -29,10 +29,10 @@ const VideoCreatePage: React.FC = () => {
 
       <main className="pt-[180px] flex flex-col flex-1 items-center justify-center">
         <div className="w-full max-w-6xl flex flex-col items-center">
-          <div className="text-[48px] font-bold text-[#252016]">
+          <div className="text-[48px] font-bold text-[#252016] font-NanumMyeongjo">
             브이로그 완성!
           </div>
-          <div className="mt-1 mb-2 text-base text-[#958A7A]">
+          <div className="mt-1 mb-2 text-base text-[#958A7A] font-NanumMyeongjo">
             000의 브이로그가 완성되었습니다
           </div>
         </div>
@@ -52,11 +52,11 @@ const VideoCreatePage: React.FC = () => {
           </div>
         </section>
 
-        <div className="text-left w-full mt-2">
-          <div className="font-bold text-[24px] bg-transparent">
+        <div className="text-left w-full mt-2 font-NanumMyeongjo">
+          <div className="font-bold text-[28px] bg-transparent">
             나의 작은 별 B-612에서의 하루
           </div>
-          <div className="font-bold text-[16px] bg-transparent">
+          <div className="font-bold text-[18px] bg-transparent">
             - 어린왕자 -
           </div>
         </div>
