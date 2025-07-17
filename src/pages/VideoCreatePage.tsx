@@ -42,7 +42,7 @@ const VideoCreatePage: React.FC = () => {
             <img
               src="https://t1.daumcdn.net/cfile/tistory/998D344B5BF5070114"
               alt="썸네일"
-              className="w-[1300px] h-[630px] object-cover border border-gray-400"
+              className="w-[1120px] h-[630px] object-cover border border-gray-400"
               style={{
                 borderRadius: "24px",
                 boxShadow:

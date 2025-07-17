@@ -56,8 +56,7 @@ const CharacterSelectPage: React.FC = () => {
           className="bg-white mx-auto w-[calc(100vw-128px)]"
           style={{
             background: "white",
-            boxShadow:
-              "inset 0px -4px 4px 0px rgba(0,0,0,0.10), inset -4px 0px 4px 0px rgba(0,0,0,0.11), 0px 4px 4px 0px rgba(0,0,0,0.5), 4px 0px 4px 0px rgba(0,0,0,0.5)",
+            boxShadow: "inset 0 0 0 4px #ACACAC", // 안쪽(border처럼) 테두리
           }}
         >
           {/* 캐릭터 카드 리스트 */}

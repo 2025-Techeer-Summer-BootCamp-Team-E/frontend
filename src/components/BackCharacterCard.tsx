@@ -32,7 +32,7 @@ const BackCharacterCard: React.FC<BackProps> = ({ name, description }) => {
       </div>
 
       <button
-        className="w-[190px] h-[42px] flex mt- mb-4 gap-2 rounded-[8px] bg-[#FFF5E3] text-black text-[20px] font-bold shadow-[0_4px_12px_0_rgba(0,0,0,0.09)] hover:bg-[#E9E3DC] transition"
+        className="w-[190px] h-[42px] flex mt-4 mb-4 rounded-[8px] bg-[#FFF5E3] text-black text-[20px] border-2 border-gray font-bold shadow-[0_4px_12px_0_rgba(0,0,0,0.09)] hover:bg-[#E9E3DC] transition"
         onClick={handleScriptCreate}
       >
         <div className="flex mt-1 gap-2">
