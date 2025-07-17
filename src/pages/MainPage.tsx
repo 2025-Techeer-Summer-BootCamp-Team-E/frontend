@@ -11,6 +11,9 @@ import SearchIcon from "../assets/Icons/SearchIcon.svg";
 const MainPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"books" | "vlog">("books");
   const [isScrolled, setIsScrolled] = useState(false);
+  const [bookFilter, setBookFilter] = useState<"service" | "uploaded">(
+    "service"
+  );
 
   useEffect(() => {
     const handleScroll = () => {
@@ -50,12 +53,37 @@ const MainPage: React.FC = () => {
         <div className="xl:w-[84rem] 2xl:w-[107rem] mx-4 mb-0 bg-white rounded-t-[50px] drop-shadow-[0_8px_32px_rgba(0,0,0,0.25)]">
           {/* Search Section */}
           <section className="flex justify-between mb-[80px] p-[2rem]">
-            <div className="w-[100px] h-[100px] bg-gray-300 rounded-full"></div>
+            {/* Book Filter Tabs */}
+
+            <div className="flex gap-8 mx-4">
+              <button
+                onClick={() => setBookFilter("service")}
+                className={`text-[1.25rem] font-bold cursor-pointer border-b-2 transition-colors ${
+                  bookFilter === "service"
+                    ? "text-[#604317] border-[#604317]"
+                    : "text-[#B1AAA2] border-transparent hover:text-[#604317]"
+                }`}
+              >
+                서비스 제공 책
+              </button>
+              <button
+                onClick={() => setBookFilter("uploaded")}
+                className={`text-[1.25rem] font-bold cursor-pointer border-b-2 transition-colors ${
+                  bookFilter === "uploaded"
+                    ? "text-[#604317] border-[#604317]"
+                    : "text-[#B1AAA2] border-transparent hover:text-[#604317]"
+                }`}
+              >
+                내가 업로드한 책
+              </button>
+            </div>
+
+            {/* Search Controls */}
             <div className="flex xl:w-[312px] 2xl:w-[344px] h-[48px] items-center justify-between">
               <span className="text-[1.25rem] font-bold text-[#604317] cursor-pointer">
                 전체보기
               </span>
-              <div className="relative xl:w-[224px] 2xl: w-[244px]">
+              <div className="relative xl:w-[224px] 2xl:w-[244px]">
                 <input
                   type="text"
                   placeholder="작품명으로 검색"
