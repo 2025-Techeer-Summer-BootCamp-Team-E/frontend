@@ -20,7 +20,7 @@ const BooksSection: React.FC<BooksSectionProps> = ({
   onBookSelect,
 }) => {
   return (
-    <div className="flex justify-center p-10 items-end">
+    <div className="flex justify-center p-10 pb-0 items-end">
       {books.map((book, index) => {
         const isHighlight = index === selectedIndex;
 

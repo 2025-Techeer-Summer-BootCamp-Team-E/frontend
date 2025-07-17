@@ -23,7 +23,7 @@ const BookThumbnail: React.FC<BookThumbnailProps> = ({
         width: `${width}px`,
         height: `${height}px`,
         boxShadow: shadow,
-        borderRadius: "0px", 
+        borderRadius: "0px",
       }}
     />
   );

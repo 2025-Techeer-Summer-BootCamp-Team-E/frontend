@@ -227,7 +227,7 @@ const MainPage: React.FC = () => {
         <img
           src={BookFloor}
           alt="BookFloor"
-          className="xl:w-[91.5rem] 2xl:w-[116.5rem] drop-shadow-floor"
+          className="xl:w-[91.5rem] 2xl:w-[116.5rem] drop-shadow-floorr relative z-0"
         />
 
         {/* Video List Section */}
