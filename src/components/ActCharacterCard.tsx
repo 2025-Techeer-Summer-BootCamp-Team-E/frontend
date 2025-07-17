@@ -33,11 +33,12 @@ const ActCharacterCard: React.FC = () => {
   };
 
   return (
-    <div className="flex justify-evenly w-full">
+    <div className="flex justify-center justify-evenly w-full">
       {characters.map((character, idx) => (
         <div
           key={character.name}
-          className="w-[300px] h-[400px] flex justify-center items-center rounded-[30px]"
+          className={`w-[300px] h-[400px] flex rounded-[30px] transition-all duration-300
+    ${flipped[idx] ? "scale-110" : "scale-100"}`}
         >
           <button
             onClick={() => handleFlip(idx)}

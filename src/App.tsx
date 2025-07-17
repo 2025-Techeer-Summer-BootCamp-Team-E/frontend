@@ -6,7 +6,7 @@ import MainLayout from "./Layouts/MainLayout";
 import MyLibrary from "./pages/MyLibraryPage";
 import MyVideos from "./pages/MyVideosPage"; // Assuming you have a MyVideos component
 import AuthLayout from "./Layouts/AuthLayout";
-import ScriptCreatePage from "./pages/CharacterSelectPage.tsx";
+import CharacterSelectPage from "./pages/CharacterSelectPage.tsx";
 import MainPage from "./pages/MainPage";
 
 const App: React.FC = () => {
@@ -21,6 +21,7 @@ const App: React.FC = () => {
             </MainLayout>
           }
         />
+
         <Route
           path="/temp"
           element={
@@ -29,14 +30,16 @@ const App: React.FC = () => {
             </MainLayout>
           }
         />
+
         <Route
           path="/char"
           element={
             <MainLayout>
-              <ScriptCreatePage />
+              <CharacterSelectPage />
             </MainLayout>
           }
         />
+
         <Route
           path="/main"
           element={
