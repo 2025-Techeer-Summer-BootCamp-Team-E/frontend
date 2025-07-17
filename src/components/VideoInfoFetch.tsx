@@ -20,20 +20,20 @@ const VideoInfoFetch: React.FC = () => {
   useEffect(() => {
     // fetch로 외부 데이터 받아오기 (예시: /api/videoList)
     fetch("public/SampleVideoInfo.json")
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         setVideoList(data); // 배열 저장
         setLoading(false);
       });
-    
+
     // 예시 데이터 사용
     /*setVideoList(sampleData);
     setLoading(false);*/
   }, []);
 
-if (loading) return <div>로딩 중...</div>;
+  if (loading) return <div>로딩 중...</div>;
 
- return (
+  return (
     <div className="flex flex-col gap-[40px]">
       {videoList.map((info, idx) => (
         <VideoInfo key={idx} {...info} />
