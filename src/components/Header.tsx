@@ -35,7 +35,7 @@ const Header: React.FC<HeaderProps> = ({
 
         {/* Flexible Navigation - 페이지별로 다른 컴포넌트 가능 */}
         {showNavigation && navigationComponent && (
-          <nav className="self-end">
+          <nav className="self-end absolute left-1/2 transform -translate-x-1/2">
             {/* <nav className="flex gap-[16px] absolute left-1/2 transform -translate-x-1/2"> */}
             {navigationComponent}
           </nav>
