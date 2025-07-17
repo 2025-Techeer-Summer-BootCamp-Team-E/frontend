@@ -7,6 +7,7 @@ import MyLibrary from "./pages/MyLibraryPage";
 import MyVideos from "./pages/MyVideosPage"; // Assuming you have a MyVideos component
 import AuthLayout from "./Layouts/AuthLayout";
 import CharacterSelectPage from "./pages/CharacterSelectPage.tsx";
+import VideoCreatePage from "./pages/VideoCreatePage.tsx";
 import MainPage from "./pages/MainPage";
 
 const App: React.FC = () => {
@@ -48,6 +49,16 @@ const App: React.FC = () => {
             </MainLayout>
           }
         />
+
+        <Route
+          path="/create"
+          element={
+            <MainLayout>
+              <VideoCreatePage />
+            </MainLayout>
+          }
+        />
+
         <Route path="/auth" element={<AuthLayout />} />
       </Routes>
     </Router>

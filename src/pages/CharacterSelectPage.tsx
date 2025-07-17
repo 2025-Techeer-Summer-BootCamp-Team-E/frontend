@@ -6,7 +6,7 @@ import CommonButton from "../components/CommonButton";
 import Stepper from "../components/Stepper";
 import BackIcon from "../assets/Icons/BackIcon.svg";
 import MoreCharacters from "../components/MoreCharacters";
-import Down_flag from "../assets/Icons/down_flag.svg";
+import Down_flag from "../assets/Icons/Down_flag.svg";
 import ConfirmModal from "../components/ConfirmModal";
 
 const CharacterSelectPage: React.FC = () => {

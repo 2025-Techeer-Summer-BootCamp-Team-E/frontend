@@ -1,6 +1,6 @@
 import React from "react";
-import man from "../assets/Icons/man.svg";
-import woman from "../assets/Icons/woman.svg";
+import man from "../assets/Icons/Man.svg";
+import woman from "../assets/Icons/Woman.svg";
 
 interface FrontProps {
   name: string;
@@ -16,7 +16,7 @@ const FrontCharacterCard: React.FC<FrontProps> = ({ name, sex }) => {
       style={{
         borderRadius: "20px",
         boxShadow:
-          "6px 6px 16px rgba(100, 100, 100, 0.5), 6px 6px 16px rgba(100, 100, 100, 0.5)",
+          "6px 6px 0 rgba(100, 100, 100, 0.5), 6px 6px 0 rgba(100, 100, 100, 0.5)",
         transition: "box-shadow 0.3s ease-in-out",
       }}
     >
