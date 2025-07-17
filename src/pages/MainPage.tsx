@@ -53,6 +53,7 @@ const MainPage: React.FC = () => {
     "service"
   );
   const [selectedBookIndex, setSelectedBookIndex] = useState<number>(1); // 카라마조프가의 형제들 기본 선택
+  const [isLoading, setIsLoading] = useState(false);
 
   // 책 목록 데이터
   const books: Book[] = [
@@ -105,6 +106,16 @@ const MainPage: React.FC = () => {
   const selectedBookVideos = videoDataByBook[selectedBookIndex] || [];
   const particle = getKoreanParticle(selectedBook.title);
 
+  // 영상 생성 클릭 핸들러
+  const handleCreateVideo = () => {
+    setIsLoading(true);
+
+    // 1초 후 리다이렉트
+    setTimeout(() => {
+      window.location.href = "/char";
+    }, 1000);
+  };
+
   useEffect(() => {
     const handleScroll = () => {
       // 스크롤이 80px 이상일 때 header 스타일 변경
@@ -118,6 +129,23 @@ const MainPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#F8F3ED]">
+      {/* Loading Screen */}
+      {isLoading && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-40">
+          <div className="bg-white rounded-lg p-8 flex flex-col items-center">
+            <div className="w-24 h-24 mb-4">
+              {/* 로딩 애니메이션 - 회전하는 원 */}
+              <div className="animate-spin rounded-full h-24 w-24 border-b-2 border-[#DCAC62]"></div>
+            </div>
+            <p className="text-lg font-semibold text-gray-700 text-center">
+              영상을 만들기 위해, <br />
+              등장 인물을 분석하고 있어요!
+            </p>
+            {/* <p className="text-sm text-gray-500 mt-2">잠시만 기다려주세요</p> */}
+          </div>
+        </div>
+      )}
+
       {/* Header with Toggle Navigation */}
       <Header
         showNavigation={true}
@@ -204,19 +232,22 @@ const MainPage: React.FC = () => {
 
         {/* Video List Section */}
         <section className="mt-[72px] px-[52px] pb-[120px]">
-          <h2 className="text-[32px] font-bold text-black mb-8">
+          <h2 className="w-full text-[32px] font-bold text-black mb-8 flex justify-center">
             <span className="text-[#DCAC62]">{selectedBook.title}</span>
             <span className="text-black"> {particle} 만든 VLOG 목록</span>
           </h2>
 
           {selectedBookVideos.length === 0 ? (
-            // 영상이 없는 경우 (달러구트 꿈 백화점)
+            // 영상이 없는 경우
             <div className="text-center">
               <p className="text-[20px] text-gray-600 mb-8">
                 아직 이 책으로 만든 영상이 없네요!
               </p>
               <div className="flex justify-center">
-                <div className="flex-shrink-0 w-[400px] h-[200px] border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center bg-white hover:bg-gray-50 cursor-pointer transition-colors">
+                <div
+                  onClick={handleCreateVideo}
+                  className="flex-shrink-0 w-[400px] h-[200px] border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center bg-white hover:bg-gray-50 cursor-pointer transition-colors"
+                >
                   <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
                     <svg
                       className="w-8 h-8 text-gray-400"
@@ -233,7 +264,7 @@ const MainPage: React.FC = () => {
                     </svg>
                   </div>
                   <p className="text-gray-600 text-lg font-medium">
-                    영상을 하나 더 만들어볼까요?
+                    바로 첫 번째 영상을 만들어볼까요?
                   </p>
                 </div>
               </div>
@@ -280,7 +311,10 @@ const MainPage: React.FC = () => {
                     <VideoThumbnail key={index} imageUrl={video.imageUrl} />
                   ))}
                   {/* Add empty card for "더 만들어볼까요?" */}
-                  <div className="flex-shrink-0 w-[400px] h-[200px] border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center bg-white hover:bg-gray-50 cursor-pointer transition-colors">
+                  <div
+                    onClick={handleCreateVideo}
+                    className="flex-shrink-0 w-[400px] h-[200px] border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center bg-white hover:bg-gray-50 cursor-pointer transition-colors"
+                  >
                     <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
                       <svg
                         className="w-8 h-8 text-gray-400"

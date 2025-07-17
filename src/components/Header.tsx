@@ -16,7 +16,7 @@ const Header: React.FC<HeaderProps> = ({
 }) => {
   return (
     <header
-      className={`h-[10rem] text-black fixed top-0 left-0 right-0 z-50 ${
+      className={`h-[10rem] text-black fixed top-0 left-0 right-0 z-10 ${
         isScrolled
           ? "bg-[#F8F3ED]/80 backdrop-blur-md border-b border-white/20"
           : "bg-transparent"
