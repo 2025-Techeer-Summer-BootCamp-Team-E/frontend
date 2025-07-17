@@ -21,6 +21,31 @@ interface VideoData {
   imageUrl: string;
 }
 
+// 한글 조사 처리 함수
+const getKoreanParticle = (word: string): string => {
+  if (!word) return "로";
+
+  const lastChar = word[word.length - 1];
+  const lastCharCode = lastChar.charCodeAt(0);
+
+  // 한글 완성형 문자 범위 확인 (가-힣)
+  if (lastCharCode >= 0xac00 && lastCharCode <= 0xd7a3) {
+    // 받침 확인: (문자코드 - 0xAC00) % 28
+    const finalConsonantIndex = (lastCharCode - 0xac00) % 28;
+
+    // 받침이 없거나 'ㄹ' 받침인 경우 '로' 사용
+    // ㄹ 받침의 인덱스는 8
+    if (finalConsonantIndex === 0 || finalConsonantIndex === 8) {
+      return "로";
+    } else {
+      return "으로";
+    }
+  }
+
+  // 한글이 아닌 경우 기본값
+  return "로";
+};
+
 const MainPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"books" | "vlog">("books");
   const [isScrolled, setIsScrolled] = useState(false);
@@ -78,6 +103,7 @@ const MainPage: React.FC = () => {
 
   const selectedBook = books[selectedBookIndex];
   const selectedBookVideos = videoDataByBook[selectedBookIndex] || [];
+  const particle = getKoreanParticle(selectedBook.title);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -180,7 +206,7 @@ const MainPage: React.FC = () => {
         <section className="mt-[72px] px-[52px] pb-[120px]">
           <h2 className="text-[32px] font-bold text-black mb-8">
             <span className="text-[#DCAC62]">{selectedBook.title}</span>
-            <span className="text-black"> 로 만든 VLOG 목록</span>
+            <span className="text-black"> {particle} 만든 VLOG 목록</span>
           </h2>
 
           {selectedBookVideos.length === 0 ? (
