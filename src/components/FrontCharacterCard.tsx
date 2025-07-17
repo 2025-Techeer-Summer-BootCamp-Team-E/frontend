@@ -21,7 +21,7 @@ const FrontCharacterCard: React.FC<FrontProps> = ({ name, sex }) => {
       }}
     >
       <span
-        className="absolute top-2 left-2 font-bold text-m bg-transparent"
+        className="absolute top-2 left-2 font-bold text-[28px] text-white bg-transparent"
         style={{
           writingMode: "vertical-rl",
           textOrientation: "upright",
@@ -33,7 +33,7 @@ const FrontCharacterCard: React.FC<FrontProps> = ({ name, sex }) => {
       <img
         src={genderImg}
         alt={sex}
-        className="w-full h-full bg-transparent"
+        className="w-full h-full bg-transparent font-[#FFFFFF]"
         style={{
           objectFit: "cover",
           borderRadius: "20px",
