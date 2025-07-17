@@ -40,6 +40,7 @@ const BooksSection: React.FC<BooksSectionProps> = ({
           isHighlight ||
           index === selectedIndex - 1 ||
           index === selectedIndex + 1
+
         ) {
           marginRight = 171;
         }

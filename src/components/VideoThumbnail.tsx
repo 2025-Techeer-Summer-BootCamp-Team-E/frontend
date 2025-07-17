@@ -11,6 +11,7 @@ const VideoThumbnail: React.FC<VideoThumbnailProps> = ({ imageUrl }) => {
         <img
           src={imageUrl}
           alt="VideoThumbnail"
+
           className="w-full h-full object-cover"
         />
       ) : (
@@ -19,6 +20,7 @@ const VideoThumbnail: React.FC<VideoThumbnailProps> = ({ imageUrl }) => {
         </div>
       )}
     </div>
+
   );
 };
 

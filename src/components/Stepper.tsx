@@ -17,7 +17,7 @@ const Stepper: React.FC<StepperProps> = ({ currentStep }) => {
       <div className="absolute top-[24px] left-[24px] w-[calc(100%-48px)] h-[4px] bg-[#C9B9A4] z-0" />
 
       {/* 스텝 그룹 */}
-      <div className="flex justify-between relative z-10">
+      <div className="flex justify-between relative">
         {steps.map((step) => {
           const isActive = step.number === currentStep;
 
@@ -25,7 +25,7 @@ const Stepper: React.FC<StepperProps> = ({ currentStep }) => {
             <div key={step.number} className="flex flex-col items-center">
               {/* 아이콘 */}
               <div
-                className={`grid place-items-center w-12 h-12 rounded-full text-[24px] font-bold leading-none font-noto ${
+                className={`grid place-items-center w-[48px] h-[48px] rounded-full text-[24px] font-bold leading-none font-noto ${
                   isActive
                     ? "bg-[#4E3C21] text-white"
                     : "bg-white border-[2px] border-[#C9B9A4] text-[#C9B9A4]"
