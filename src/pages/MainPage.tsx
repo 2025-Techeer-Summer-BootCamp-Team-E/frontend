@@ -4,8 +4,9 @@ import BooksSection from "../components/BooksSection";
 import VideoInfoFetch from "../components/VideoInfoFetch";
 import Toggle from "../components/Toggle";
 
-// images
+// assets
 import BookFloor from "../assets/Images/BookFloor.svg";
+import SearchIcon from "../assets/Icons/SearchIcon.svg";
 
 const MainPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"books" | "vlog">("books");
@@ -46,32 +47,25 @@ const MainPage: React.FC = () => {
         </section>
 
         {/* Search and Books Container */}
-        <div className="w-[1712px] mx-4 mb-0 bg-white rounded-t-[50px] drop-shadow-[0_8px_32px_rgba(0,0,0,0.25)]">
+        <div className="xl:w-[84rem] 2xl:w-[107rem] mx-4 mb-0 bg-white rounded-t-[50px] drop-shadow-[0_8px_32px_rgba(0,0,0,0.25)]">
           {/* Search Section */}
-          <section className="flex justify-center mb-[80px]">
-            <div className="flex items-center gap-4 max-w-4xl w-full">
-              <span className="text-[20px] font-medium text-gray-700">
+          <section className="flex justify-between mb-[80px] p-[2rem]">
+            <div className="w-[100px] h-[100px] bg-gray-300 rounded-full"></div>
+            <div className="flex xl:w-[312px] 2xl:w-[344px] h-[48px] items-center justify-between">
+              <span className="text-[1.25rem] font-bold text-[#604317] cursor-pointer">
                 전체보기
               </span>
-              <div className="flex-1 max-w-md relative">
+              <div className="relative xl:w-[224px] 2xl: w-[244px]">
                 <input
                   type="text"
-                  placeholder="작품, 장르나 토픽 검색..."
-                  className="w-full px-4 py-3 pr-10 rounded-lg border border-gray-300 bg-white text-[16px] focus:outline-none focus:ring-2 focus:ring-[#DCAC62] focus:border-transparent"
+                  placeholder="작품명으로 검색"
+                  className="w-full bg-[#E4E4E4] px-4 py-3 pr-10 rounded-full text-[16px] text-[#9F9494] focus:outline-none"
                 />
-                <svg
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
+                <img
+                  src={SearchIcon}
+                  alt="SearchIcon"
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 pointer-events-none"
+                />
               </div>
             </div>
           </section>
@@ -81,10 +75,14 @@ const MainPage: React.FC = () => {
             <BooksSection />
           </section>
         </div>
-        <img src={BookFloor} alt="BookFloor" className="translate-x-[10px]" />
+        <img
+          src={BookFloor}
+          alt="BookFloor"
+          className="xl:w-[91.5rem] 2xl:w-[116.5rem] drop-shadow-floor"
+        />
 
         {/* Video List Section */}
-        <section className="px-[52px] pb-[120px]">
+        <section className="mt-[72px] px-[52px] pb-[120px]">
           <h2 className="text-[32px] font-bold text-black mb-8">
             카라마조프가의 형제들 로 만든 VLOG 목록
           </h2>
