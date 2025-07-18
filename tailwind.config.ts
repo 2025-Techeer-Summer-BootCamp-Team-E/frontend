@@ -34,24 +34,6 @@ const config: Config = {
             display: "none",
           },
         },
-        '.scrollbar-fancy': {
-          /* WebKit */
-          '&::-webkit-scrollbar': {
-            width: '20px',
-          },
-          '&::-webkit-scrollbar-track': {
-            background: '#F9F9F9',
-            borderRadius: '30px',
-            border: '1px solid #B2B2B2',
-          },
-          '&::-webkit-scrollbar-thumb': {
-           boxSizing: 'border-box',
-           backgroundcolor: '#A2A2A2',
-           borderRadius: '30px',
-           border: '3px solid transparent',
-           backgroundClip: 'content-box',
-          },
-        },
       };
       addUtilities(newUtilities);
     },
