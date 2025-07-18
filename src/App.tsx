@@ -9,6 +9,7 @@ import AuthLayout from "./Layouts/AuthLayout";
 import CharacterSelectPage from "./pages/CharacterSelectPage.tsx";
 import VideoCreatePage from "./pages/VideoCreatePage.tsx";
 import MainPage from "./pages/MainPage";
+import ScriptPage from "./pages/ScriptPage"; 
 
 const App: React.FC = () => {
   return (
@@ -59,6 +60,14 @@ const App: React.FC = () => {
           }
         />
 
+        <Route
+          path="/script"
+          element={
+            <MainLayout>
+              <ScriptPage />
+            </MainLayout>
+          }
+        />
         <Route path="/auth" element={<AuthLayout />} />
       </Routes>
     </Router>
