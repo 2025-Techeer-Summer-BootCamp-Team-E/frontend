@@ -68,7 +68,7 @@ const ActCharacterCard: React.FC = () => {
           transform-style: preserve-3d;
         }
         .flip-card.flipped .flip-card-inner {
-          transform: rotateY(180deg);
+          transform: rotateY(-180deg);
         }
         .flip-card-front, .flip-card-back {
           position: absolute;
@@ -79,7 +79,7 @@ const ActCharacterCard: React.FC = () => {
           left: 0;
         }
         .flip-card-back {
-          transform: rotateY(180deg);
+          transform: rotateY(-180deg);
         }
       `}</style>
     </div>
