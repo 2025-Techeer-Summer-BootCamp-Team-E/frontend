@@ -15,13 +15,12 @@ const FrontCharacterCard: React.FC<FrontProps> = ({ name, sex }) => {
       className="w-full h-full flex items-center justify-center relative"
       style={{
         borderRadius: "20px",
-        boxShadow:
-          "6px 6px 0 rgba(100, 100, 100, 0.5), 6px 6px 0 rgba(100, 100, 100, 0.5)",
+        boxShadow: "6px 6px 0 rgba(100, 100, 100, 0.5)",
         transition: "box-shadow 0.3s ease-in-out",
       }}
     >
       <span
-        className="absolute top-2 left-2 font-bold text-m bg-transparent"
+        className="absolute top-2 left-2 font-extrabold text-[28px] text-white bg-transparent font-NanumMyeongjo"
         style={{
           writingMode: "vertical-rl",
           textOrientation: "upright",
@@ -30,6 +29,7 @@ const FrontCharacterCard: React.FC<FrontProps> = ({ name, sex }) => {
       >
         {name}
       </span>
+
       <img
         src={genderImg}
         alt={sex}
