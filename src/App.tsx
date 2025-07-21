@@ -3,12 +3,12 @@ import "./App.css";
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import MainLayout from "./layouts/MainLayout.tsx";
-import MyLibrary from "./pages/MyLibraryPage";
+import TempPage from "./pages/TempPage.tsx";
 import MyVideos from "./pages/MyVideosPage"; // Assuming you have a MyVideos component
 import AuthLayout from "./layouts/AuthLayout.tsx";
 import CharacterSelectPage from "./pages/CharacterSelectPage.tsx";
 import VideoCreatePage from "./pages/VideoCreatePage.tsx";
-import MainPage from "./pages/MainPage";
+import MyLibraryPage from "./pages/MyLibraryPage.tsx";
 import ScriptPage from "./pages/ScriptPage";
 
 const App: React.FC = () => {
@@ -16,10 +16,10 @@ const App: React.FC = () => {
     <Router>
       <Routes>
         <Route
-          path="/"
+          path="/temp"
           element={
             <MainLayout>
-              <MyLibrary />
+              <TempPage />
             </MainLayout>
           }
         />
@@ -43,10 +43,10 @@ const App: React.FC = () => {
         />
 
         <Route
-          path="/main"
+          path="/"
           element={
             <MainLayout>
-              <MainPage />
+              <MyLibraryPage />
             </MainLayout>
           }
         />
