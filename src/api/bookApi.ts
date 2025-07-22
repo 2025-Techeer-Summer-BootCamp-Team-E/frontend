@@ -16,7 +16,16 @@ export interface VideoApiResponse {
   thumbnail_url: string;
 }
 
-// 공식 책 목록 조회
+export interface CharacterApiResponse {
+  character_id: number;
+  character_name: string;
+  is_main: boolean;
+  age: number;
+  gender: string;
+  character_description: string;
+}
+
+// 공식 책 목록 조회 (GET /books/official)
 export const getOfficialBooks = async (): Promise<BookApiResponse[]> => {
   try {
     const response = await axios.get<BookApiResponse[]>(
@@ -53,6 +62,21 @@ export const getVideosByBookId = async (
     return response.data;
   } catch (error) {
     console.error(`Failed to fetch videos for book ${bookId}:`, error);
+    throw error;
+  }
+};
+
+// 특정 책의 캐릭터 목록 조회 (GET /books/{bookId}/characters)
+export const getCharactersByBookId = async (
+  bookId: number
+): Promise<CharacterApiResponse[]> => {
+  try {
+    const response = await axios.get<CharacterApiResponse[]>(
+      ENDPOINTS.characters.getByBookId(bookId.toString())
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to fetch characters for book ${bookId}:`, error);
     throw error;
   }
 };

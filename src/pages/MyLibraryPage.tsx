@@ -2,7 +2,11 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import BooksSection from "../components/BooksSection";
 import { useAuth } from "../hooks/useAuth";
-import { getOfficialBooks, getVideosByBookId } from "../api/bookApi";
+import {
+  getOfficialBooks,
+  getVideosByBookId,
+  getCharactersByBookId,
+} from "../api/bookApi";
 import type { BookApiResponse, VideoApiResponse } from "../api/bookApi";
 
 // assets
@@ -163,13 +167,32 @@ const MyLibraryPage: React.FC = () => {
   }
 
   // 영상 생성 클릭 핸들러
-  const handleCreateVideo = () => {
+  const handleCreateVideo = async () => {
+    if (!selectedBook) {
+      alert("책을 선택해주세요.");
+      return;
+    }
+
     setIsLoading(true); // 로딩 화면 표시
 
-    // 1초 후 캐릭터 선택 페이지로 리다이렉트
-    setTimeout(() => {
-      window.location.href = "/char";
-    }, 1000);
+    try {
+      // 선택된 책의 캐릭터 목록 API 호출
+      const charactersData = await getCharactersByBookId(selectedBook.id);
+
+      // API 응답 완료 후 캐릭터 데이터와 함께 페이지 이동
+      navigate("/char", {
+        state: {
+          characters: charactersData,
+          bookTitle: selectedBook.title,
+          bookId: selectedBook.id,
+        },
+      });
+    } catch (error) {
+      console.error("Failed to fetch characters:", error);
+      alert("캐릭터 정보를 불러오는데 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -183,8 +206,8 @@ const MyLibraryPage: React.FC = () => {
               <div className="animate-spin rounded-full h-24 w-24 border-b-2 border-[#DCAC62]"></div>
             </div>
             <p className="text-lg font-semibold text-gray-700 text-center">
-              영상을 만들기 위해, <br />
-              등장 인물을 분석하고 있어요!
+              {selectedBook ? `『${selectedBook.title}』의` : "책의"} <br />
+              등장인물을 분석하고 있어요!
             </p>
             {/* <p className="text-sm text-gray-500 mt-2">잠시만 기다려주세요</p> */}
           </div>

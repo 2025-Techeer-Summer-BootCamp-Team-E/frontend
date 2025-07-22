@@ -2,27 +2,78 @@ import React, { useState, useEffect } from "react";
 import FrontCharacterCard from "./FrontCharacterCard";
 import BackCharacterCard from "./BackCharacterCard";
 
+// API 응답 타입 (bookApi.ts에서 정의된 것과 동일)
+type ApiCharacterType = {
+  character_id: number;
+  character_name: string;
+  is_main: boolean;
+  age: number;
+  gender: string;
+  character_description: string;
+};
+
+// UI에서 사용할 타입 (기존 JSON 형식과 호환)
 type CharacterType = {
   name: string;
   sex: string;
   description: string;
 };
 
-const ActCharacterCard: React.FC = () => {
+interface ActCharacterCardProps {
+  characters?: ApiCharacterType[]; // API에서 받은 캐릭터 데이터 (optional)
+}
+
+const ActCharacterCard: React.FC<ActCharacterCardProps> = ({
+  characters: apiCharacters,
+}) => {
   const [characters, setCharacters] = useState<CharacterType[]>([]);
   const [flipped, setFlipped] = useState<boolean[]>([]);
 
-  // json 파일에서 캐릭터 데이터 불러오기
+  // API 데이터 또는 JSON 파일에서 캐릭터 데이터 불러오기
   useEffect(() => {
-    fetch("/SampleCharacterCard.json")
-      .then((res) => res.json())
-      .then((data) => {
-        setCharacters(data);
-        setFlipped(Array(data.length).fill(false));
-      });
-  }, []);
+    if (apiCharacters && apiCharacters.length > 0) {
+      // API에서 받은 데이터를 UI 형식으로 변환
+      const transformedCharacters: CharacterType[] = apiCharacters.map(
+        (char) => ({
+          name: char.character_name,
+          sex:
+            char.gender === "male"
+              ? "남성"
+              : char.gender === "female"
+                ? "여성"
+                : char.gender,
+          description: char.character_description,
+        })
+      );
 
-  if (characters.length === 0) return <div>로딩중...</div>;
+      setCharacters(transformedCharacters);
+      setFlipped(Array(transformedCharacters.length).fill(false));
+    } else {
+      // fallback: JSON 파일에서 캐릭터 데이터 불러오기
+      fetch("/SampleCharacterCard.json")
+        .then((res) => res.json())
+        .then((data) => {
+          setCharacters(data);
+          setFlipped(Array(data.length).fill(false));
+        })
+        .catch((error) => {
+          console.error("Failed to fetch sample characters:", error);
+          setCharacters([]);
+          setFlipped([]);
+        });
+    }
+  }, [apiCharacters]);
+
+  if (characters.length === 0) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#DCAC62] mx-auto mb-4"></div>
+          <p className="text-lg text-gray-600">등장인물을 불러오는 중...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleFlip = (idx: number) => {
     setFlipped((prevFlipped) => {
