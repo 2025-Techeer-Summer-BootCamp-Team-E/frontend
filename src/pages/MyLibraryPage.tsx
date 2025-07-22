@@ -9,6 +9,9 @@ import {
 } from "../api/bookApi";
 import type { BookApiResponse, VideoApiResponse } from "../api/bookApi";
 
+// utils (한글 조사 구분 함수)
+import { getKoreanParticle } from "../utils/koreanUtils";
+
 // assets
 import BookFloor from "../assets/Images/BookFloor.svg";
 import SearchIcon from "../assets/Icons/SearchIcon.svg";
@@ -28,31 +31,6 @@ interface VideoData {
   videoUrl: string;
   videoId: number;
 }
-
-// 한글 조사 처리 함수
-const getKoreanParticle = (word: string): string => {
-  if (!word) return "로";
-
-  const lastChar = word[word.length - 1];
-  const lastCharCode = lastChar.charCodeAt(0);
-
-  // 한글 완성형 문자 범위 확인 (가-힣)
-  if (lastCharCode >= 0xac00 && lastCharCode <= 0xd7a3) {
-    // 받침 확인: (문자코드 - 0xAC00) % 28
-    const finalConsonantIndex = (lastCharCode - 0xac00) % 28;
-
-    // 받침이 없거나 'ㄹ' 받침인 경우 '로' 사용
-    // ㄹ 받침의 인덱스는 8
-    if (finalConsonantIndex === 0 || finalConsonantIndex === 8) {
-      return "로";
-    } else {
-      return "으로";
-    }
-  }
-
-  // 한글이 아닌 경우 기본값
-  return "로";
-};
 
 const MyLibraryPage: React.FC = () => {
   const navigate = useNavigate();
