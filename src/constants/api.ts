@@ -3,6 +3,13 @@ export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const API_URL = (path: string) => `${API_BASE_URL}${path}`;
 
 export const ENDPOINTS = {
+  auth: {
+    login: API_URL("/users/login/"),
+    signup: API_URL("/users/signup/"),
+    logout: API_URL("/users/logout/"), // 서버에 없지만 일단 유지
+    refresh: API_URL("/users/token/refresh/"),
+    me: API_URL("/users/me/"), // 사용자 정보 조회용 추가
+  },
   books: {
     getOfficial: API_URL("/books/official"),
     getPersonal: API_URL("/books/personal"),

@@ -1,5 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import BooksSection from "../components/BooksSection";
+import { ENDPOINTS } from "../constants/api";
+import { useAuth } from "../hooks/useAuth";
 
 // assets
 import BookFloor from "../assets/Images/BookFloor.svg";
@@ -12,6 +16,14 @@ interface Book {
   src: string;
   alt: string;
   title: string;
+}
+
+// API 응답 타입
+interface BookApiResponse {
+  book_id: number;
+  title: string;
+  content: string;
+  pdf_url: string;
 }
 
 // 영상 데이터 타입
@@ -45,68 +57,104 @@ const getKoreanParticle = (word: string): string => {
 };
 
 const MyLibraryPage: React.FC = () => {
+  const navigate = useNavigate();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
+
+  // 인증되지 않은 사용자 리다이렉트
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      navigate("/auth");
+    }
+  }, [authLoading, isAuthenticated, navigate]);
+
   const [bookFilter, setBookFilter] = useState<"service" | "uploaded">(
     "service"
   );
-  const [selectedBookIndex, setSelectedBookIndex] = useState<number>(1); // 카라마조프가의 형제들 기본 선택
+  // 현재 선택된 책의 인덱스
+  const [selectedBookIndex, setSelectedBookIndex] = useState<number>(0); // 첫 번째 책 기본 선택
+  // 영상 생성 로딩 상태
   const [isLoading, setIsLoading] = useState(false);
 
   // 책 목록 데이터
-  const books: Book[] = [
-    {
-      id: 0,
-      src: "https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/2090000149319.jpg",
-      alt: "긴긴밤",
-      title: "긴긴밤",
-    },
-    {
-      id: 1,
-      src: "https://contents.kyobobook.co.kr/sih/fit-in/400x0/pdt/9788937461545.jpg",
-      alt: "카라마조프가의 형제들",
-      title: "카라마조프가의 형제들",
-    },
-    {
-      id: 2,
-      src: "https://contents.kyobobook.co.kr/sih/fit-in/400x0/pdt/9791165345693.jpg",
-      alt: "달러구트 꿈 백화점",
-      title: "달러구트 꿈 백화점",
-    },
-    {
-      id: 3,
-      src: "https://image.aladin.co.kr/product/27106/90/cover500/e462538205_1.jpg",
-      alt: "짧은 밤이지만 빛나고 있어",
-      title: "짧은 밤이지만 빛나고 있어",
-    },
-  ];
+  const [books, setBooks] = useState<Book[]>([]);
+  // 책 목록 로딩 상태
+  const [booksLoading, setBooksLoading] = useState(true);
 
-  // 각 책별 영상 데이터
+  useEffect(() => {
+    const fetchBooks = async () => {
+      try {
+        setBooksLoading(true); // 로딩 상태 시작
+
+        // axios를 사용하여 공식 책 목록 API 호출
+        const response = await axios.get<BookApiResponse[]>(
+          ENDPOINTS.books.getOfficial
+        );
+        const data = response.data;
+
+        // API 응답을 Book 타입(interface)에 맞게 변환
+        const transformedBooks: Book[] = data.map((book) => ({
+          id: book.book_id, // book_id -> id 매핑
+          src:
+            book.pdf_url || // PDF URL이 있으면 사용, 없으면 플레이스홀더 이미지
+            "https://via.placeholder.com/400x600/DCAC62/FFFFFF?text=" +
+              encodeURIComponent(book.title),
+          alt: book.title, // 이미지 alt 속성
+          title: book.title, // 책 제목
+        }));
+
+        setBooks(transformedBooks); // 변환된 책 목록 상태 업데이트
+      } catch (error) {
+        console.error("Failed to fetch books:", error);
+        // 에러 발생 시 빈 배열로 설정하여 UI 깨짐 방지
+        setBooks([]);
+      } finally {
+        setBooksLoading(false); // 로딩 상태 종료
+      }
+    };
+
+    fetchBooks(); // 함수 실행
+  }, []); // 의존성 배열이 빈 배열이 컴포넌트 마운트 시에만 실행
+
+  // 각 책별 영상 데이터 (book_id 기준)
   const videoDataByBook: Record<number, VideoData[]> = {
-    0: [
-      // 긴긴밤
+    1: [
+      // 노인과 바다
       { imageUrl: "https://picsum.photos/400/200?random=1" },
       { imageUrl: "https://picsum.photos/400/200?random=2" },
     ],
-    1: [
-      // 카라마조프가의 형제들
+    2: [
+      // 린어공주
       { imageUrl: "https://picsum.photos/400/200?random=3" },
-      { imageUrl: "https://picsum.photos/400/200?random=4" },
     ],
-    2: [], // 달러구트 꿈 백화점 - 영상 없음
-    3: [
-      // 짧은 밤이지만 빛나고 있어
-      { imageUrl: "https://picsum.photos/400/200?random=5" },
-    ],
+    3: [], // 1984 - 영상 없음
   };
 
+  // 현재 선택된 책 객체
   const selectedBook = books[selectedBookIndex];
-  const selectedBookVideos = videoDataByBook[selectedBookIndex] || [];
-  const particle = getKoreanParticle(selectedBook.title);
+  // 선택된 책에 해당하는 영상 목록 (없으면 빈 배열)
+  const selectedBookVideos = selectedBook
+    ? videoDataByBook[selectedBook.id] || []
+    : [];
+  // 한글 조사 처리 ("로" 또는 "으로")
+  const particle = selectedBook ? getKoreanParticle(selectedBook.title) : "로";
+
+  // 인증 로딩 중이면 로딩 화면 표시
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-[#F8F3ED] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#DCAC62] mx-auto mb-4"></div>
+          <p className="text-lg text-gray-600">인증 확인 중...</p>
+        </div>
+      </div>
+    );
+  }
 
   // 영상 생성 클릭 핸들러
   const handleCreateVideo = () => {
-    setIsLoading(true);
+    setIsLoading(true); // 로딩 화면 표시
 
-    // 1초 후 리다이렉트
+    // 1초 후 캐릭터 선택 페이지로 리다이렉트
     setTimeout(() => {
       window.location.href = "/char";
     }, 1000);
@@ -193,11 +241,24 @@ const MyLibraryPage: React.FC = () => {
 
           {/* Books Grid Section */}
           <section>
-            <BooksSection
-              books={books}
-              selectedIndex={selectedBookIndex}
-              onBookSelect={setSelectedBookIndex}
-            />
+            {booksLoading ? (
+              <div className="flex justify-center p-10 pb-0 items-end">
+                <div className="animate-pulse flex space-x-4">
+                  {/* 로딩 스켈레톤 - 책 모양 */}
+                  {[...Array(4)].map((_, index) => (
+                    <div key={index} className="flex-shrink-0">
+                      <div className="bg-gray-300 rounded w-48 h-72"></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <BooksSection
+                books={books}
+                selectedIndex={selectedBookIndex}
+                onBookSelect={setSelectedBookIndex}
+              />
+            )}
           </section>
         </div>
         <img
@@ -208,25 +269,52 @@ const MyLibraryPage: React.FC = () => {
 
         {/* Video List Section */}
         <section className="mt-[72px] px-[52px] pb-[120px]">
-          <h2 className="w-full text-[32px] font-bold text-black mb-8 flex justify-center">
-            <span className="text-[#DCAC62]">{selectedBook.title}</span>
-            <span className="text-black"> {particle} 만든 VLOG 목록</span>
-          </h2>
+          {selectedBook ? (
+            <>
+              <h2 className="w-full text-[32px] font-bold text-black mb-8 flex justify-center">
+                <span className="text-[#DCAC62]">{selectedBook.title}</span>
+                <span className="text-black"> {particle} 만든 VLOG 목록</span>
+              </h2>
 
-          {selectedBookVideos.length === 0 ? (
-            // 영상이 없는 경우
-            <div className="text-center">
-              <p className="text-[20px] text-gray-600 mb-8">
-                아직 이 책으로 만든 영상이 없네요!
-              </p>
-              <div className="flex justify-center">
-                <div
-                  onClick={handleCreateVideo}
-                  className="flex-shrink-0 w-[400px] h-[200px] border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center bg-white hover:bg-gray-50 cursor-pointer transition-colors"
-                >
-                  <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+              {selectedBookVideos.length === 0 ? (
+                // 영상이 없는 경우
+                <div className="text-center">
+                  <p className="text-[20px] text-gray-600 mb-8">
+                    아직 이 책으로 만든 영상이 없네요!
+                  </p>
+                  <div className="flex justify-center">
+                    <div
+                      onClick={handleCreateVideo}
+                      className="flex-shrink-0 w-[400px] h-[200px] border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center bg-white hover:bg-gray-50 cursor-pointer transition-colors"
+                    >
+                      <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+                        <svg
+                          className="w-8 h-8 text-gray-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                          />
+                        </svg>
+                      </div>
+                      <p className="text-gray-600 text-lg font-medium">
+                        바로 첫 번째 영상을 만들어볼까요?
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                // 영상이 있는 경우
+                <div className="relative">
+                  {/* Navigation arrows */}
+                  <button className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50">
                     <svg
-                      className="w-8 h-8 text-gray-400"
+                      className="w-6 h-6"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -235,95 +323,76 @@ const MyLibraryPage: React.FC = () => {
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth={2}
-                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                        d="M15 19l-7-7 7-7"
                       />
                     </svg>
-                  </div>
-                  <p className="text-gray-600 text-lg font-medium">
-                    바로 첫 번째 영상을 만들어볼까요?
-                  </p>
-                </div>
-              </div>
-            </div>
-          ) : (
-            // 영상이 있는 경우
-            <div className="relative">
-              {/* Navigation arrows */}
-              <button className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50">
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 19l-7-7 7-7"
-                  />
-                </svg>
-              </button>
-              <button className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50">
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </button>
+                  </button>
+                  <button className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50">
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </button>
 
-              {/* Video cards container */}
-              <div className="overflow-x-auto scrollbar-hide">
-                <div className="flex gap-[40px] pb-4 px-12">
-                  {selectedBookVideos.map((video, index) => (
-                    <VideoThumbnail key={index} imageUrl={video.imageUrl} />
-                  ))}
-                  {/* Add empty card for "더 만들어볼까요?" */}
-                  <div
-                    onClick={handleCreateVideo}
-                    className="flex-shrink-0 w-[400px] h-[200px] border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center bg-white hover:bg-gray-50 cursor-pointer transition-colors"
-                  >
-                    <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
-                      <svg
-                        className="w-8 h-8 text-gray-400"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+                  {/* Video cards container */}
+                  <div className="overflow-x-auto scrollbar-hide">
+                    <div className="flex gap-[40px] pb-4 px-12">
+                      {selectedBookVideos.map((video, index) => (
+                        <VideoThumbnail key={index} imageUrl={video.imageUrl} />
+                      ))}
+                      {/* Add empty card for "더 만들어볼까요?" */}
+                      <div
+                        onClick={handleCreateVideo}
+                        className="flex-shrink-0 w-[400px] h-[200px] border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center bg-white hover:bg-gray-50 cursor-pointer transition-colors"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                        />
-                      </svg>
+                        <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+                          <svg
+                            className="w-8 h-8 text-gray-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                            />
+                          </svg>
+                        </div>
+                        <p className="text-gray-600 text-lg font-medium">
+                          영상을 하나 더 만들어볼까요?
+                        </p>
+                      </div>
                     </div>
-                    <p className="text-gray-600 text-lg font-medium">
-                      영상을 하나 더 만들어볼까요?
-                    </p>
                   </div>
                 </div>
-              </div>
-            </div>
-          )}
+              )}
 
-          {/* Pagination dots - only show when there are videos */}
-          {selectedBookVideos.length > 0 && (
-            <div className="flex justify-center mt-8 gap-2">
-              <div className="w-2 h-2 rounded-full bg-[#DCAC62]"></div>
-              <div className="w-2 h-2 rounded-full bg-gray-300"></div>
-              <div className="w-2 h-2 rounded-full bg-gray-300"></div>
-              <div className="w-2 h-2 rounded-full bg-gray-300"></div>
-              <div className="w-2 h-2 rounded-full bg-gray-300"></div>
-              <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+              {/* Pagination dots - only show when there are videos */}
+              {selectedBookVideos.length > 0 && (
+                <div className="flex justify-center mt-8 gap-2">
+                  <div className="w-2 h-2 rounded-full bg-[#DCAC62]"></div>
+                  <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+                  <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+                  <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+                  <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+                  <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="text-center">
+              <p className="text-[20px] text-gray-600">책을 선택해주세요.</p>
             </div>
           )}
         </section>
