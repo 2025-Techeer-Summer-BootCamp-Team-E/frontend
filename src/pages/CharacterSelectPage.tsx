@@ -96,7 +96,7 @@ const CharacterSelectPage: React.FC = () => {
           <CommonButton
             icon={<img src={BackIcon} alt="뒤로가기" className="mr-2" />}
             className="w-[280px] h-[60px] mb-11 mt-10"
-            onClick={() => navigate("/main")}
+            onClick={() => navigate("/")}
           >
             <span className="text-[20px]">내 서재로 돌아가기</span>
           </CommonButton>
