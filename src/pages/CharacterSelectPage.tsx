@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Header from "../components/Header";
 import ActCharacterCard from "../components/ActCharacterCard";
 import CommonButton from "../components/CommonButton";
@@ -11,10 +11,22 @@ import ConfirmModal from "../components/ConfirmModal";
 
 const CharacterSelectPage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [showMore, setShowMore] = useState(false);
   const [modalName, setModalName] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+
+  // MyLibraryPage에서 전달받은 캐릭터 데이터
+  const { characters, bookTitle } = location.state || {};
+
+  // 캐릭터 데이터가 없으면 MyLibrary로 리다이렉트
+  useEffect(() => {
+    if (!characters || !bookTitle) {
+      alert("잘못된 접근입니다. 책을 선택해주세요.");
+      navigate("/");
+    }
+  }, [characters, bookTitle, navigate]);
 
   const handleConfirm = () => {
     setModalVisible(false); // 먼저 숨기기
@@ -56,7 +68,8 @@ const CharacterSelectPage: React.FC = () => {
             주인공 선택하기
           </div>
           <div className="mt-1 mb-2 text-base text-[#868686] font-NanumMyeongjo">
-            브이로그의 주인공이 될 등장인물을 선택해주세요.
+            {bookTitle ? `『${bookTitle}』의 등장인물 중에서 ` : ""}브이로그의
+            주인공이 될 등장인물을 선택해주세요.
           </div>
         </div>
 
@@ -69,7 +82,7 @@ const CharacterSelectPage: React.FC = () => {
         >
           {/* 캐릭터 카드 리스트 */}
           <div className="py-10">
-            <ActCharacterCard />
+            <ActCharacterCard characters={characters} />
           </div>
 
           {/* 인물 더보기 + 안내문구 */}
@@ -96,7 +109,7 @@ const CharacterSelectPage: React.FC = () => {
           <CommonButton
             icon={<img src={BackIcon} alt="뒤로가기" className="mr-2" />}
             className="w-[280px] h-[60px] mb-11 mt-10"
-            onClick={() => navigate("/main")}
+            onClick={() => navigate("/")}
           >
             <span className="text-[20px]">내 서재로 돌아가기</span>
           </CommonButton>
