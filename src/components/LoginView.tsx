@@ -1,7 +1,8 @@
 // src/components/LoginView.tsx
 
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 
 interface LoginViewProps {
   onSwitchToSignup: () => void;
@@ -9,11 +10,48 @@ interface LoginViewProps {
 
 const LoginView: React.FC<LoginViewProps> = ({ onSwitchToSignup }) => {
   const navigate = useNavigate();
-  const handleLogin = (event: React.FormEvent<HTMLFormElement>) => {
+  const { login } = useAuth();
+  const [formData, setFormData] = useState({
+    login_id: "",
+    password: "",
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  // 폼 입력 처리
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // 로그인 처리
+  const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    alert("로그인 성공! 메인 페이지로 이동합니다.");
-    // window.location.href 대신 navigate 함수 사용
-    navigate("/");
+    setIsLoading(true);
+    setError("");
+
+    try {
+      await login(formData);
+      alert("로그인 성공! 메인 페이지로 이동합니다.");
+      navigate("/");
+    } catch (error: unknown) {
+      console.error("Login error:", error);
+      if (error && typeof error === "object" && "response" in error) {
+        const axiosError = error as {
+          response?: { data?: { message?: string } };
+        };
+        setError(
+          axiosError.response?.data?.message || "로그인에 실패했습니다."
+        );
+      } else {
+        setError("로그인에 실패했습니다.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -24,26 +62,43 @@ const LoginView: React.FC<LoginViewProps> = ({ onSwitchToSignup }) => {
           당신의 이야기를 계속 이어가 보세요.
         </p>
       </div>
+
+      {/* 에러 메시지 표시 */}
+      {error && (
+        <div className="mb-4 rounded-lg bg-red-50 p-3 text-red-600 text-sm">
+          {error}
+        </div>
+      )}
+
       <form onSubmit={handleLogin}>
         <div className="flex flex-col space-y-4">
           <input
-            type="email"
-            placeholder="이메일"
+            type="text"
+            name="login_id"
+            placeholder="로그인 ID"
+            value={formData.login_id}
+            onChange={handleChange}
             className="w-full rounded-xl border border-[#E6DBCB] bg-white p-3 transition focus:border-[#C0842B] focus:outline-none focus:ring-2 focus:ring-[#C0842B]/30"
             required
+            disabled={isLoading}
           />
           <input
             type="password"
+            name="password"
             placeholder="비밀번호"
+            value={formData.password}
+            onChange={handleChange}
             className="w-full rounded-xl border border-[#E6DBCB] bg-white p-3 transition focus:border-[#C0842B] focus:outline-none focus:ring-2 focus:ring-[#C0842B]/30"
             required
+            disabled={isLoading}
           />
         </div>
         <button
           type="submit"
-          className="mt-8 w-full rounded-xl bg-[#C0842B] py-3 font-semibold text-white transition hover:opacity-90"
+          disabled={isLoading}
+          className="mt-8 w-full rounded-xl bg-[#C0842B] py-3 font-semibold text-white transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          로그인
+          {isLoading ? "로그인 중..." : "로그인"}
         </button>
         <p className="mt-6 text-center text-sm">
           계정이 없으신가요?{" "}

@@ -1,5 +1,6 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 import Logo from "../assets/Icons/Logo.svg";
 import Login from "../assets/Icons/Login.svg";
 
@@ -14,6 +15,19 @@ const Header: React.FC<HeaderProps> = ({
   navigationComponent,
   isScrolled = false,
 }) => {
+  const navigate = useNavigate();
+  const { isAuthenticated, user, logout } = useAuth();
+
+  // 로그아웃 처리
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/auth");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
+
   return (
     <header
       className={`h-[10rem] text-black fixed top-0 left-0 right-0 z-10 ${
@@ -41,12 +55,27 @@ const Header: React.FC<HeaderProps> = ({
           </nav>
         )}
 
-        {/* Login */}
+        {/* Login/Logout */}
         <nav className="self-start flex items-center gap-[16px]">
-          <Link to="/auth" className="flex items-center gap-[16px]">
-            <img src={Login} className="w-[24px] h-[24px]" />
-            <span className="text-[20px] font-bold">로그인</span>
-          </Link>
+          {isAuthenticated ? (
+            <div className="flex items-center gap-[16px]">
+              <span className="text-[16px] text-gray-600">
+                안녕하세요, {user?.nickname}님
+              </span>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-[8px] text-[20px] font-bold hover:text-[#C0842B] transition-colors"
+              >
+                <img src={Login} className="w-[24px] h-[24px]" />
+                <span>로그아웃</span>
+              </button>
+            </div>
+          ) : (
+            <Link to="/auth" className="flex items-center gap-[16px]">
+              <img src={Login} className="w-[24px] h-[24px]" />
+              <span className="text-[20px] font-bold">로그인</span>
+            </Link>
+          )}
         </nav>
       </div>
     </header>
