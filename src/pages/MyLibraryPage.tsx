@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import BooksSection from "../components/BooksSection";
-import { ENDPOINTS } from "../constants/api";
 import { useAuth } from "../hooks/useAuth";
+import { getOfficialBooks, getVideosByBookId } from "../api/bookApi";
+import type { BookApiResponse, VideoApiResponse } from "../api/bookApi";
 
 // assets
 import BookFloor from "../assets/Images/BookFloor.svg";
@@ -18,17 +18,11 @@ interface Book {
   title: string;
 }
 
-// API 응답 타입
-interface BookApiResponse {
-  book_id: number;
-  title: string;
-  content: string;
-  pdf_url: string;
-}
-
-// 영상 데이터 타입
+// 영상 데이터 타입 (API 응답을 UI에 맞게 변환된 형태)
 interface VideoData {
   imageUrl: string;
+  videoUrl: string;
+  videoId: number;
 }
 
 // 한글 조사 처리 함수
@@ -79,20 +73,21 @@ const MyLibraryPage: React.FC = () => {
   const [books, setBooks] = useState<Book[]>([]);
   // 책 목록 로딩 상태
   const [booksLoading, setBooksLoading] = useState(true);
+  // 영상 목록 데이터
+  const [videos, setVideos] = useState<VideoData[]>([]);
+  // 영상 목록 로딩 상태
+  const [videosLoading, setVideosLoading] = useState(false);
 
   useEffect(() => {
     const fetchBooks = async () => {
       try {
         setBooksLoading(true); // 로딩 상태 시작
 
-        // axios를 사용하여 공식 책 목록 API 호출
-        const response = await axios.get<BookApiResponse[]>(
-          ENDPOINTS.books.getOfficial
-        );
-        const data = response.data;
+        // bookApi를 사용하여 공식 책 목록 API 호출
+        const data = await getOfficialBooks();
 
         // API 응답을 Book 타입(interface)에 맞게 변환
-        const transformedBooks: Book[] = data.map((book) => ({
+        const transformedBooks: Book[] = data.map((book: BookApiResponse) => ({
           id: book.book_id, // book_id -> id 매핑
           src:
             book.pdf_url || // PDF URL이 있으면 사용, 없으면 플레이스홀더 이미지
@@ -115,26 +110,43 @@ const MyLibraryPage: React.FC = () => {
     fetchBooks(); // 함수 실행
   }, []); // 의존성 배열이 빈 배열이 컴포넌트 마운트 시에만 실행
 
-  // 각 책별 영상 데이터 (book_id 기준)
-  const videoDataByBook: Record<number, VideoData[]> = {
-    1: [
-      // 노인과 바다
-      { imageUrl: "https://picsum.photos/400/200?random=1" },
-      { imageUrl: "https://picsum.photos/400/200?random=2" },
-    ],
-    2: [
-      // 린어공주
-      { imageUrl: "https://picsum.photos/400/200?random=3" },
-    ],
-    3: [], // 1984 - 영상 없음
-  };
-
   // 현재 선택된 책 객체
   const selectedBook = books[selectedBookIndex];
-  // 선택된 책에 해당하는 영상 목록 (없으면 빈 배열)
-  const selectedBookVideos = selectedBook
-    ? videoDataByBook[selectedBook.id] || []
-    : [];
+
+  // 선택된 책의 영상 목록 조회
+  useEffect(() => {
+    const fetchVideos = async () => {
+      if (!selectedBook) {
+        setVideos([]);
+        return;
+      }
+
+      try {
+        setVideosLoading(true);
+        const videoData = await getVideosByBookId(selectedBook.id);
+
+        // API 응답을 VideoData 타입에 맞게 변환
+        const transformedVideos: VideoData[] = videoData.map(
+          (video: VideoApiResponse) => ({
+            videoId: video.video_id,
+            videoUrl: video.video_url,
+            imageUrl: video.thumbnail_url,
+          })
+        );
+
+        setVideos(transformedVideos);
+      } catch (error) {
+        console.error("Failed to fetch videos:", error);
+        setVideos([]);
+      } finally {
+        setVideosLoading(false);
+      }
+    };
+
+    fetchVideos();
+  }, [selectedBook]); // selectedBook가 변경될 때마다 실행
+  // 선택된 책에 해당하는 영상 목록
+  const selectedBookVideos = videos;
   // 한글 조사 처리 ("로" 또는 "으로")
   const particle = selectedBook ? getKoreanParticle(selectedBook.title) : "로";
 
@@ -276,7 +288,15 @@ const MyLibraryPage: React.FC = () => {
                 <span className="text-black"> {particle} 만든 VLOG 목록</span>
               </h2>
 
-              {selectedBookVideos.length === 0 ? (
+              {videosLoading ? (
+                // 영상 로딩 중
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#DCAC62] mx-auto mb-4"></div>
+                  <p className="text-[20px] text-gray-600">
+                    영상 목록을 불러오는 중...
+                  </p>
+                </div>
+              ) : selectedBookVideos.length === 0 ? (
                 // 영상이 없는 경우
                 <div className="text-center">
                   <p className="text-[20px] text-gray-600 mb-8">
