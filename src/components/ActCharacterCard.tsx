@@ -2,14 +2,15 @@ import React, { useState, useEffect } from "react";
 import FrontCharacterCard from "./FrontCharacterCard";
 import BackCharacterCard from "./BackCharacterCard";
 
-// API 응답 타입 (bookApi.ts에서 정의된 것과 동일)
+// API 응답 타입 (characterApi.ts에서 정의된 것과 동일)
 type ApiCharacterType = {
-  character_id: number;
-  character_name: string;
-  is_main: boolean;
+  id: number;
+  characterName: string;
+  isMain: boolean;
   age: number;
   gender: string;
-  character_description: string;
+  characterDescription: string;
+  scenes: unknown[];
 };
 
 // UI에서 사용할 타입 (기존 JSON 형식과 호환)
@@ -35,14 +36,14 @@ const ActCharacterCard: React.FC<ActCharacterCardProps> = ({
       // API에서 받은 데이터를 UI 형식으로 변환
       const transformedCharacters: CharacterType[] = apiCharacters.map(
         (char) => ({
-          name: char.character_name,
+          name: char.characterName,
           sex:
             char.gender === "male"
               ? "남성"
               : char.gender === "female"
                 ? "여성"
                 : char.gender,
-          description: char.character_description,
+          description: char.characterDescription,
         })
       );
 
@@ -87,7 +88,7 @@ const ActCharacterCard: React.FC<ActCharacterCardProps> = ({
     <div className="flex justify-center justify-evenly w-full">
       {characters.map((character, idx) => (
         <div
-          key={character.name}
+          key={`${character.name}-${idx}`}
           className={`flip-card ${flipped[idx] ? "flipped" : ""}`}
           style={{ width: 300, height: 400, cursor: "pointer" }}
           onClick={() => handleFlip(idx)}

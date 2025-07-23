@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import BooksSection from "../components/BooksSection";
+import BookUploadModal from "../components/BookUploadModal";
 import { useAuth } from "../hooks/useAuth";
 import {
   getOfficialBooks,
   getVideosByBookId,
-  getCharactersByBookId,
+  uploadBook,
 } from "../api/bookApi";
+import { getCharactersByBookId } from "../api/characterApi";
 import type { BookApiResponse, VideoApiResponse } from "../api/bookApi";
 
 // utils (한글 조사 구분 함수)
@@ -50,6 +52,10 @@ const MyLibraryPage: React.FC = () => {
   const [selectedBookIndex, setSelectedBookIndex] = useState<number>(0); // 첫 번째 책 기본 선택
   // 영상 생성 로딩 상태
   const [isLoading, setIsLoading] = useState(false);
+
+  // 책 업로드 모달 상태
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [isUploadLoading, setIsUploadLoading] = useState(false);
 
   // 책 목록 데이터
   const [books, setBooks] = useState<Book[]>([]);
@@ -167,9 +173,59 @@ const MyLibraryPage: React.FC = () => {
       });
     } catch (error) {
       console.error("Failed to fetch characters:", error);
-      alert("캐릭터 정보를 불러오는데 실패했습니다. 다시 시도해주세요.");
+
+      // 에러 타입에 따른 상세 메시지
+      let errorMessage = "캐릭터 정보를 불러오는데 실패했습니다.";
+
+      if (error && typeof error === "object" && "response" in error) {
+        const axiosError = error as {
+          response?: { status?: number };
+          code?: string;
+        };
+        if (axiosError.response?.status === 500) {
+          errorMessage = `서버에서 캐릭터 생성 중 오류가 발생했습니다.`;
+        } else if (axiosError.response?.status === 404) {
+          errorMessage = "해당 책을 찾을 수 없습니다.";
+        } else if (axiosError.code === "ERR_NETWORK") {
+          errorMessage = "네트워크 연결을 확인해주세요.";
+        }
+      }
+
+      alert(errorMessage);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // 책 업로드 핸들러
+  const handleBookUpload = async (title: string, pdfFile: File) => {
+    setIsUploadLoading(true);
+    try {
+      // 책 업로드 API 호출
+      const newBook = await uploadBook(title, pdfFile);
+
+      // 새 책을 책 목록에 추가
+      const transformedBook = {
+        id: newBook.book_id,
+        src:
+          newBook.pdf_url ||
+          `https://via.placeholder.com/400x600/DCAC62/FFFFFF?text=${encodeURIComponent(newBook.title)}`,
+        alt: newBook.title,
+        title: newBook.title,
+      };
+
+      setBooks((prevBooks) => [...prevBooks, transformedBook]);
+
+      // 새 책을 선택하고 모달 닫기
+      setSelectedBookIndex(books.length);
+      setIsUploadModalOpen(false);
+
+      alert(`'${title}' 책이 성공적으로 추가되었습니다!`);
+    } catch (error) {
+      console.error("Book upload failed:", error);
+      alert("책 업로드에 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setIsUploadLoading(false);
     }
   };
 
@@ -178,16 +234,24 @@ const MyLibraryPage: React.FC = () => {
       {/* Loading Screen */}
       {isLoading && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-40">
-          <div className="bg-white rounded-lg p-8 flex flex-col items-center">
+          <div className="bg-white rounded-lg p-8 flex flex-col items-center max-w-md">
             <div className="w-24 h-24 mb-4">
               {/* 로딩 애니메이션 - 회전하는 원 */}
               <div className="animate-spin rounded-full h-24 w-24 border-b-2 border-[#DCAC62]"></div>
             </div>
-            <p className="text-lg font-semibold text-gray-700 text-center">
+            <p className="text-lg font-semibold text-gray-700 text-center mb-3">
               {selectedBook ? `『${selectedBook.title}』의` : "책의"} <br />
               등장인물을 분석하고 있어요!
             </p>
-            {/* <p className="text-sm text-gray-500 mt-2">잠시만 기다려주세요</p> */}
+            <div className="text-sm text-gray-500 text-center space-y-1">
+              <p>🤖 AI가 책 내용을 분석 중입니다</p>
+              <p>📚 등장인물의 성격과 관계를 파악 중입니다</p>
+              <p className="text-xs text-gray-400 mt-2">
+                새로 업로드한 책의 경우
+                <br />
+                3-5분 정도 소요될 수 있습니다
+              </p>
+            </div>
           </div>
         </div>
       )}
@@ -270,6 +334,7 @@ const MyLibraryPage: React.FC = () => {
                 books={books}
                 selectedIndex={selectedBookIndex}
                 onBookSelect={setSelectedBookIndex}
+                onAddBook={() => setIsUploadModalOpen(true)}
               />
             )}
           </section>
@@ -418,6 +483,14 @@ const MyLibraryPage: React.FC = () => {
           )}
         </section>
       </main>
+
+      {/* 책 업로드 모달 */}
+      <BookUploadModal
+        isOpen={isUploadModalOpen}
+        onClose={() => setIsUploadModalOpen(false)}
+        onUpload={handleBookUpload}
+        isLoading={isUploadLoading}
+      />
     </div>
   );
 };
