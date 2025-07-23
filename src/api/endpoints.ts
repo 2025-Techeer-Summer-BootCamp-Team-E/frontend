@@ -13,6 +13,7 @@ export const ENDPOINTS = {
   books: {
     getOfficial: API_URL("/books/official"),
     getPersonal: API_URL("/books/personal"),
+    uploadPdf: API_URL("/books/pdf"), // PDF 업로드로 책 생성
     // create: API_URL("/books"),
     // update: "/books/:id",
     // delete: "/books/:id",

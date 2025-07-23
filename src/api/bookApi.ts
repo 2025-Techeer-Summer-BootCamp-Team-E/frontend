@@ -66,6 +66,32 @@ export const getVideosByBookId = async (
   }
 };
 
+// PDF 업로드로 책 생성
+export const uploadBook = async (
+  title: string,
+  pdfFile: File
+): Promise<BookApiResponse> => {
+  try {
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("pdf", pdfFile);
+
+    const response = await axios.post<BookApiResponse>(
+      ENDPOINTS.books.uploadPdf,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Failed to upload book:", error);
+    throw error;
+  }
+};
+
 // // 특정 책의 캐릭터 목록 조회 (GET /books/{bookId}/characters)
 // export const getCharactersByBookId = async (
 //   bookId: number

@@ -12,12 +12,14 @@ interface BooksSectionProps {
   books: Book[];
   selectedIndex: number;
   onBookSelect: (index: number) => void;
+  onAddBook?: () => void; // 책 추가 버튼 클릭 핸들러
 }
 
 const BooksSection: React.FC<BooksSectionProps> = ({
   books,
   selectedIndex,
   onBookSelect,
+  onAddBook,
 }) => {
   return (
     <div className="flex justify-center p-10 pb-0 items-end">
@@ -40,7 +42,6 @@ const BooksSection: React.FC<BooksSectionProps> = ({
           isHighlight ||
           index === selectedIndex - 1 ||
           index === selectedIndex + 1
-
         ) {
           marginRight = 171;
         }
@@ -67,6 +68,47 @@ const BooksSection: React.FC<BooksSectionProps> = ({
           </div>
         );
       })}
+
+      {/* 책 추가 버튼 */}
+      {onAddBook && (
+        <div
+          style={{
+            marginLeft: books.length > 0 ? "171px" : "0",
+            transform: "translateY(0px)",
+            transition: "transform 0.3s ease",
+          }}
+          onClick={onAddBook}
+          className="cursor-pointer flex items-center justify-center"
+        >
+          <div
+            className="flex flex-col items-center justify-center border-2 border-dashed border-[#DCAC62] bg-[#FCFAF7]/50 hover:bg-[#FCFAF7] transition-colors rounded-lg"
+            style={{
+              width: 196,
+              height: 288,
+              boxShadow: "8px 4px 12px 2px rgba(0,0,0,0.25)",
+            }}
+          >
+            <div className="w-16 h-16 rounded-full bg-[#DCAC62]/20 flex items-center justify-center mb-4">
+              <svg
+                className="w-8 h-8 text-[#DCAC62]"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                />
+              </svg>
+            </div>
+            <p className="text-[#75624E] font-medium text-center px-4">
+              새 책 추가하기
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
