@@ -2,11 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import BooksSection from "../components/BooksSection";
 import { useAuth } from "../hooks/useAuth";
-import {
-  getOfficialBooks,
-  getVideosByBookId,
-  getCharactersByBookId,
-} from "../api/bookApi";
+import { getOfficialBooks, getVideosByBookId } from "../api/bookApi";
+import { getCharactersByBookId } from "../api/characterApi";
 import type { BookApiResponse, VideoApiResponse } from "../api/bookApi";
 
 // utils (한글 조사 구분 함수)

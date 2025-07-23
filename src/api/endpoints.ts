@@ -20,8 +20,9 @@ export const ENDPOINTS = {
     // getByUserId: "/books/user/:userId",
   },
   characters: {
-    getByBookId: (bookId: string) => API_URL(`/books/${bookId}/characters`),
-    create: API_URL(`/characters/books/{bookId}`), // 소설을 바탕으로 인물 생성 OR 조회. GET으로 하게 될 듯
+    // getByBookId: (bookId: string) => API_URL(`/books/${bookId}/characters`),
+    createOrGetByBookId: (bookId: string) =>
+      API_URL(`/characters/books/${bookId}/`), // 소설을 바탕으로 인물 생성 OR 조회. GET으로 하게 될 듯
   },
   scripts: {
     create: (characterId: string) =>

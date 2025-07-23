@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import axios from "axios";
-import { ENDPOINTS } from "../constants/api";
+import { ENDPOINTS } from "../api/endpoints";
 
 // 사용자 정보 타입
 interface User {
