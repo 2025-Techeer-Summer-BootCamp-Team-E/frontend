@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import type { ApiCharacterType } from "../components/ActCharacterCard";
 import Header from "../components/Header";
 import ActCharacterCard from "../components/ActCharacterCard";
 import CommonButton from "../components/CommonButton";
@@ -54,6 +55,15 @@ const CharacterSelectPage: React.FC = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // 메인 캐릭터가 배열이면 5개로 슬라이스, 배열 아니면 빈 배열
+  const mainCharacters = Array.isArray(characters)
+    ? (characters as ApiCharacterType[]).slice(0, 5)
+    : [];
+
+  const moreCharacters = Array.isArray(characters)
+    ? (characters as ApiCharacterType[]).slice(5).map((c) => c.characterName)
+    : [];
+
   return (
     <div className="min-h-screen bg-[#F8F3ED]">
       <Header
@@ -82,7 +92,7 @@ const CharacterSelectPage: React.FC = () => {
         >
           {/* 캐릭터 카드 리스트 */}
           <div className="py-10">
-            <ActCharacterCard characters={characters} />
+            <ActCharacterCard characters={mainCharacters} />
           </div>
 
           {/* 인물 더보기 + 안내문구 */}
@@ -90,15 +100,17 @@ const CharacterSelectPage: React.FC = () => {
             <span className="text-[#959595] text-sm mr-2 font-bold">
               원하는 인물이 없나요?
             </span>
-            <button
-              className="border border-[#D2C8BA] bg-white rounded-lg text-[#75624E] flex items-center justify-center w-[150px] h-[40px]"
-              onClick={() => setShowMore((prev) => !prev)}
-            >
-              <span className="text-[18px] font-NanumSquare font-[1000]">
-                인물 더보기
-              </span>
-              <img src={Down_flag} alt="더보기" className="ml-2" />
-            </button>
+            {moreCharacters.length > 0 && (
+              <button
+                className="border border-[#D2C8BA] bg-white rounded-lg text-[#75624E] flex items-center justify-center w-[150px] h-[40px]"
+                onClick={() => setShowMore((prev) => !prev)}
+              >
+                <span className="text-[18px] font-NanumSquare font-[1000]">
+                  인물 더보기
+                </span>
+                <img src={Down_flag} alt="더보기" className="ml-2" />
+              </button>
+            )}
           </div>
         </div>
       </main>
@@ -116,9 +128,13 @@ const CharacterSelectPage: React.FC = () => {
         </span>
 
         <span className="flex justify-end w-full max-w-[calc(100vw-128px)] mr-2 mt-2">
-          {showMore && (
+          {showMore && moreCharacters.length > 0 && (
             <div>
-              <MoreCharacters open={showMore} onNameClick={handleNameClick} />
+              <MoreCharacters
+                open={showMore}
+                onNameClick={handleNameClick}
+                names={moreCharacters}
+              />
             </div>
           )}
         </span>

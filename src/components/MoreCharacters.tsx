@@ -1,19 +1,7 @@
 import React, { useEffect, useState } from "react";
 
-const names = [
-  "정 대식",
-  "정 대일",
-  "정 대이",
-  "정 대삼",
-  "정 대사",
-  "파우스트",
-  "데미안",
-  "후치 네드발",
-  "카리나",
-  "최대7글자까지",
-];
-
 interface MoreCharactersProps {
+  names: string[];
   onNameClick: (name: string) => void;
   open: boolean;
 }
@@ -23,6 +11,7 @@ const EXIT_ANIMATION_TIME = 220;
 const MoreCharacters: React.FC<MoreCharactersProps> = ({
   onNameClick,
   open,
+  names,
 }) => {
   const [show, setShow] = useState(false);
   const [anim, setAnim] = useState<"none" | "enter" | "entered" | "exit">(

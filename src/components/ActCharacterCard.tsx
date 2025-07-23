@@ -3,7 +3,7 @@ import FrontCharacterCard from "./FrontCharacterCard";
 import BackCharacterCard from "./BackCharacterCard";
 
 // API 응답 타입 (characterApi.ts에서 정의된 것과 동일)
-type ApiCharacterType = {
+export type ApiCharacterType = {
   id: number;
   characterName: string;
   isMain: boolean;
