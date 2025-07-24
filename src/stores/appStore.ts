@@ -21,8 +21,14 @@ interface BookSession {
 
 interface ScriptCache {
   [characterId: number]: {
-    data: ScriptApiResponse;
-    cachedAt: number; // 캐시된 시간
+    original: {
+      data: ScriptApiResponse;
+      cachedAt: number;
+    };
+    regenerated?: {
+      data: ScriptApiResponse;
+      cachedAt: number;
+    };
     characterName: string;
   };
 }
@@ -46,9 +52,13 @@ interface AppState {
   setScriptCache: (
     characterId: number,
     characterName: string,
-    scriptData: ScriptApiResponse
+    scriptData: ScriptApiResponse,
+    isRegenerated?: boolean
   ) => void;
-  getScriptCache: (characterId: number) => ScriptApiResponse | null;
+  getScriptCache: (characterId: number) => {
+    original: ScriptApiResponse | null;
+    regenerated: ScriptApiResponse | null;
+  };
   clearExpiredScripts: () => void;
   clearAllScripts: () => void;
 
@@ -82,35 +92,84 @@ export const useAppStore = create<AppState>()(
         set({ currentBookSession: null });
       },
 
-      setScriptCache: (characterId, characterName, scriptData) => {
-        set((state) => ({
-          scriptCache: {
-            ...state.scriptCache,
-            [characterId]: {
-              data: scriptData,
-              cachedAt: Date.now(),
-              characterName,
-            },
-          },
-        }));
+      setScriptCache: (
+        characterId,
+        characterName,
+        scriptData,
+        isRegenerated = false
+      ) => {
+        set((state) => {
+          const existingCache = state.scriptCache[characterId];
+          const now = Date.now();
+
+          if (isRegenerated) {
+            // 재생성된 대본 저장
+            return {
+              scriptCache: {
+                ...state.scriptCache,
+                [characterId]: {
+                  ...existingCache,
+                  regenerated: {
+                    data: scriptData,
+                    cachedAt: now,
+                  },
+                  characterName,
+                },
+              },
+            };
+          } else {
+            // 원본 대본 저장
+            return {
+              scriptCache: {
+                ...state.scriptCache,
+                [characterId]: {
+                  original: {
+                    data: scriptData,
+                    cachedAt: now,
+                  },
+                  regenerated: existingCache?.regenerated, // 기존 재생성 대본 유지
+                  characterName,
+                },
+              },
+            };
+          }
+        });
       },
 
       getScriptCache: (characterId) => {
         const cache = get().scriptCache[characterId];
-        if (!cache) return null;
+        if (!cache) return { original: null, regenerated: null };
 
-        // 만료 확인
-        if (!get().isScriptCacheValid(characterId)) {
-          // 만료된 캐시 삭제
+        const now = Date.now();
+        let original: ScriptApiResponse | null = null;
+        let regenerated: ScriptApiResponse | null = null;
+
+        // 원본 대본 유효성 확인
+        if (
+          cache.original &&
+          now - cache.original.cachedAt < SCRIPT_CACHE_EXPIRY
+        ) {
+          original = cache.original.data;
+        }
+
+        // 재생성된 대본 유효성 확인
+        if (
+          cache.regenerated &&
+          now - cache.regenerated.cachedAt < SCRIPT_CACHE_EXPIRY
+        ) {
+          regenerated = cache.regenerated.data;
+        }
+
+        // 둘 다 만료된 경우 캐시 삭제
+        if (!original && !regenerated) {
           set((state) => {
             const newCache = { ...state.scriptCache };
             delete newCache[characterId];
             return { scriptCache: newCache };
           });
-          return null;
         }
 
-        return cache.data;
+        return { original, regenerated };
       },
 
       clearExpiredScripts: () => {
@@ -118,8 +177,28 @@ export const useAppStore = create<AppState>()(
         set((state) => {
           const newCache: ScriptCache = {};
           Object.entries(state.scriptCache).forEach(([characterId, cache]) => {
-            if (now - cache.cachedAt < SCRIPT_CACHE_EXPIRY) {
-              newCache[Number(characterId)] = cache;
+            const validOriginal =
+              cache.original &&
+              now - cache.original.cachedAt < SCRIPT_CACHE_EXPIRY;
+            const validRegenerated =
+              cache.regenerated &&
+              now - cache.regenerated.cachedAt < SCRIPT_CACHE_EXPIRY;
+
+            if (validOriginal || validRegenerated) {
+              const newCacheEntry: Partial<ScriptCache[number]> = {
+                characterName: cache.characterName,
+              };
+
+              if (validOriginal) {
+                newCacheEntry.original = cache.original;
+              }
+
+              if (validRegenerated) {
+                newCacheEntry.regenerated = cache.regenerated;
+              }
+
+              newCache[Number(characterId)] =
+                newCacheEntry as ScriptCache[number];
             }
           });
           return { scriptCache: newCache };
@@ -143,7 +222,15 @@ export const useAppStore = create<AppState>()(
         if (!cache) return false;
 
         const now = Date.now();
-        return now - cache.cachedAt < SCRIPT_CACHE_EXPIRY;
+        const validOriginal = Boolean(
+          cache.original && now - cache.original.cachedAt < SCRIPT_CACHE_EXPIRY
+        );
+        const validRegenerated = Boolean(
+          cache.regenerated &&
+            now - cache.regenerated.cachedAt < SCRIPT_CACHE_EXPIRY
+        );
+
+        return validOriginal || validRegenerated;
       },
     }),
     {

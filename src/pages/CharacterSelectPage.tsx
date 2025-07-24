@@ -66,15 +66,18 @@ const CharacterSelectPage: React.FC = () => {
     characterName: string
   ) => {
     // 먼저 캐시된 스크립트가 있는지 확인
-    const cachedScript = getScriptCache(characterId);
+    const cachedScripts = getScriptCache(characterId);
 
-    if (cachedScript) {
+    // 원본 또는 재생성된 대본이 있으면 바로 이동 (원본 우선)
+    if (cachedScripts.original || cachedScripts.regenerated) {
+      const scriptData = cachedScripts.original || cachedScripts.regenerated;
       console.log("캐시된 스크립트 사용:", characterName);
-      // 캐시된 스크립트가 있으면 바로 이동
+
       navigate("/script", {
         state: {
-          scriptData: cachedScript,
+          scriptData,
           characterName,
+          characterId,
         },
       });
       return;
@@ -88,14 +91,15 @@ const CharacterSelectPage: React.FC = () => {
       // 스크립트 생성 API 호출
       const scriptData = await createScript(characterId);
 
-      // 새로 생성된 스크립트를 캐시에 저장
-      setScriptCache(characterId, characterName, scriptData);
+      // 새로 생성된 스크립트를 캐시에 저장 (원본으로)
+      setScriptCache(characterId, characterName, scriptData, false);
 
       // ScriptPage로 네비게이션하면서 스크립트 데이터 전달
       navigate("/script", {
         state: {
           scriptData,
           characterName,
+          characterId,
         },
       });
     } catch (error) {

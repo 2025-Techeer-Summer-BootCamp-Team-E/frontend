@@ -11,25 +11,48 @@ import BackIcon from "../assets/Icons/BackIcon.svg";
 import VideoIcon from "../assets/Icons/VideoIcon.svg"; // 영상 생성 아이콘
 import { createScript, type ScriptApiResponse } from "../api/characterApi";
 import { useAppStore } from "../stores/appStore";
+import ConfirmModal from "../components/ConfirmModal";
 
 const ScriptPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [isRegenerating, setIsRegenerating] = useState(false);
 
   // Zustand store 사용
-  const { currentBookSession, isBookSessionValid, setScriptCache } =
-    useAppStore();
+  const {
+    currentBookSession,
+    isBookSessionValid,
+    setScriptCache,
+    getScriptCache,
+  } = useAppStore();
 
   // CharacterSelectPage에서 전달받은 데이터
-  const { scriptData, characterName } =
+  const { scriptData, characterName, characterId } =
     (location.state as {
       scriptData?: ScriptApiResponse;
       characterName?: string;
+      characterId?: number;
     }) || {};
 
-  const [currentScriptData, setCurrentScriptData] =
+  // 최초 대본(A), 재생성 대본(B) 상태 분리
+  const [originalScript, setOriginalScript] =
     useState<ScriptApiResponse | null>(scriptData || null);
+  const [regeneratedScript, setRegeneratedScript] =
+    useState<ScriptApiResponse | null>(null);
+
+  // 현재 보여주는 대본이 original인지 regenerated인지
+  const [viewMode, setViewMode] = useState<"original" | "regenerated">(
+    "original"
+  );
+  // 재생성 안내 모달
+  const [showRegenerateModal, setShowRegenerateModal] = useState(false);
+  // 재생성 중 상태
+  const [isRegenerating, setIsRegenerating] = useState(false);
+  // 재생성 버튼 비활성화(한 번만 가능)
+  const [regenerateUsed, setRegenerateUsed] = useState(false);
+
+  // 툴팁 상태
+  const [showTooltip, setShowTooltip] = useState(false);
+
   const selectedName = characterName || "홍선군";
   const selectedSex = "남성"; // 기본값, 추후 캐릭터 데이터에서 가져올 수 있음
 
@@ -39,75 +62,98 @@ const ScriptPage: React.FC = () => {
     (나직하지만 힘 있는 목소리로)
     …내관이 고하더군. 이 하전, 그 아이에게 사약을 내렸다고. 어명이라 했지.
     허나, 나는 안다. 그 어명이 누구의 입에서 나왔는지를.`,
-
     `
     (나직하지만 힘 있는 목소리로)
     …내관이 고하더군. 이 하전, 그 아이에게 사약을 내렸다고. 어명이라 했지.
     허나, 나는 안다. 그 어명이 누구의 입에서 나왔는지를.`,
-
     `
     (나직하지만 힘 있는 목소리로)
     …내관이 고하더군. 이 하전, 그 아이에게 사약을 내렸다고. 어명이라 했지.
     허나, 나는 안다. 그 어명이 누구의 입에서 나왔는지를.`,
   ];
 
-  // 스크립트 데이터를 store에 저장 (처음 마운트될 때)
+  // 캐시에서 스크립트 로드 및 초기 설정
   useEffect(() => {
-    if (currentScriptData && characterName) {
-      // 스크립트 데이터를 캐시에 저장
-      setScriptCache(
-        currentScriptData.characterId,
-        characterName,
-        currentScriptData
-      );
+    const actualCharacterId = characterId || originalScript?.characterId;
+
+    if (actualCharacterId) {
+      const cachedScripts = getScriptCache(actualCharacterId);
+
+      // 캐시에서 스크립트 복원
+      if (cachedScripts.original && !originalScript) {
+        setOriginalScript(cachedScripts.original);
+      }
+      if (cachedScripts.regenerated) {
+        setRegeneratedScript(cachedScripts.regenerated);
+        setRegenerateUsed(true);
+        setViewMode("regenerated"); // 재생성된 대본이 있으면 그것을 먼저 보여줌
+      }
+
+      // 새로운 원본 스크립트가 있으면 캐시에 저장
+      if (originalScript && characterName) {
+        setScriptCache(actualCharacterId, characterName, originalScript, false);
+      }
     }
-  }, [currentScriptData, characterName, setScriptCache]);
+  }, [
+    originalScript,
+    characterName,
+    characterId,
+    getScriptCache,
+    setScriptCache,
+  ]);
 
   // 스크립트 데이터가 없으면 적절한 페이지로 리다이렉트
   useEffect(() => {
-    if (!currentScriptData) {
+    if (!originalScript) {
       console.warn("스크립트 데이터가 없습니다.");
-
-      // store에 유효한 책 세션이 있으면 캐릭터 선택 페이지로, 없으면 메인으로
       if (isBookSessionValid()) {
         navigate("/char");
       } else {
         navigate("/");
       }
     }
-  }, [currentScriptData, navigate, isBookSessionValid]);
+  }, [originalScript, navigate, isBookSessionValid]);
+
+  // 현재 보여줄 대본 데이터
+  const currentScriptData =
+    viewMode === "original" ? originalScript : regeneratedScript;
 
   // API 응답에서 스크립트 텍스트 추출
   const getScriptsFromData = () => {
     if (!currentScriptData?.scenes) {
       return fallbackScripts;
     }
-
     return currentScriptData.scenes.map((scene) => {
       const lines = scene.lines
         .map((line) => `${line.speaker}: ${line.line_ko}`)
         .join("\n");
       const background = scene.background ? `배경: ${scene.background}` : "";
       const mood = scene.mood ? `분위기: ${scene.mood}` : "";
-
       return `${background ? background + "\n" : ""}${mood ? mood + "\n" : ""}${lines}`;
     });
   };
 
-  const handleRegenerate = async () => {
-    if (!currentScriptData?.characterId) {
-      console.error("캐릭터 ID가 없어 재생성할 수 없습니다.");
-      return;
-    }
+  // 재생성 버튼 클릭 시 안내 모달
+  const handleRegenerateClick = () => {
+    setShowRegenerateModal(true);
+  };
+
+  // 안내 모달에서 확인 시 재생성 진행
+  const handleRegenerateConfirm = async () => {
+    setShowRegenerateModal(false);
+    const actualCharacterId = characterId || originalScript?.characterId;
+    if (!actualCharacterId) return;
 
     setIsRegenerating(true);
     try {
-      const newScriptData = await createScript(currentScriptData.characterId);
-      setCurrentScriptData(newScriptData);
+      const newScriptData = await createScript(actualCharacterId);
+      setRegeneratedScript(newScriptData);
+      setViewMode("regenerated");
+      setRegenerateUsed(true);
 
-      // 새로 생성된 스크립트를 캐시에 업데이트
+      // 재생성된 대본을 캐시에 저장
       if (characterName) {
-        setScriptCache(newScriptData.characterId, characterName, newScriptData);
+        setScriptCache(actualCharacterId, characterName, newScriptData, true);
       }
     } catch (error) {
       console.error("스크립트 재생성 실패:", error);
@@ -117,9 +163,34 @@ const ScriptPage: React.FC = () => {
     }
   };
 
+  // 안내 모달에서 취소
+  const handleRegenerateCancel = () => {
+    setShowRegenerateModal(false);
+  };
+
+  // 기존/재생성 대본 전환 버튼
+  const renderSwitchButtons = () => {
+    if (!regeneratedScript) return null;
+    return (
+      <div className="flex gap-2 mb-2 justify-end">
+        <button
+          className={`px-4 py-1 rounded font-semibold border ${viewMode === "original" ? "bg-[#DCAC62] text-white" : "bg-white text-[#DCAC62] border-[#DCAC62]"}`}
+          onClick={() => setViewMode("original")}
+        >
+          기존 대본 보기
+        </button>
+        <button
+          className={`px-4 py-1 rounded font-semibold border ${viewMode === "regenerated" ? "bg-[#DCAC62] text-white" : "bg-white text-[#DCAC62] border-[#DCAC62]"}`}
+          onClick={() => setViewMode("regenerated")}
+        >
+          재생성 대본 보기
+        </button>
+      </div>
+    );
+  };
+
   // 뒤로가기 핸들러
   const handleGoBack = () => {
-    // store에 유효한 책 세션이 있으면 캐릭터 선택 페이지로, 없으면 메인으로
     if (isBookSessionValid() && currentBookSession) {
       navigate("/char", {
         state: {
@@ -167,6 +238,8 @@ const ScriptPage: React.FC = () => {
         {/* 래퍼: 버튼을 절대 위치시키기 위한 relative 부모 */}
         <div className="flex justify-center ml-[37.26px]">
           <div className="relative">
+            {/* 기존/재생성 대본 전환 버튼 */}
+            {renderSwitchButtons()}
             {/* 실제 컨테이너 (패딩 포함) */}
             <div
               className="
@@ -216,27 +289,67 @@ const ScriptPage: React.FC = () => {
               </div>
             </div>
 
-            {/* 절대 위치 재생성 버튼 */}
+            {/* 절대 위치 재생성 버튼 - relative로 만들어서 툴팁의 기준점으로 사용 */}
             <button
-              onClick={handleRegenerate}
-              disabled={isRegenerating}
+              onClick={handleRegenerateClick}
+              disabled={isRegenerating || regenerateUsed}
               className="
-                absolute
+                  absolute
                 bottom-[calc(100%+22px)]    /* 컨테이너 테두리 기준 22px 위 */
-                right-[15px]   /* 컨테이너 우측에서 15px 안쪽 */
-                flex items-center gap-[6px] h-[27px]
-                font-nanumGothic font-semibold text-[20px] text-black
-                cursor-pointer hover:underline transition
-                disabled:opacity-50 disabled:cursor-not-allowed
-              "
+                right-[15px] flex items-center gap-[6px] h-[27px]
+                  font-nanumGothic font-semibold text-[20px] text-black
+                  cursor-pointer hover:underline transition
+                  disabled:opacity-50 disabled:cursor-not-allowed
+                "
+              onMouseEnter={() => {
+                if (regenerateUsed) setShowTooltip(true);
+              }}
+              onMouseLeave={() => setShowTooltip(false)}
             >
               <img
                 src={Regenerating}
                 alt="재생성"
                 className={`w-[24px] h-[24px] ${isRegenerating ? "animate-spin" : ""}`}
               />
-              {isRegenerating ? "생성중..." : "재생성"}
+              <div className="relative w-0 h-0">
+                {" "}
+                {/* 툴팁: 버튼 위에 표시 */}
+                {regenerateUsed && showTooltip && (
+                  <div
+                    className="
+                    absolute bottom-full mb-2 right-0
+                    z-50 px-4 py-2 
+                    bg-white text-gray-700 text-sm 
+                    rounded shadow-lg border border-gray-200 
+                    whitespace-nowrap
+                    animate-pulse
+                  "
+                    style={{ minWidth: 220 }}
+                  >
+                    재생성은 캐릭터당 1회만 가능합니다.
+                    <div className="absolute top-full right-4 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent border-t-white"></div>
+                  </div>
+                )}
+              </div>
+              {isRegenerating
+                ? "생성중..."
+                : regenerateUsed
+                  ? "재생성 완료"
+                  : "재생성"}
             </button>
+            {/* 재생성 안내 모달 */}
+            {showRegenerateModal && (
+              <ConfirmModal
+                name={selectedName}
+                message={
+                  "대본 재생성은 캐릭터당 1회만 가능합니다. 정말 재생성 하시겠습니까?"
+                }
+                onConfirm={handleRegenerateConfirm}
+                onCancel={handleRegenerateCancel}
+                visible={showRegenerateModal}
+                confirmText="재생성"
+              />
+            )}
 
             {/* 4) 하단 버튼들 */}
             <CommonButton
