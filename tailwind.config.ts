@@ -14,9 +14,18 @@ const config: Config = {
       dropShadow: {
         floor: "0px 20px 24px rgba(0, 0, 0, 0.45)",
         // 다른 커스텀 그림자도 추가 가능
-        lora: ['Lora', 'serif'],
-        nanumMyeongjo: ['"Nanum Myeongjo"', 'serif'],
-        nanumGothic: ['"Nanum Gothic"', 'sans-serif'],
+        lora: ["Lora", "serif"],
+        nanumMyeongjo: ['"Nanum Myeongjo"', "serif"],
+        nanumGothic: ['"Nanum Gothic"', "sans-serif"],
+      },
+      keyframes: {
+        shimmer: {
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(100%)" },
+        },
+      },
+      animation: {
+        shimmer: "shimmer 2s infinite",
       },
     },
   },

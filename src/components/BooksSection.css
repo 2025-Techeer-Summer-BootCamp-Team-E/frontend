@@ -1,0 +1,211 @@
+/* BooksSection 컴포넌트 전용 스타일 */
+// tailwind만으로 안되는 부분이 있기도하고, 이거만큼은 전용 css 파일을 따로 관리하는 게 나을 거 같아서 추가했습니다.
+
+/* 선택된 책 글로우 애니메이션 */
+@keyframes selectedGlow {
+  0% {
+    box-shadow: 0 0 20px rgba(220, 172, 98, 0.3);
+    opacity: 0.7;
+  }
+  100% {
+    box-shadow: 0 0 40px rgba(220, 172, 98, 0.6);
+    opacity: 1;
+  }
+}
+
+/* 책 컨테이너 스타일 - 부드러운 양방향 애니메이션 */
+.book-container {
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transform-origin: center bottom;
+  will-change: transform;
+  transform: scale(1) translateY(0);
+}
+
+/* 선택된 책 스타일 */
+.book-container.selected {
+  transform: scale(1.1) translateY(-20px);
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 일반 책 호버 스타일 */
+.book-container:not(.selected):hover {
+  transform: scale(1.05) translateY(-8px);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 호버 해제 시 부드러운 복귀 */
+.book-container:not(.selected):not(:hover) {
+  transform: scale(1) translateY(0);
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* 선택 표시 링 스타일 */
+.selection-ring {
+  animation: selectedGlow 2s ease-in-out infinite alternate;
+}
+
+/* 캐러셀 슬라이드 애니메이션 */
+.carousel-container {
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 네비게이션 버튼 스타일 */
+.nav-button {
+  backdrop-filter: blur(8px);
+  transition: all 0.2s ease-out;
+}
+
+.nav-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.nav-button:active {
+  transform: scale(0.95);
+}
+
+.nav-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: scale(1);
+}
+
+/* 슬라이드 인디케이터 스타일 */
+.slide-indicator {
+  transition: all 0.3s ease-out;
+}
+
+.slide-indicator.active {
+  background-color: #dcac62;
+  transform: scale(1.25);
+  box-shadow: 0 2px 8px rgba(220, 172, 98, 0.4);
+}
+
+.slide-indicator:not(.active):hover {
+  background-color: #9ca3af;
+  transform: scale(1.1);
+}
+
+/* 텍스트 말줄임 */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 그라데이션 배경 */
+.gradient-background {
+  background: linear-gradient(
+    to bottom,
+    rgba(252, 250, 247, 0.8),
+    rgba(252, 250, 247, 0.4)
+  );
+}
+
+.gradient-background:hover {
+  background: linear-gradient(
+    to bottom,
+    rgba(252, 250, 247, 1),
+    rgba(252, 250, 247, 0.8)
+  );
+}
+
+/* 아이콘 배경 그라데이션 */
+.icon-background {
+  background: linear-gradient(
+    to bottom right,
+    rgba(220, 172, 98, 0.3),
+    rgba(220, 172, 98, 0.1)
+  );
+}
+
+/* 부드러운 등장 애니메이션 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* 로딩 애니메이션 */
+@keyframes slideLoading {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.slide-loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.slide-loading::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: slideLoading 1.5s infinite;
+}
+
+/* 스크롤바 숨기기 */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* 고성능 GPU 가속 */
+.gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* 책 그림자 효과 - 부드러운 전환 */
+.book-shadow-selected {
+  filter: drop-shadow(0 25px 50px rgba(220, 172, 98, 0.4));
+  transition: filter 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.book-shadow-normal {
+  filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.15));
+  transition: filter 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.book-shadow-hover {
+  filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.2));
+  transition: filter 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 호버 시 그림자 효과 */
+.book-container:not(.selected):hover .book-shadow-normal {
+  filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.2));
+}
+
+/* 호버 해제 시 그림자 복귀 */
+.book-container:not(.selected):not(:hover) .book-shadow-normal {
+  filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.15));
+}
