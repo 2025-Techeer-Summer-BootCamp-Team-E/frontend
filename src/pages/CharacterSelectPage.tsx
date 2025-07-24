@@ -147,7 +147,7 @@ const CharacterSelectPage: React.FC = () => {
   const moreCharacters = Array.isArray(characters)
     ? (characters as ApiCharacterType[]).slice(5).map((c) => c.characterName)
     : [];
-=======
+
   // 내 서재로 돌아가기 안내 모달 상태
   const [showGoHomeModal, setShowGoHomeModal] = useState(false);
 
@@ -172,7 +172,6 @@ const CharacterSelectPage: React.FC = () => {
   const handleGoHomeCancel = () => {
     setShowGoHomeModal(false);
   };
-
 
   return (
     <div className="min-h-screen bg-[#F8F3ED]">
