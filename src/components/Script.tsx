@@ -8,12 +8,11 @@ export interface ScriptProps {
 
 const Script: React.FC<ScriptProps> = ({ sceneTitle, children }) => {
   return (
-    <div className="relative bg-[#F8F9FA] rounded-[30px] w-[1102px] h-[170px] p-6">
+    <div className="flex flex-col bg-[#F8F9FA] rounded-[30px] w-[1102px] h-[170px] p-6">
       {/* Scene Badge */}
       {sceneTitle && (
         <span
           className="
-            absolute top-3 left-5
             inline-flex items-center justify-center   /* 인라인 박스 + 중앙 정렬 */
             w-[109px] h-[28px]                       /* Figma에 맞춘 크기 */
             bg-[#0008FF] bg-opacity-[19%]            /* 배경색 #2900BC, 투명도 19% */

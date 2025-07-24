@@ -123,6 +123,13 @@ const ScriptPage: React.FC = () => {
     if (!currentScriptData?.scenes) {
       return fallbackScripts;
     }
+    // 짧게 대사만 넣은 버전
+    // return currentScriptData.scenes.map((scene) => {
+    //   return scene.lines.map((line) => {
+    //     return `: ${line.line_ko}`;
+    //   });
+    // });
+    // 길게 한 버전
     return currentScriptData.scenes.map((scene) => {
       const lines = scene.lines
         .map((line) => `${line.speaker}: ${line.line_ko}`)
