@@ -26,8 +26,7 @@ const FrontCharacterCard: React.FC<FrontProps> = ({ name, sex }) => {
           writingMode: "vertical-lr",
           textOrientation: "upright",
           letterSpacing: "0.2em",
-          fontSize:
-            name.length > 10 ? "16px" : name.length > 7 ? "22px" : "28px",
+          fontSize: name.length > 9 ? "16px" : "24px",
         }}
       >
         {name}

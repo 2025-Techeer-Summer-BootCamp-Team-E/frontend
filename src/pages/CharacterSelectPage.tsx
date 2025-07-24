@@ -7,7 +7,8 @@ import CommonButton from "../components/CommonButton";
 import Stepper from "../components/Stepper";
 import BackIcon from "../assets/Icons/BackIcon.svg";
 import MoreCharacters from "../components/MoreCharacters";
-import Down_flag from "../assets/Icons/Down_flag.svg";
+import Up_flag from "../assets/Icons/up_flag.svg";
+import Down_flag from "../assets/Icons/down_flag.svg";
 import ConfirmModal from "../components/ConfirmModal";
 
 const CharacterSelectPage: React.FC = () => {
@@ -55,7 +56,7 @@ const CharacterSelectPage: React.FC = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // 메인 캐릭터가 배열이면 5개로 슬라이스
+  // 메인 캐릭터가 배열이면 5개로 슬라이스, 배열 아니면 빈 배열
   const mainCharacters = Array.isArray(characters)
     ? (characters as ApiCharacterType[]).slice(0, 5)
     : [];
@@ -87,7 +88,7 @@ const CharacterSelectPage: React.FC = () => {
           className="bg-white mx-auto w-[calc(100vw-128px)]"
           style={{
             background: "white",
-            boxShadow: "inset 0 0 0 4px #ACACAC", // 안쪽(border처럼) 테두리
+            boxShadow: "inset 0 0 0 4px #ACACAC",
           }}
         >
           {/* 캐릭터 카드 리스트 */}
@@ -95,12 +96,24 @@ const CharacterSelectPage: React.FC = () => {
             <ActCharacterCard characters={mainCharacters} />
           </div>
 
-          {/* 인물 더보기 + 안내문구 */}
-          <div className="flex justify-end items-center p-2">
+          {/* 인물 더보기 + 안내문구 + 토글 버튼+토글창 세트 */}
+          <div className="flex justify-end items-center p-4">
             <span className="text-[#959595] text-sm mr-2 font-bold">
               원하는 인물이 없나요?
             </span>
-            {moreCharacters.length > 0 && (
+            <div className="relative">
+              {/* 토글창: 버튼 바로 위에 absolute로 위치 */}
+              {showMore && (
+                <div className="absolute bottom-[48px] right-0 z-30 w-[220px] max-w-[95vw]">
+                  <MoreCharacters
+                    open={showMore}
+                    onNameClick={handleNameClick}
+                    names={moreCharacters}
+                  />
+                </div>
+              )}
+
+              {/* 인물 더보기 버튼 */}
               <button
                 className="border border-[#D2C8BA] bg-white rounded-lg text-[#75624E] flex items-center justify-center w-[150px] h-[40px]"
                 onClick={() => setShowMore((prev) => !prev)}
@@ -108,9 +121,13 @@ const CharacterSelectPage: React.FC = () => {
                 <span className="text-[18px] font-NanumSquare font-[1000]">
                   인물 더보기
                 </span>
-                <img src={Down_flag} alt="더보기" className="ml-2" />
+                <img
+                  src={showMore ? Down_flag : Up_flag}
+                  alt="더보기"
+                  className="ml-2"
+                />
               </button>
-            )}
+            </div>
           </div>
         </div>
       </main>
@@ -125,18 +142,6 @@ const CharacterSelectPage: React.FC = () => {
           >
             <span className="text-[20px]">내 서재로 돌아가기</span>
           </CommonButton>
-        </span>
-
-        <span className="flex justify-end w-full max-w-[calc(100vw-128px)] mr-2 mt-2">
-          {showMore && moreCharacters.length > 0 && (
-            <div>
-              <MoreCharacters
-                open={showMore}
-                onNameClick={handleNameClick}
-                names={moreCharacters}
-              />
-            </div>
-          )}
         </span>
 
         {modalName && (
