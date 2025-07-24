@@ -289,54 +289,64 @@ const ScriptPage: React.FC = () => {
               </div>
             </div>
 
-            {/* 절대 위치 재생성 버튼 - relative로 만들어서 툴팁의 기준점으로 사용 */}
-            <button
-              onClick={handleRegenerateClick}
-              disabled={isRegenerating || regenerateUsed}
+            {/* 절대 위치 재생성 버튼 - 마우스 이벤트를 위한 wrapper */}
+            <div
               className="
-                  absolute
+                absolute
                 bottom-[calc(100%+22px)]    /* 컨테이너 테두리 기준 22px 위 */
-                right-[15px] flex items-center gap-[6px] h-[27px]
+                right-[15px]
+              "
+              onMouseEnter={() => {
+                console.log("마우스 진입:", regenerateUsed);
+                if (regenerateUsed) setShowTooltip(true);
+              }}
+              onMouseLeave={() => {
+                console.log("마우스 나감");
+                setShowTooltip(false);
+              }}
+            >
+              <button
+                onClick={handleRegenerateClick}
+                disabled={isRegenerating || regenerateUsed}
+                className="
+                  flex items-center gap-[6px] h-[27px]
                   font-nanumGothic font-semibold text-[20px] text-black
                   cursor-pointer hover:underline transition
                   disabled:opacity-50 disabled:cursor-not-allowed
                 "
-              onMouseEnter={() => {
-                if (regenerateUsed) setShowTooltip(true);
-              }}
-              onMouseLeave={() => setShowTooltip(false)}
-            >
-              <img
-                src={Regenerating}
-                alt="재생성"
-                className={`w-[24px] h-[24px] ${isRegenerating ? "animate-spin" : ""}`}
-              />
-              <div className="relative w-0 h-0">
-                {" "}
-                {/* 툴팁: 버튼 위에 표시 */}
-                {regenerateUsed && showTooltip && (
-                  <div
-                    className="
-                    absolute bottom-full mb-2 right-0
-                    z-50 px-4 py-2 
-                    bg-white text-gray-700 text-sm 
-                    rounded shadow-lg border border-gray-200 
-                    whitespace-nowrap
-                    animate-pulse
-                  "
-                    style={{ minWidth: 220 }}
-                  >
-                    재생성은 캐릭터당 1회만 가능합니다.
-                    <div className="absolute top-full right-4 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent border-t-white"></div>
-                  </div>
-                )}
-              </div>
-              {isRegenerating
-                ? "생성중..."
-                : regenerateUsed
-                  ? "재생성 완료"
-                  : "재생성"}
-            </button>
+              >
+                <img
+                  src={Regenerating}
+                  alt="재생성"
+                  className={`w-[24px] h-[24px] ${isRegenerating ? "animate-spin" : ""}`}
+                />
+                <div className="relative">
+                  {isRegenerating
+                    ? "생성중..."
+                    : regenerateUsed
+                      ? "재생성 완료"
+                      : "재생성"}
+
+                  {/* 툴팁: regenerateUsed일 때만 렌더링, showTooltip으로 애니메이션 제어 */}
+                  {regenerateUsed && (
+                    <div
+                      className={`
+                        absolute bottom-[200%] translate-x-[-50%] bg-white flex justify-center items-center px-5 text-left text-base font-normal text-black w-[20rem] h-[5rem] rounded-[1.25rem] shadow-[0px_4px_8px_rgba(0,0,0,0.25)] z-[1] 
+                        after:absolute after:bottom-[-0.9rem] after:left-1/2 after:translate-x-[-50%] after:content-[''] after:border-l-[0.625rem] after:border-l-transparent after:border-r-[0.625rem] after:border-r-transparent after:border-t-[1rem] after:border-t-white after:z-[2]
+                        transition-all duration-300 ease-in-out transform
+                        ${
+                          showTooltip
+                            ? "opacity-100 scale-100 translate-y-0"
+                            : "opacity-0 scale-95 translate-y-1"
+                        }
+                      `}
+                    >
+                      재생성은 캐릭터당 1회만 가능합니다.
+                    </div>
+                  )}
+                </div>
+              </button>
+            </div>
             {/* 재생성 안내 모달 */}
             {showRegenerateModal && (
               <ConfirmModal
