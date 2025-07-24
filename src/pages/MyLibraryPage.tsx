@@ -171,7 +171,13 @@ const MyLibraryPage: React.FC = () => {
 
     try {
       // 선택된 책의 캐릭터 목록 API 호출
-      const charactersData = await getCharactersByBookId(selectedBook.id);
+      // const charactersData = await getCharactersByBookId(selectedBook.id);
+
+      // (개발용)API 호출과 최소 1초 로딩을 동시에 실행
+      const [charactersData] = await Promise.all([
+        getCharactersByBookId(selectedBook.id),
+        new Promise((resolve) => setTimeout(resolve, 1000)), // 최소 1초 대기
+      ]);
 
       // 캐릭터 정보에서 scenes를 제외한 최소 정보만 저장
       const minimalCharacters = charactersData.map((c) => ({
