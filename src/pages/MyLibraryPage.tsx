@@ -294,7 +294,7 @@ const MyLibraryPage: React.FC = () => {
         {/* Search and Books Container */}
         <div className="xl:w-[84rem] 2xl:w-[107rem] mx-4 mb-0 bg-white rounded-t-[50px] drop-shadow-[0_8px_32px_rgba(0,0,0,0.25)]">
           {/* Search Section */}
-          <section className="flex justify-between mb-[80px] p-[2rem]">
+          <section className="flex justify-between p-[2rem]">
             {/* Book Filter Tabs */}
             <div className="flex gap-8 mx-4">
               <button
@@ -342,12 +342,40 @@ const MyLibraryPage: React.FC = () => {
           {/* Books Grid Section */}
           <section>
             {booksLoading ? (
-              <div className="flex justify-center p-10 pb-0 items-end">
-                <div className="animate-pulse flex space-x-4">
-                  {/* 로딩 스켈레톤 - 책 모양 */}
-                  {[...Array(4)].map((_, index) => (
-                    <div key={index} className="flex-shrink-0">
-                      <div className="bg-gray-300 rounded w-48 h-72"></div>
+              <div className="flex justify-center p-10 pb-0 items-end min-h-[400px]">
+                <div className="flex items-end justify-center gap-8">
+                  {/* 로딩 스켈레톤 - 더 예쁜 책 모양 */}
+                  {[...Array(5)].map((_, index) => (
+                    <div
+                      key={index}
+                      className="flex flex-col items-center group"
+                    >
+                      <div className="relative">
+                        {/* 책 스켈레톤 */}
+                        <div
+                          className="animate-pulse bg-gradient-to-b from-gray-200 to-gray-300 rounded-lg shadow-lg"
+                          style={{ width: 220, height: 320 }}
+                        >
+                          {/* 책 등의 세로선 효과 */}
+                          <div className="absolute left-4 top-0 bottom-0 w-1 bg-gray-400/50 rounded-full"></div>
+                          {/* 책 제목 영역 */}
+                          <div className="absolute top-6 left-6 right-6">
+                            <div className="h-4 bg-gray-400/60 rounded mb-2"></div>
+                            <div className="h-3 bg-gray-400/40 rounded w-3/4"></div>
+                          </div>
+                          {/* 책 이미지 영역 */}
+                          <div className="absolute bottom-6 left-6 right-6 h-32 bg-gray-400/30 rounded"></div>
+                        </div>
+
+                        {/* 글리머 효과 */}
+                        <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent rounded-lg"></div>
+                      </div>
+
+                      {/* 제목 스켈레톤 */}
+                      <div className="mt-4 text-center">
+                        <div className="animate-pulse h-4 bg-gray-200 rounded w-24 mb-1"></div>
+                        <div className="animate-pulse h-3 bg-gray-200 rounded w-16"></div>
+                      </div>
                     </div>
                   ))}
                 </div>
