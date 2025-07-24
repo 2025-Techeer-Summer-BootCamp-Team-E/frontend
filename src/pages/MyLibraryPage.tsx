@@ -10,6 +10,7 @@ import {
 } from "../api/bookApi";
 import { getCharactersByBookId } from "../api/characterApi";
 import type { BookApiResponse, VideoApiResponse } from "../api/bookApi";
+import { useAppStore } from "../stores/appStore";
 
 // utils (한글 조사 구분 함수)
 import { getKoreanParticle } from "../utils/koreanUtils";
@@ -38,12 +39,21 @@ const MyLibraryPage: React.FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
 
+  // Zustand store 사용
+  const { setBookSession, clearAllScripts } = useAppStore();
+
   // 인증되지 않은 사용자 리다이렉트
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
       navigate("/auth");
     }
   }, [authLoading, isAuthenticated, navigate]);
+
+  // 메인 페이지 진입 시 스크립트 캐시 정리 (선택적)
+  useEffect(() => {
+    // 메인 페이지로 돌아왔을 때 모든 스크립트 캐시 정리
+    clearAllScripts();
+  }, [clearAllScripts]);
 
   const [bookFilter, setBookFilter] = useState<"service" | "uploaded">(
     "service"
@@ -163,10 +173,23 @@ const MyLibraryPage: React.FC = () => {
       // 선택된 책의 캐릭터 목록 API 호출
       const charactersData = await getCharactersByBookId(selectedBook.id);
 
+      // 캐릭터 정보에서 scenes를 제외한 최소 정보만 저장
+      const minimalCharacters = charactersData.map((c) => ({
+        id: c.id,
+        characterName: c.characterName,
+        isMain: c.isMain,
+        age: c.age,
+        gender: c.gender,
+        characterDescription: c.characterDescription,
+      }));
+
+      // Zustand store에 책 세션 정보 저장
+      setBookSession(selectedBook.id, selectedBook.title, minimalCharacters);
+
       // API 응답 완료 후 캐릭터 데이터와 함께 페이지 이동
       navigate("/char", {
         state: {
-          characters: charactersData,
+          characters: minimalCharacters,
           bookTitle: selectedBook.title,
           bookId: selectedBook.id,
         },
