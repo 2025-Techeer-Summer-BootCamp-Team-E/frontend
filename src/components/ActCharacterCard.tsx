@@ -85,12 +85,12 @@ const ActCharacterCard: React.FC<ActCharacterCardProps> = ({
   };
 
   return (
-    <div className="flex justify-center justify-evenly w-full">
+    <div className="flex flex-wrap justify-center justify-evenly w-full">
       {characters.map((character, idx) => (
         <div
           key={`${character.name}-${idx}`}
           className={`flip-card ${flipped[idx] ? "flipped" : ""}`}
-          style={{ width: 300, height: 400, cursor: "pointer" }}
+          style={{ width: 250, height: 400, cursor: "pointer" }}
           onClick={() => handleFlip(idx)}
         >
           <div className="flip-card-inner">

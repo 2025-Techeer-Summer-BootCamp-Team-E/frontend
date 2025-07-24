@@ -19,12 +19,15 @@ const FrontCharacterCard: React.FC<FrontProps> = ({ name, sex }) => {
         transition: "box-shadow 0.3s ease-in-out",
       }}
     >
+      {/* 캐릭터 이름 세로 표기 */}
       <span
-        className="absolute top-2 left-2 font-extrabold text-[28px] text-white bg-transparent font-NanumMyeongjo"
+        className="absolute top-2 left-2 font-extrabold text-white bg-transparent break-words font-NanumMyeongjo"
         style={{
-          writingMode: "vertical-rl",
+          writingMode: "vertical-lr",
           textOrientation: "upright",
           letterSpacing: "0.2em",
+          fontSize:
+            name.length > 10 ? "16px" : name.length > 7 ? "22px" : "28px",
         }}
       >
         {name}

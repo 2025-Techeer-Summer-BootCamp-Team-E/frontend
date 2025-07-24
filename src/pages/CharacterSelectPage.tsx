@@ -55,7 +55,7 @@ const CharacterSelectPage: React.FC = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // 메인 캐릭터가 배열이면 5개로 슬라이스, 배열 아니면 빈 배열
+  // 메인 캐릭터가 배열이면 5개로 슬라이스
   const mainCharacters = Array.isArray(characters)
     ? (characters as ApiCharacterType[]).slice(0, 5)
     : [];
