@@ -1,17 +1,25 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import I_Script from "../assets/Icons/Script.svg";
 
 interface BackProps {
   name: string;
   description: string;
+  characterId?: number;
+  onScriptCreate: (characterId: number, characterName: string) => void;
 }
 
-const BackCharacterCard: React.FC<BackProps> = ({ name, description }) => {
-  const navigate = useNavigate();
+const BackCharacterCard: React.FC<BackProps> = ({
+  name,
+  description,
+  characterId,
+  onScriptCreate,
+}) => {
+  const handleScriptCreate = (e: React.MouseEvent) => {
+    e.stopPropagation(); // 카드 뒤집기 이벤트 방지
 
-  const handleScriptCreate = () => {
-    navigate("/script");
+    if (characterId && onScriptCreate) {
+      onScriptCreate(characterId, name);
+    }
   };
 
   return (
@@ -33,8 +41,9 @@ const BackCharacterCard: React.FC<BackProps> = ({ name, description }) => {
       <button
         className="w-[190px] h-[42px] flex mt-8 mb-4 rounded-[8px] bg-[#FFF5E3] text-black text-[20px] border-2 border-gray font-bold shadow-[0_4px_12px_0_rgba(0,0,0,0.09)] hover:bg-[#E9E3DC] transition"
         onClick={handleScriptCreate}
+        disabled={!characterId}
       >
-        <div className="flex mt-1 gap-2">
+        <div className="flex mt-1 gap-2 items-center">
           <img
             src={I_Script}
             alt="대본 생성"

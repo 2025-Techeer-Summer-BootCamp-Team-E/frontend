@@ -10,11 +10,16 @@ import CommonButton from "../components/CommonButton";
 import BackIcon from "../assets/Icons/BackIcon.svg";
 import VideoIcon from "../assets/Icons/VideoIcon.svg"; // 영상 생성 아이콘
 import { createScript, type ScriptApiResponse } from "../api/characterApi";
+import { useAppStore } from "../stores/appStore";
 
 const ScriptPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isRegenerating, setIsRegenerating] = useState(false);
+
+  // Zustand store 사용
+  const { currentBookSession, isBookSessionValid, setScriptCache } =
+    useAppStore();
 
   // CharacterSelectPage에서 전달받은 데이터
   const { scriptData, characterName } =
@@ -46,16 +51,31 @@ const ScriptPage: React.FC = () => {
     허나, 나는 안다. 그 어명이 누구의 입에서 나왔는지를.`,
   ];
 
-  // 스크립트 데이터가 없으면 캐릭터 선택 페이지로 리다이렉트
+  // 스크립트 데이터를 store에 저장 (처음 마운트될 때)
+  useEffect(() => {
+    if (currentScriptData && characterName) {
+      // 스크립트 데이터를 캐시에 저장
+      setScriptCache(
+        currentScriptData.characterId,
+        characterName,
+        currentScriptData
+      );
+    }
+  }, [currentScriptData, characterName, setScriptCache]);
+
+  // 스크립트 데이터가 없으면 적절한 페이지로 리다이렉트
   useEffect(() => {
     if (!currentScriptData) {
-      console.warn(
-        "스크립트 데이터가 없습니다. 캐릭터 선택 페이지로 이동합니다."
-      );
-      // 개발 중에는 fallback 데이터 사용, 실제로는 아래 주석을 해제
-      // navigate("/character-select");
+      console.warn("스크립트 데이터가 없습니다.");
+
+      // store에 유효한 책 세션이 있으면 캐릭터 선택 페이지로, 없으면 메인으로
+      if (isBookSessionValid()) {
+        navigate("/char");
+      } else {
+        navigate("/");
+      }
     }
-  }, [currentScriptData, navigate]);
+  }, [currentScriptData, navigate, isBookSessionValid]);
 
   // API 응답에서 스크립트 텍스트 추출
   const getScriptsFromData = () => {
@@ -84,11 +104,32 @@ const ScriptPage: React.FC = () => {
     try {
       const newScriptData = await createScript(currentScriptData.characterId);
       setCurrentScriptData(newScriptData);
+
+      // 새로 생성된 스크립트를 캐시에 업데이트
+      if (characterName) {
+        setScriptCache(newScriptData.characterId, characterName, newScriptData);
+      }
     } catch (error) {
       console.error("스크립트 재생성 실패:", error);
       alert("스크립트 재생성에 실패했습니다. 다시 시도해주세요.");
     } finally {
       setIsRegenerating(false);
+    }
+  };
+
+  // 뒤로가기 핸들러
+  const handleGoBack = () => {
+    // store에 유효한 책 세션이 있으면 캐릭터 선택 페이지로, 없으면 메인으로
+    if (isBookSessionValid() && currentBookSession) {
+      navigate("/char", {
+        state: {
+          characters: currentBookSession.characters,
+          bookTitle: currentBookSession.bookTitle,
+          bookId: currentBookSession.bookId,
+        },
+      });
+    } else {
+      navigate("/");
     }
   };
 
@@ -206,7 +247,7 @@ const ScriptPage: React.FC = () => {
                   className="w-[20px] h-[20px]"
                 />
               }
-              onClick={() => navigate("/character-select")}
+              onClick={handleGoBack}
               className="
                 absolute
                 top-[calc(100%+19px)]                 /* 컨테이너 아래에서 19px 아래 */

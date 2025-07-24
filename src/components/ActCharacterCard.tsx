@@ -23,12 +23,12 @@ type CharacterType = {
 
 interface ActCharacterCardProps {
   characters?: ApiCharacterType[]; // API에서 받은 캐릭터 데이터 (optional)
-  onCharacterSelect?: (character: { id?: number; name: string }) => void; // 캐릭터 선택 콜백
+  onScriptCreate?: (characterId: number, characterName: string) => void; // 대본 생성 콜백
 }
 
 const ActCharacterCard: React.FC<ActCharacterCardProps> = ({
   characters: apiCharacters,
-  onCharacterSelect,
+  onScriptCreate,
 }) => {
   const [characters, setCharacters] = useState<CharacterType[]>([]);
   const [flipped, setFlipped] = useState<boolean[]>([]);
@@ -88,9 +88,9 @@ const ActCharacterCard: React.FC<ActCharacterCardProps> = ({
     });
   };
 
-  const handleCharacterSelect = (character: CharacterType) => {
-    if (onCharacterSelect) {
-      onCharacterSelect({ id: character.id, name: character.name });
+  const handleScriptCreate = (characterId: number, characterName: string) => {
+    if (onScriptCreate) {
+      onScriptCreate(characterId, characterName);
     }
   };
 
@@ -99,40 +99,23 @@ const ActCharacterCard: React.FC<ActCharacterCardProps> = ({
       {characters.map((character, idx) => (
         <div
           key={`${character.name}-${idx}`}
-          className="relative"
-          style={{ width: 300, height: 400 }}
+          className={`flip-card ${flipped[idx] ? "flipped" : ""}`}
+          style={{ width: 300, height: 400, cursor: "pointer" }}
+          onClick={() => handleFlip(idx)}
         >
-          <div
-            className={`flip-card ${flipped[idx] ? "flipped" : ""}`}
-            style={{ width: 300, height: 400, cursor: "pointer" }}
-            onClick={() => handleFlip(idx)}
-          >
-            <div className="flip-card-inner">
-              <div className="flip-card-front">
-                <FrontCharacterCard name={character.name} sex={character.sex} />
-              </div>
-              <div className="flip-card-back">
-                <BackCharacterCard
-                  name={character.name}
-                  description={character.description}
-                />
-              </div>
+          <div className="flip-card-inner">
+            <div className="flip-card-front">
+              <FrontCharacterCard name={character.name} sex={character.sex} />
+            </div>
+            <div className="flip-card-back">
+              <BackCharacterCard
+                name={character.name}
+                description={character.description}
+                characterId={character.id}
+                onScriptCreate={handleScriptCreate}
+              />
             </div>
           </div>
-
-          {/* 캐릭터 선택 버튼 */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation(); // 카드 뒤집기 이벤트 방지
-              handleCharacterSelect(character);
-            }}
-            className="absolute bottom-4 left-1/2 transform -translate-x-1/2 
-                       bg-[#DCAC62] hover:bg-[#C89B51] text-white font-semibold 
-                       px-6 py-2 rounded-lg transition-colors duration-200
-                       shadow-md hover:shadow-lg z-10"
-          >
-            선택하기
-          </button>
         </div>
       ))}
       <style>{`
