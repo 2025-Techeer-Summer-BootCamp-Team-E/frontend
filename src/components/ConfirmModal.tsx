@@ -5,6 +5,9 @@ interface ConfirmModalProps {
   onConfirm: () => void;
   onCancel: () => void;
   visible: boolean;
+  isLoading?: boolean;
+  confirmText?: string;
+  message?: string; // 안내 문구
 }
 
 const EXIT_ANIMATION_TIME = 220;
@@ -14,6 +17,9 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   onConfirm,
   onCancel,
   visible,
+  isLoading = false,
+  confirmText = "확인",
+  message,
 }) => {
   const [show, setShow] = useState(false);
   const [animState, setAnimState] = useState<
@@ -60,23 +66,28 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
         `}
       >
         <div className="text-xl font-bold mb-4">
-          선택한 인물로 진행하시겠습니까?
+          {message || "선택한 인물로 진행하시겠습니까?"}
         </div>
         <div className="mb-6 text-[48px] text-[#5a4630] font-medium font-black">
           {name}
         </div>
         <div className="flex gap-4">
           <button
-            className="px-6 py-2 rounded bg-gray-200 text-[#000000] font-bold hover:bg-gray-300 transition"
+            className="px-6 py-2 rounded bg-gray-200 text-[#000000] font-bold hover:bg-gray-300 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             style={{ boxShadow: "inset 0 0 0 4px #FFFFFF" }}
             onClick={onConfirm}
+            disabled={isLoading}
           >
-            확인
+            {isLoading && (
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#000000]"></div>
+            )}
+            {isLoading ? "처리중..." : confirmText}
           </button>
           <button
-            className="px-6 py-2 rounded bg-gray-200 text-[#000000] font-bold hover:bg-gray-300 transition"
+            className="px-6 py-2 rounded bg-gray-200 text-[#000000] font-bold hover:bg-gray-300 transition disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ boxShadow: "inset 0 0 0 4px #FFFFFF" }}
             onClick={onCancel}
+            disabled={isLoading}
           >
             취소
           </button>

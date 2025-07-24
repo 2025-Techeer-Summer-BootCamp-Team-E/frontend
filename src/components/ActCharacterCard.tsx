@@ -15,6 +15,7 @@ export type ApiCharacterType = {
 
 // UI에서 사용할 타입 (기존 JSON 형식과 호환)
 type CharacterType = {
+  id?: number; // API ID 추가
   name: string;
   sex: string;
   description: string;
@@ -22,10 +23,12 @@ type CharacterType = {
 
 interface ActCharacterCardProps {
   characters?: ApiCharacterType[]; // API에서 받은 캐릭터 데이터 (optional)
+  onScriptCreate?: (characterId: number, characterName: string) => void; // 대본 생성 콜백
 }
 
 const ActCharacterCard: React.FC<ActCharacterCardProps> = ({
   characters: apiCharacters,
+  onScriptCreate,
 }) => {
   const [characters, setCharacters] = useState<CharacterType[]>([]);
   const [flipped, setFlipped] = useState<boolean[]>([]);
@@ -36,6 +39,7 @@ const ActCharacterCard: React.FC<ActCharacterCardProps> = ({
       // API에서 받은 데이터를 UI 형식으로 변환
       const transformedCharacters: CharacterType[] = apiCharacters.map(
         (char) => ({
+          id: char.id, // API ID 포함
           name: char.characterName,
           sex:
             char.gender === "male"
@@ -84,6 +88,12 @@ const ActCharacterCard: React.FC<ActCharacterCardProps> = ({
     });
   };
 
+  const handleScriptCreate = (characterId: number, characterName: string) => {
+    if (onScriptCreate) {
+      onScriptCreate(characterId, characterName);
+    }
+  };
+
   return (
     <div className="flex flex-wrap justify-center justify-evenly w-full">
       {characters.map((character, idx) => (
@@ -101,6 +111,8 @@ const ActCharacterCard: React.FC<ActCharacterCardProps> = ({
               <BackCharacterCard
                 name={character.name}
                 description={character.description}
+                characterId={character.id}
+                onScriptCreate={handleScriptCreate}
               />
             </div>
           </div>
