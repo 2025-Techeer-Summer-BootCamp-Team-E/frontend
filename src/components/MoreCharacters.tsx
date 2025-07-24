@@ -1,19 +1,7 @@
 import React, { useEffect, useState } from "react";
 
-const names = [
-  "정 대식",
-  "정 대일",
-  "정 대이",
-  "정 대삼",
-  "정 대사",
-  "파우스트",
-  "데미안",
-  "후치 네드발",
-  "카리나",
-  "최대7글자까지",
-];
-
 interface MoreCharactersProps {
+  names: string[];
   onNameClick: (name: string) => void;
   open: boolean;
 }
@@ -23,6 +11,7 @@ const EXIT_ANIMATION_TIME = 220;
 const MoreCharacters: React.FC<MoreCharactersProps> = ({
   onNameClick,
   open,
+  names,
 }) => {
   const [show, setShow] = useState(false);
   const [anim, setAnim] = useState<"none" | "enter" | "entered" | "exit">(
@@ -57,28 +46,39 @@ const MoreCharacters: React.FC<MoreCharactersProps> = ({
   return (
     <div
       className={`
-        flex flex-row items-end bg-white rounded-2xl border-4 border-[#B5AD9F] shadow-lg px-2 py-1 mt-2 w-fit
+        flex flex-col items-stretch bg-white rounded-2xl border-4 border-[#B5AD9F] shadow-lg
+        w-[200px] min-h-[144px] py-2 px-0 mb-2
         ${animClass}
       `}
     >
-      {names.map((name, idx) => (
-        <React.Fragment key={name}>
-          <button
-            className="h-28 px-2 flex items-end justify-center text-black font-extrabold text-[18px] transition hover:bg-gray-100"
-            style={{
-              writingMode: "vertical-rl",
-              textOrientation: "upright",
-              letterSpacing: "0.15em",
-            }}
-            onClick={() => onNameClick(name)}
-          >
-            {name}
-          </button>
-          {idx !== names.length - 1 && (
-            <div className="h-28 w-[2px] bg-black opacity-80 rounded"></div>
-          )}
-        </React.Fragment>
-      ))}
+      {names.length === 0 ? (
+        <span className="p-6 text-lg text-[#999] font-bold text-center">
+          입력 가능한 인물이 없습니다
+        </span>
+      ) : (
+        names.map((name, idx) => (
+          <React.Fragment key={name}>
+            <button
+              className={`
+                flex-1 flex items-center justify-center text-center py-2
+                text-black font-bold text-[18px]
+                bg-white hover:bg-gray-100 transition
+                border-0 rounded-none outline-none focus:ring-2 focus:ring-[#B5AD9F]
+                ${idx === 0 ? "rounded-t-2xl" : ""}
+                ${idx === names.length - 1 ? "rounded-b-2xl" : ""}
+              `}
+              onClick={() => onNameClick(name)}
+              style={{ minHeight: "48px" }}
+              type="button"
+            >
+              {name}
+            </button>
+            {idx !== names.length - 1 && (
+              <div className="w-full h-[3px] bg-black opacity-80" />
+            )}
+          </React.Fragment>
+        ))
+      )}
     </div>
   );
 };

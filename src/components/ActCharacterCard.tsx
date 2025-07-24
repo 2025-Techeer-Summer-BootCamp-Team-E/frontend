@@ -3,7 +3,7 @@ import FrontCharacterCard from "./FrontCharacterCard";
 import BackCharacterCard from "./BackCharacterCard";
 
 // API 응답 타입 (characterApi.ts에서 정의된 것과 동일)
-type ApiCharacterType = {
+export type ApiCharacterType = {
   id: number;
   characterName: string;
   isMain: boolean;
@@ -95,12 +95,12 @@ const ActCharacterCard: React.FC<ActCharacterCardProps> = ({
   };
 
   return (
-    <div className="flex justify-center justify-evenly w-full">
+    <div className="flex flex-wrap justify-center justify-evenly w-full">
       {characters.map((character, idx) => (
         <div
           key={`${character.name}-${idx}`}
           className={`flip-card ${flipped[idx] ? "flipped" : ""}`}
-          style={{ width: 300, height: 400, cursor: "pointer" }}
+          style={{ width: 250, height: 400, cursor: "pointer" }}
           onClick={() => handleFlip(idx)}
         >
           <div className="flip-card-inner">
