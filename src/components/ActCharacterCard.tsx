@@ -15,6 +15,7 @@ type ApiCharacterType = {
 
 // UI에서 사용할 타입 (기존 JSON 형식과 호환)
 type CharacterType = {
+  id?: number; // API ID 추가
   name: string;
   sex: string;
   description: string;
@@ -22,10 +23,12 @@ type CharacterType = {
 
 interface ActCharacterCardProps {
   characters?: ApiCharacterType[]; // API에서 받은 캐릭터 데이터 (optional)
+  onCharacterSelect?: (character: { id?: number; name: string }) => void; // 캐릭터 선택 콜백
 }
 
 const ActCharacterCard: React.FC<ActCharacterCardProps> = ({
   characters: apiCharacters,
+  onCharacterSelect,
 }) => {
   const [characters, setCharacters] = useState<CharacterType[]>([]);
   const [flipped, setFlipped] = useState<boolean[]>([]);
@@ -36,6 +39,7 @@ const ActCharacterCard: React.FC<ActCharacterCardProps> = ({
       // API에서 받은 데이터를 UI 형식으로 변환
       const transformedCharacters: CharacterType[] = apiCharacters.map(
         (char) => ({
+          id: char.id, // API ID 포함
           name: char.characterName,
           sex:
             char.gender === "male"
@@ -84,26 +88,51 @@ const ActCharacterCard: React.FC<ActCharacterCardProps> = ({
     });
   };
 
+  const handleCharacterSelect = (character: CharacterType) => {
+    if (onCharacterSelect) {
+      onCharacterSelect({ id: character.id, name: character.name });
+    }
+  };
+
   return (
     <div className="flex justify-center justify-evenly w-full">
       {characters.map((character, idx) => (
         <div
           key={`${character.name}-${idx}`}
-          className={`flip-card ${flipped[idx] ? "flipped" : ""}`}
-          style={{ width: 300, height: 400, cursor: "pointer" }}
-          onClick={() => handleFlip(idx)}
+          className="relative"
+          style={{ width: 300, height: 400 }}
         >
-          <div className="flip-card-inner">
-            <div className="flip-card-front">
-              <FrontCharacterCard name={character.name} sex={character.sex} />
-            </div>
-            <div className="flip-card-back">
-              <BackCharacterCard
-                name={character.name}
-                description={character.description}
-              />
+          <div
+            className={`flip-card ${flipped[idx] ? "flipped" : ""}`}
+            style={{ width: 300, height: 400, cursor: "pointer" }}
+            onClick={() => handleFlip(idx)}
+          >
+            <div className="flip-card-inner">
+              <div className="flip-card-front">
+                <FrontCharacterCard name={character.name} sex={character.sex} />
+              </div>
+              <div className="flip-card-back">
+                <BackCharacterCard
+                  name={character.name}
+                  description={character.description}
+                />
+              </div>
             </div>
           </div>
+
+          {/* 캐릭터 선택 버튼 */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation(); // 카드 뒤집기 이벤트 방지
+              handleCharacterSelect(character);
+            }}
+            className="absolute bottom-4 left-1/2 transform -translate-x-1/2 
+                       bg-[#DCAC62] hover:bg-[#C89B51] text-white font-semibold 
+                       px-6 py-2 rounded-lg transition-colors duration-200
+                       shadow-md hover:shadow-lg z-10"
+          >
+            선택하기
+          </button>
         </div>
       ))}
       <style>{`

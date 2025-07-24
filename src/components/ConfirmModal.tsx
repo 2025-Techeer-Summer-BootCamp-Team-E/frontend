@@ -5,6 +5,8 @@ interface ConfirmModalProps {
   onConfirm: () => void;
   onCancel: () => void;
   visible: boolean;
+  isLoading?: boolean;
+  confirmText?: string;
 }
 
 const EXIT_ANIMATION_TIME = 220;
@@ -14,6 +16,8 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   onConfirm,
   onCancel,
   visible,
+  isLoading = false,
+  confirmText = "확인",
 }) => {
   const [show, setShow] = useState(false);
   const [animState, setAnimState] = useState<
@@ -67,16 +71,21 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
         </div>
         <div className="flex gap-4">
           <button
-            className="px-6 py-2 rounded bg-gray-200 text-[#000000] font-bold hover:bg-gray-300 transition"
+            className="px-6 py-2 rounded bg-gray-200 text-[#000000] font-bold hover:bg-gray-300 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             style={{ boxShadow: "inset 0 0 0 4px #FFFFFF" }}
             onClick={onConfirm}
+            disabled={isLoading}
           >
-            확인
+            {isLoading && (
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#000000]"></div>
+            )}
+            {isLoading ? "처리중..." : confirmText}
           </button>
           <button
-            className="px-6 py-2 rounded bg-gray-200 text-[#000000] font-bold hover:bg-gray-300 transition"
+            className="px-6 py-2 rounded bg-gray-200 text-[#000000] font-bold hover:bg-gray-300 transition disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ boxShadow: "inset 0 0 0 4px #FFFFFF" }}
             onClick={onCancel}
+            disabled={isLoading}
           >
             취소
           </button>

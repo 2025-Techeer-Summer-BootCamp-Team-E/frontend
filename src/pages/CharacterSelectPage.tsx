@@ -8,6 +8,7 @@ import BackIcon from "../assets/Icons/BackIcon.svg";
 import MoreCharacters from "../components/MoreCharacters";
 import Down_flag from "../assets/Icons/Down_flag.svg";
 import ConfirmModal from "../components/ConfirmModal";
+import { createScript } from "../api/characterApi";
 
 const CharacterSelectPage: React.FC = () => {
   const navigate = useNavigate();
@@ -16,6 +17,11 @@ const CharacterSelectPage: React.FC = () => {
   const [modalName, setModalName] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [selectedCharacter, setSelectedCharacter] = useState<{
+    id?: number;
+    name: string;
+  } | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   // MyLibraryPage에서 전달받은 캐릭터 데이터
   const { characters, bookTitle } = location.state || {};
@@ -28,22 +34,65 @@ const CharacterSelectPage: React.FC = () => {
     }
   }, [characters, bookTitle, navigate]);
 
-  const handleConfirm = () => {
-    setModalVisible(false); // 먼저 숨기기
-    setTimeout(() => {
-      setModalName(null); // 애니메이션 후 완전 제거
-      navigate("/script");
-    }, 220); // ConfirmModal.tsx의 duration과 맞추세요
+  // ActCharacterCard에서 캐릭터 선택 시 호출
+  const handleCharacterSelect = async (character: {
+    id?: number;
+    name: string;
+  }) => {
+    if (!character.id) {
+      alert("캐릭터 정보가 없습니다.");
+      return;
+    }
+
+    setSelectedCharacter(character);
+    setModalName(character.name);
+    setModalVisible(true);
+  };
+
+  const handleConfirm = async () => {
+    if (!selectedCharacter?.id) {
+      alert("선택된 캐릭터가 없습니다.");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      // 스크립트 생성 API 호출
+      const scriptData = await createScript(selectedCharacter.id);
+
+      setModalVisible(false);
+      setTimeout(() => {
+        setModalName(null);
+        setSelectedCharacter(null);
+        // ScriptPage로 네비게이션하면서 스크립트 데이터 전달
+        navigate("/script", {
+          state: {
+            scriptData,
+            characterName: selectedCharacter.name,
+          },
+        });
+      }, 220);
+    } catch (error) {
+      console.error("스크립트 생성 실패:", error);
+      alert("스크립트 생성에 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleNameClick = (name: string) => {
+    // MoreCharacters에서 클릭 시 ID 없이 처리 (기존 로직 유지)
     setModalName(name);
-    setModalVisible(true); // 모달 등장
+    setModalVisible(true);
+    setSelectedCharacter({ name }); // ID 없이 설정
   };
 
   const handleCancel = () => {
     setModalVisible(false);
-    setTimeout(() => setModalName(null), 220);
+    setTimeout(() => {
+      setModalName(null);
+      setSelectedCharacter(null);
+    }, 220);
   };
 
   useEffect(() => {
@@ -82,7 +131,10 @@ const CharacterSelectPage: React.FC = () => {
         >
           {/* 캐릭터 카드 리스트 */}
           <div className="py-10">
-            <ActCharacterCard characters={characters} />
+            <ActCharacterCard
+              characters={characters}
+              onCharacterSelect={handleCharacterSelect}
+            />
           </div>
 
           {/* 인물 더보기 + 안내문구 */}
@@ -126,9 +178,23 @@ const CharacterSelectPage: React.FC = () => {
         {modalName && (
           <ConfirmModal
             name={modalName}
-            onConfirm={handleConfirm}
+            onConfirm={
+              selectedCharacter?.id
+                ? handleConfirm
+                : () => {
+                    // ID가 없는 경우 (MoreCharacters에서 선택) 기존 로직
+                    setModalVisible(false);
+                    setTimeout(() => {
+                      setModalName(null);
+                      setSelectedCharacter(null);
+                      navigate("/script");
+                    }, 220);
+                  }
+            }
             onCancel={handleCancel}
             visible={modalVisible}
+            isLoading={isLoading}
+            confirmText={selectedCharacter?.id ? "대본작성하기" : "선택하기"}
           />
         )}
       </div>

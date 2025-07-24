@@ -1,5 +1,6 @@
 // src/pages/ScriptPage.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Stepper from "../components/Stepper";
 import Script from "../components/Script"; // (장면 하나짜리 박스 컴포넌트)
@@ -8,13 +9,27 @@ import FrontCharacterCard from "../components/FrontCharacterCard";
 import CommonButton from "../components/CommonButton";
 import BackIcon from "../assets/Icons/BackIcon.svg";
 import VideoIcon from "../assets/Icons/VideoIcon.svg"; // 영상 생성 아이콘
-
+import { createScript, type ScriptApiResponse } from "../api/characterApi";
 
 const ScriptPage: React.FC = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [isRegenerating, setIsRegenerating] = useState(false);
 
-  const [selectedName, setSelectedName] = useState("홍선군")
-  const [selectedSex, setSelectedSex] = useState("남성")
-  const [exampleScripts, setExampleScripts] = useState<string[]>([
+  // CharacterSelectPage에서 전달받은 데이터
+  const { scriptData, characterName } =
+    (location.state as {
+      scriptData?: ScriptApiResponse;
+      characterName?: string;
+    }) || {};
+
+  const [currentScriptData, setCurrentScriptData] =
+    useState<ScriptApiResponse | null>(scriptData || null);
+  const selectedName = characterName || "홍선군";
+  const selectedSex = "남성"; // 기본값, 추후 캐릭터 데이터에서 가져올 수 있음
+
+  // 하드코딩된 예시 대본 (fallback용)
+  const fallbackScripts = [
     `
     (나직하지만 힘 있는 목소리로)
     …내관이 고하더군. 이 하전, 그 아이에게 사약을 내렸다고. 어명이라 했지.
@@ -29,32 +44,55 @@ const ScriptPage: React.FC = () => {
     (나직하지만 힘 있는 목소리로)
     …내관이 고하더군. 이 하전, 그 아이에게 사약을 내렸다고. 어명이라 했지.
     허나, 나는 안다. 그 어명이 누구의 입에서 나왔는지를.`,
+  ];
 
-    `
-    (나직하지만 힘 있는 목소리로)
-    …내관이 고하더군. 이 하전, 그 아이에게 사약을 내렸다고. 어명이라 했지.
-    허나, 나는 안다. 그 어명이 누구의 입에서 나왔는지를.`,
+  // 스크립트 데이터가 없으면 캐릭터 선택 페이지로 리다이렉트
+  useEffect(() => {
+    if (!currentScriptData) {
+      console.warn(
+        "스크립트 데이터가 없습니다. 캐릭터 선택 페이지로 이동합니다."
+      );
+      // 개발 중에는 fallback 데이터 사용, 실제로는 아래 주석을 해제
+      // navigate("/character-select");
+    }
+  }, [currentScriptData, navigate]);
 
-    `
-    (나직하지만 힘 있는 목소리로)
-    …내관이 고하더군. 이 하전, 그 아이에게 사약을 내렸다고. 어명이라 했지.
-    허나, 나는 안다. 그 어명이 누구의 입에서 나왔는지를.`,
+  // API 응답에서 스크립트 텍스트 추출
+  const getScriptsFromData = () => {
+    if (!currentScriptData?.scenes) {
+      return fallbackScripts;
+    }
 
-    `
-    (나직하지만 힘 있는 목소리로)
-    …내관이 고하더군. 이 하전, 그 아이에게 사약을 내렸다고. 어명이라 했지.
-    허나, 나는 안다. 그 어명이 누구의 입에서 나왔는지를.`,
+    return currentScriptData.scenes.map((scene) => {
+      const lines = scene.lines
+        .map((line) => `${line.speaker}: ${line.line_ko}`)
+        .join("\n");
+      const background = scene.background ? `배경: ${scene.background}` : "";
+      const mood = scene.mood ? `분위기: ${scene.mood}` : "";
 
-    `
-    (나직하지만 힘 있는 목소리로)
-    …내관이 고하더군. 이 하전, 그 아이에게 사약을 내렸다고. 어명이라 했지.
-    허나, 나는 안다. 그 어명이 누구의 입에서 나왔는지를.`,
-  ]);
-    
-
-const handleRegenerate = () => {
-    console.log("대본 재생성!");
+      return `${background ? background + "\n" : ""}${mood ? mood + "\n" : ""}${lines}`;
+    });
   };
+
+  const handleRegenerate = async () => {
+    if (!currentScriptData?.characterId) {
+      console.error("캐릭터 ID가 없어 재생성할 수 없습니다.");
+      return;
+    }
+
+    setIsRegenerating(true);
+    try {
+      const newScriptData = await createScript(currentScriptData.characterId);
+      setCurrentScriptData(newScriptData);
+    } catch (error) {
+      console.error("스크립트 재생성 실패:", error);
+      alert("스크립트 재생성에 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setIsRegenerating(false);
+    }
+  };
+
+  const scripts = getScriptsFromData();
 
   return (
     <div className="min-h-screen bg-[#F8F3ED]">
@@ -89,15 +127,18 @@ const handleRegenerate = () => {
         <div className="flex justify-center ml-[37.26px]">
           <div className="relative">
             {/* 실제 컨테이너 (패딩 포함) */}
-            <div className="
+            <div
+              className="
                 w-[1206px] h-[661px]
                 bg-white rounded-[30px]
                 shadow-[0_4px_8.7px_rgba(0,0,0,0.25)]
                 p-[23.78px_20px_57.78px_41px]
                 box-border
-              ">
+              "
+            >
               {/* 스크롤 래퍼 */}
-              <div className={`
+              <div
+                className={`
                 w-full h-full
                 overflow-y-scroll overflow-x-hidden
 
@@ -119,10 +160,14 @@ const handleRegenerate = () => {
                 [&::-webkit-scrollbar-thumb]:border-solid
                 [&::-webkit-scrollbar-thumb]:border-transparent
                 [&::-webkit-scrollbar-thumb]:bg-clip-content
-              `}>
+              `}
+              >
                 <div className="space-y-[34px] w-[1102px]">
-                  {exampleScripts.map((text, idx) => (
-                    <Script key={idx} sceneTitle={`Scene #${idx + 1}`}>
+                  {scripts.map((text, idx) => (
+                    <Script
+                      key={`${currentScriptData?.script_id || "fallback"}-${idx}`}
+                      sceneTitle={`Scene #${idx + 1}`}
+                    >
                       {text}
                     </Script>
                   ))}
@@ -133,6 +178,7 @@ const handleRegenerate = () => {
             {/* 절대 위치 재생성 버튼 */}
             <button
               onClick={handleRegenerate}
+              disabled={isRegenerating}
               className="
                 absolute
                 bottom-[calc(100%+22px)]    /* 컨테이너 테두리 기준 22px 위 */
@@ -140,17 +186,28 @@ const handleRegenerate = () => {
                 flex items-center gap-[6px] h-[27px]
                 font-nanumGothic font-semibold text-[20px] text-black
                 cursor-pointer hover:underline transition
+                disabled:opacity-50 disabled:cursor-not-allowed
               "
             >
-              <img src={Regenerating} alt="재생성" className="w-[24px] h-[24px]" />
-              재생성
+              <img
+                src={Regenerating}
+                alt="재생성"
+                className={`w-[24px] h-[24px] ${isRegenerating ? "animate-spin" : ""}`}
+              />
+              {isRegenerating ? "생성중..." : "재생성"}
             </button>
 
             {/* 4) 하단 버튼들 */}
-             <CommonButton
-               icon={<img src={BackIcon} alt="뒤로가기" className="w-[20px] h-[20px]" />}
-               onClick={() => console.log("인물선택으로 돌아가기")}
-               className="
+            <CommonButton
+              icon={
+                <img
+                  src={BackIcon}
+                  alt="뒤로가기"
+                  className="w-[20px] h-[20px]"
+                />
+              }
+              onClick={() => navigate("/character-select")}
+              className="
                 absolute
                 top-[calc(100%+19px)]                 /* 컨테이너 아래에서 19px 아래 */
                 right-[calc(100%+39px)]       /* 컨테이너 왼쪽에서 39px 왼쪽 */
@@ -158,14 +215,20 @@ const handleRegenerate = () => {
                 flex items-center justify-center gap-[21px]
                 font-nanumGothic font-semibold text-[20px] text-black
               "
-             >
+            >
               인물선택으로 돌아가기
-             </CommonButton>
+            </CommonButton>
 
-             <CommonButton
-               icon={<img src={VideoIcon} alt="영상 생성" className="w-[20px] h-[20px]" />}
-               onClick={() => console.log("영상 생성")}
-               className="
+            <CommonButton
+              icon={
+                <img
+                  src={VideoIcon}
+                  alt="영상 생성"
+                  className="w-[20px] h-[20px]"
+                />
+              }
+              onClick={() => console.log("영상 생성")}
+              className="
                 absolute
                 top-[calc(100%+19px)]                /* 컨테이너 아래에서 19px 아래 */
                 left-[calc(100%+39px)]        /* 컨테이너 오른쪽에서 39px 오른쪽 */
@@ -173,9 +236,9 @@ const handleRegenerate = () => {
                 flex items-center justify-center gap-[26px]
                 font-nanumGothic font-semibold text-[20px] text-black
               "
-             >
-             영상생성
-             </CommonButton>
+            >
+              영상생성
+            </CommonButton>
           </div>
         </div>
       </div>
