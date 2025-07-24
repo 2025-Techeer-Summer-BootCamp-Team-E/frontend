@@ -29,6 +29,8 @@ const CharacterSelectPage: React.FC = () => {
     isBookSessionValid,
     getScriptCache,
     setScriptCache,
+    scriptCache,
+    clearAllScripts,
   } = useAppStore();
 
   // MyLibraryPage에서 전달받은 캐릭터 데이터 또는 store에서 가져온 데이터
@@ -131,6 +133,31 @@ const CharacterSelectPage: React.FC = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // 내 서재로 돌아가기 안내 모달 상태
+  const [showGoHomeModal, setShowGoHomeModal] = useState(false);
+
+  // 내 서재로 돌아가기 버튼 클릭 핸들러
+  const handleGoHomeClick = () => {
+    // scriptCache에 값이 하나라도 있으면 모달 띄움
+    if (scriptCache && Object.keys(scriptCache).length > 0) {
+      setShowGoHomeModal(true);
+    } else {
+      navigate("/");
+    }
+  };
+
+  // 내 서재로 돌아가기 모달에서 확인
+  const handleGoHomeConfirm = () => {
+    clearAllScripts();
+    setShowGoHomeModal(false);
+    navigate("/");
+  };
+
+  // 내 서재로 돌아가기 모달에서 취소
+  const handleGoHomeCancel = () => {
+    setShowGoHomeModal(false);
+  };
+
   return (
     <div className="min-h-screen bg-[#F8F3ED]">
       {/* 대본 생성 로딩 모달 */}
@@ -215,7 +242,7 @@ const CharacterSelectPage: React.FC = () => {
           <CommonButton
             icon={<img src={BackIcon} alt="뒤로가기" className="mr-2" />}
             className="w-[280px] h-[60px] mb-11 mt-10"
-            onClick={() => navigate("/")}
+            onClick={handleGoHomeClick}
           >
             <span className="text-[20px]">내 서재로 돌아가기</span>
           </CommonButton>
@@ -235,6 +262,18 @@ const CharacterSelectPage: React.FC = () => {
             onConfirm={handleConfirm}
             onCancel={handleCancel}
             visible={modalVisible}
+          />
+        )}
+        {showGoHomeModal && (
+          <ConfirmModal
+            name={""}
+            message={
+              "생성한 대본이 초기화됩니다. 정말 내 서재로 돌아가시겠습니까?"
+            }
+            onConfirm={handleGoHomeConfirm}
+            onCancel={handleGoHomeCancel}
+            visible={showGoHomeModal}
+            confirmText="네, 돌아갈래요"
           />
         )}
       </div>

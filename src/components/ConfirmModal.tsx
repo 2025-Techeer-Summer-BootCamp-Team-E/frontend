@@ -7,6 +7,7 @@ interface ConfirmModalProps {
   visible: boolean;
   isLoading?: boolean;
   confirmText?: string;
+  message?: string; // 안내 문구
 }
 
 const EXIT_ANIMATION_TIME = 220;
@@ -18,6 +19,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   visible,
   isLoading = false,
   confirmText = "확인",
+  message,
 }) => {
   const [show, setShow] = useState(false);
   const [animState, setAnimState] = useState<
@@ -64,7 +66,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
         `}
       >
         <div className="text-xl font-bold mb-4">
-          선택한 인물로 진행하시겠습니까?
+          {message || "선택한 인물로 진행하시겠습니까?"}
         </div>
         <div className="mb-6 text-[48px] text-[#5a4630] font-medium font-black">
           {name}
