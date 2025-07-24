@@ -149,8 +149,8 @@ const BooksSection: React.FC<BooksSectionProps> = ({
                 >
                   {/* 책 컨테이너 - 고정된 크기로 레이아웃 안정성 확보 */}
                   <div className="relative flex items-end justify-center">
-                    {/* 선택 표시 링
-                    {isSelected && (
+                    {/* 선택한 책 뒤에 나타내는 링인데 별론 거 같음 */}
+                    {/* {isSelected && (
                       <div className="absolute inset-0 flex items-center justify-center z-10">
                         <div
                           className="selection-ring rounded-lg border-4 border-[#DCAC62] bg-[#DCAC62]/10"
@@ -160,7 +160,7 @@ const BooksSection: React.FC<BooksSectionProps> = ({
                           }}
                         />
                       </div>
-                    )} */}
+                    )}  */}
 
                     {/* 책 썸네일 */}
                     <div
@@ -184,7 +184,7 @@ const BooksSection: React.FC<BooksSectionProps> = ({
                   <div className="mt-4 text-center max-w-[200px]">
                     <p
                       className={`
-                      font-medium transition-all duration-300 line-clamp-2
+                      font-medium transition-all duration-[400ms] ease-out line-clamp-2
                       ${
                         isSelected
                           ? "text-[#604317] text-lg font-bold"

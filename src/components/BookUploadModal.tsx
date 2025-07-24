@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import CommonButton from "./CommonButton";
+// import CommonButton from "./CommonButton";
 
 interface BookUploadModalProps {
   isOpen: boolean;
@@ -182,7 +182,21 @@ const BookUploadModal: React.FC<BookUploadModalProps> = ({
           >
             취소
           </button>
-          <CommonButton
+          <button
+            onClick={handleUpload}
+            disabled={isLoading}
+            className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isLoading ? (
+              <div className="flex items-center justify-center">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                업로드 중...
+              </div>
+            ) : (
+              "책 생성하기"
+            )}
+          </button>
+          {/* <CommonButton
             onClick={handleUpload}
             disabled={isLoading || !title.trim() || !selectedFile}
             className="flex-1 h-auto py-2"
@@ -195,7 +209,7 @@ const BookUploadModal: React.FC<BookUploadModalProps> = ({
             ) : (
               "책 생성하기"
             )}
-          </CommonButton>
+          </CommonButton> */}
         </div>
       </div>
     </div>

@@ -13,39 +13,30 @@
   }
 }
 
-/* 책 호버 애니메이션 */
-@keyframes bookHover {
-  0% {
-    transform: scale(1) translateY(0);
-  }
-  100% {
-    transform: scale(1.05) translateY(-8px);
-  }
-}
-
-/* 선택된 책 애니메이션 */
-@keyframes bookSelected {
-  0% {
-    transform: scale(1) translateY(0);
-  }
-  100% {
-    transform: scale(1.1) translateY(-20px);
-  }
-}
-
-/* 책 컨테이너 스타일 */
+/* 책 컨테이너 스타일 - 부드러운 양방향 애니메이션 */
 .book-container {
-  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   transform-origin: center bottom;
   will-change: transform;
+  transform: scale(1) translateY(0);
 }
 
+/* 선택된 책 스타일 */
 .book-container.selected {
-  animation: bookSelected 0.5s ease-out forwards;
+  transform: scale(1.1) translateY(-20px);
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
+/* 일반 책 호버 스타일 */
 .book-container:not(.selected):hover {
-  animation: bookHover 0.3s ease-out forwards;
+  transform: scale(1.05) translateY(-8px);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 호버 해제 시 부드러운 복귀 */
+.book-container:not(.selected):not(:hover) {
+  transform: scale(1) translateY(0);
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 /* 선택 표시 링 스타일 */
@@ -193,15 +184,28 @@
   perspective: 1000px;
 }
 
-/* 책 그림자 효과 */
+/* 책 그림자 효과 - 부드러운 전환 */
 .book-shadow-selected {
   filter: drop-shadow(0 25px 50px rgba(220, 172, 98, 0.4));
+  transition: filter 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .book-shadow-normal {
   filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.15));
+  transition: filter 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .book-shadow-hover {
   filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.2));
+  transition: filter 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 호버 시 그림자 효과 */
+.book-container:not(.selected):hover .book-shadow-normal {
+  filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.2));
+}
+
+/* 호버 해제 시 그림자 복귀 */
+.book-container:not(.selected):not(:hover) .book-shadow-normal {
+  filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.15));
 }
