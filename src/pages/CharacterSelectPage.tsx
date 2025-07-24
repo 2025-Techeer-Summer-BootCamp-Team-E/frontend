@@ -227,11 +227,14 @@ const CharacterSelectPage: React.FC = () => {
         >
           {/* 캐릭터 카드 리스트 */}
           <div className="py-10">
-            <ActCharacterCard characters={mainCharacters} />
             <ActCharacterCard
-              characters={characters}
+              characters={mainCharacters}
               onScriptCreate={handleScriptCreate}
             />
+            {/* <ActCharacterCard
+              characters={characters}
+              onScriptCreate={handleScriptCreate}
+            /> */}
           </div>
 
           {/* 인물 더보기 + 안내문구 + 토글 버튼+토글창 세트 */}
