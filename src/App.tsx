@@ -3,13 +3,13 @@ import "./App.css";
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
-import MainLayout from "./layouts/MainLayout.tsx";
-import TempPage from "./pages/TempPage.tsx";
+import MainLayout from "./layouts/MainLayout";
+import TempPage from "./pages/TempPage";
 import MyVideos from "./pages/MyVideosPage"; // Assuming you have a MyVideos component
-import AuthLayout from "./layouts/AuthLayout.tsx";
-import CharacterSelectPage from "./pages/CharacterSelectPage.tsx";
-import VideoCreatePage from "./pages/VideoCreatePage.tsx";
-import MyLibraryPage from "./pages/MyLibraryPage.tsx";
+import AuthLayout from "./layouts/AuthLayout";
+import CharacterSelectPage from "./pages/CharacterSelectPage";
+import VideoCreatePage from "./pages/VideoCreatePage";
+import MyLibraryPage from "./pages/MyLibraryPage";
 import ScriptPage from "./pages/ScriptPage";
 
 const App: React.FC = () => {
