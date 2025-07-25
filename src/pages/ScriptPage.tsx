@@ -16,6 +16,7 @@ import { createVideo } from "../api/videoApi";
 
 const ScriptPage: React.FC = () => {
   const location = useLocation();
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   // Zustand store 사용
@@ -216,23 +217,40 @@ const ScriptPage: React.FC = () => {
     const scriptId = currentScriptData?.script_id;
     if (!scriptId) return;
 
-    try {
-      const { videoUrl, videoId } = await createVideo(scriptId);
+    setIsLoading(true);
 
+    //api 완성되면 setTimeout(), 데모코드 삭제
+    setTimeout(() => {
+      // try {
+      //   const { videoUrl, videoId } = await createVideo(scriptId);
+      //   navigate("/create", {
+      //     state: {
+      //       videoUrl,
+      //       videoId,
+      //       scriptId,
+      //       //title: currentScriptData?.title || "무제", 제목은 나중에 물어보자
+      //       characterName: characterName || "무명",
+      //     },
+      //   });
+      //   console.log("videoUrl in VideoCreatePage:", videoUrl);
+      // } catch (error) {
+      //   console.error("영상 생성 실패:", error);
+      //   alert("영상 생성에 실패했습니다. 다시 시도해주세요.");
+      // } finally {
+      //   setIsLoading(false);
+      // }
+
+      // 데모용 유튜브 영상
+      setIsLoading(false);
       navigate("/create", {
         state: {
-          videoUrl,
-          videoId,
-          scriptId,
-          //title: currentScriptData?.title || "무제", 제목은 나중에 물어보자
+          videoUrl: "https://www.youtube.com/embed/kBHIhq_meAI",
+          videoId: "9999",
+          scriptId: 123, // 데모용
           characterName: characterName || "무명",
         },
       });
-      console.log("videoUrl in VideoCreatePage:", videoUrl);
-    } catch (error) {
-      console.error("영상 생성 실패:", error);
-      alert("영상 생성에 실패했습니다. 다시 시도해주세요.");
-    }
+    }, 1000);
   };
 
   const scripts = getScriptsFromData();
@@ -378,6 +396,28 @@ const ScriptPage: React.FC = () => {
                 </div>
               </button>
             </div>
+
+            {isLoading && (
+              <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-40">
+                <div className="bg-white rounded-lg p-8 flex flex-col items-center max-w-md">
+                  <div className="w-24 h-24 mb-4">
+                    <div className="animate-spin rounded-full h-24 w-24 border-b-2 border-[#DCAC62]"></div>
+                  </div>
+                  <p className="text-lg font-semibold text-gray-700 text-center mb-3">
+                    {characterName ? `『${characterName}』의` : "책의"} <br />
+                    영상을 생성 중이에요!
+                  </p>
+                  <div className="text-sm text-gray-500 text-center space-y-1">
+                    <p>🤖 AI가 영상을 생성하고 있습니다</p>
+                    <p className="text-xs text-gray-400 mt-2">
+                      영상에 따라 1~3분 정도 소요될 수 있습니다{" "}
+                      {/* 얼마나 걸리는 지 백엔드한테 물어보고 수정 */}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* 재생성 안내 모달 */}
             {showRegenerateModal && (
               <ConfirmModal
