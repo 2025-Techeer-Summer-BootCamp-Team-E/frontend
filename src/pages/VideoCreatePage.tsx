@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
-import CommonButton from "../components/CommonButton"; //뒤로가기
-import BackIcon from "../assets/Icons/BackIcon.svg"; // 뒤로가기
+import CommonButton from "../components/CommonButton"; // 뒤로가기
 import Home from "../assets/Icons/Home.svg";
 import Plus from "../assets/Icons/Plus.svg";
 import Stepper from "../components/Stepper";
@@ -61,28 +60,18 @@ const VideoCreatePage: React.FC = () => {
           </div>
         </div>
 
-        <div className="fixed left-10 bottom-10 z-20">
-          <CommonButton
-            icon={<img src={BackIcon} alt="뒤로가기" className="mr-2" />}
-            className="w-[280px] h-[60px]"
-            onClick={() => navigate("/script")}
-          >
-            <span className="text-[20px]">대본 선택으로 돌아가기</span>
-          </CommonButton>
-        </div>
-
         <div className="fixed right-8 bottom-8 flex flex-col items-end gap-3 z-20">
           <CommonButton
             icon={<img src={Plus} alt="더 만들기" />}
             className="w-[207px] h-[64px]"
-            onClick={() => navigate("/main")}
+            onClick={() => navigate("/")}
           >
             <span className="text-[24px]">더 만들기</span>
           </CommonButton>
           <CommonButton
             icon={<img src={Home} alt="처음으로" />}
             className="w-[207px] h-[64px]"
-            onClick={() => navigate("/main")}
+            onClick={() => navigate("/")}
           >
             <span className="text-[24px]">처음으로</span>
           </CommonButton>
