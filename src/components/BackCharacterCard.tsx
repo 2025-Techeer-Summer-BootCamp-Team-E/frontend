@@ -1,5 +1,5 @@
 import React from "react";
-import I_Script from "../assets/Icons/Script.svg";
+import I_Script from "../assets/icons/Script.svg";
 
 interface BackProps {
   name: string;

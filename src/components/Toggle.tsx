@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import Books_Selected from "../assets/Icons/Books_Selected.svg";
-import Books_Nonselected from "../assets/Icons/Books_NonSelected.svg";
-import MyVlog_Selected from "../assets/Icons/MyVlog_Selected.svg";
-import MyVlog_Nonselected from "../assets/Icons/MyVlog_NonSelected.svg";
+import Books_Selected from "../assets/icons/Books_Selected.svg";
+import Books_Nonselected from "../assets/icons/Books_NonSelected.svg";
+import MyVlog_Selected from "../assets/icons/MyVlog_Selected.svg";
+import MyVlog_Nonselected from "../assets/icons/MyVlog_NonSelected.svg";
 import { useNavigate } from "react-router-dom";
 
 type ToggleProps = {

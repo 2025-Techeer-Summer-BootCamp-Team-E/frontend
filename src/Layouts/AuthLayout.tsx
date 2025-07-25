@@ -6,7 +6,7 @@ import SignupView from "../components/SignupView";
 import { Link } from "react-router-dom";
 
 // icons
-import Logo from "../assets/Icons/Logo.svg"; // Assuming you have a logo image in this path
+import Logo from "../assets/icons/Logo.svg"; // Assuming you have a logo image in this path
 
 const AuthLayout: React.FC = () => {
   const [view, setView] = useState<"login" | "signup">("login");
