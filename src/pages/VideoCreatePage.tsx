@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import CommonButton from "../components/CommonButton"; //뒤로가기
-import BackIcon from "../assets/Icons/BackIcon.svg"; // 뒤로가기
-import Home from "../assets/Icons/Home.svg";
-import Plus from "../assets/Icons/Plus.svg";
+import BackIcon from "../assets/icons/BackIcon.svg"; // 뒤로가기
+import Home from "../assets/icons/Home.svg";
+import Plus from "../assets/icons/Plus.svg";
 import Stepper from "../components/Stepper";
 
 const VideoCreatePage: React.FC = () => {

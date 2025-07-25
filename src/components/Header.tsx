@@ -1,8 +1,8 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import Logo from "../assets/Icons/Logo.svg";
-import Login from "../assets/Icons/Login.svg";
+import Logo from "../assets/icons/Logo.svg";
+import Login from "../assets/icons/Login.svg";
 
 type HeaderProps = {
   showNavigation?: boolean;
