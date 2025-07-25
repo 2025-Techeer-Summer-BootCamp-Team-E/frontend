@@ -16,8 +16,8 @@ import { useAppStore } from "../stores/appStore";
 import { getKoreanParticle } from "../utils/koreanUtils";
 
 // assets
-import BookFloor from "../assets/Images/BookFloor.svg";
-import SearchIcon from "../assets/Icons/SearchIcon.svg";
+import BookFloor from "../assets/images/BookFloor.svg";
+import SearchIcon from "../assets/icons/SearchIcon.svg";
 import VideoThumbnail from "../components/VideoThumbnail";
 
 // 책 데이터 타입

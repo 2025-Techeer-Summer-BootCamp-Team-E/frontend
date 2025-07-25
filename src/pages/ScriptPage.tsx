@@ -4,11 +4,11 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Stepper from "../components/Stepper";
 import Script from "../components/Script"; // (장면 하나짜리 박스 컴포넌트)
-import Regenerating from "../assets/Icons/Regenerating.svg"; // 재생성 아이콘
+import Regenerating from "../assets/icons/Regenerating.svg"; // 재생성 아이콘
 import FrontCharacterCard from "../components/FrontCharacterCard";
 import CommonButton from "../components/CommonButton";
-import BackIcon from "../assets/Icons/BackIcon.svg";
-import VideoIcon from "../assets/Icons/VideoIcon.svg"; // 영상 생성 아이콘
+import BackIcon from "../assets/icons/BackIcon.svg";
+import VideoIcon from "../assets/icons/VideoIcon.svg"; // 영상 생성 아이콘
 import { createScript, type ScriptApiResponse } from "../api/characterApi";
 import { useAppStore } from "../stores/appStore";
 import ConfirmModal from "../components/ConfirmModal";

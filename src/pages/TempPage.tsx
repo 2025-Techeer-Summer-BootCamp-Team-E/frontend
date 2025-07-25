@@ -5,7 +5,7 @@ import Toggle from "../components/Toggle";
 //import BooksSection from "../components/BooksSection";
 import VideoInfoFetch from "../components/VideoInfoFetch";
 import ActCharacterCard from "../components/ActCharacterCard";
-import BackIcon from "../assets/Icons/BackIcon.svg";
+import BackIcon from "../assets/icons/BackIcon.svg";
 import Stepper from "../components/Stepper";
 import Script from "../components/Script";
 
