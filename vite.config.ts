@@ -4,6 +4,9 @@ import react from "@vitejs/plugin-react";
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    extensions: [".ts", ".tsx", ".js", ".jsx"],
+  },
   server: {
     proxy: {
       // API 요청 경로가 /api로 시작하면 localhost:28000으로 프록시
