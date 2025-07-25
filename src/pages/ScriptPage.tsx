@@ -369,47 +369,42 @@ const ScriptPage: React.FC = () => {
             )}
 
             {/* 4) 하단 버튼들 */}
-            <CommonButton
-              icon={
-                <img
-                  src={BackIcon}
-                  alt="뒤로가기"
-                  className="w-[20px] h-[20px]"
-                />
-              }
-              onClick={handleGoBack}
-              className="
-                absolute
-                top-[calc(100%+19px)]                 /* 컨테이너 아래에서 19px 아래 */
-                right-[calc(100%+39px)]       /* 컨테이너 왼쪽에서 39px 왼쪽 */
-                w-[280px] h-[64px]
-                flex items-center justify-center gap-[21px]
-                font-nanumGothic font-semibold text-[20px] text-black
-              "
-            >
-              인물선택으로 돌아가기
-            </CommonButton>
-
-            <CommonButton
-              icon={
-                <img
-                  src={VideoIcon}
-                  alt="영상 생성"
-                  className="w-[20px] h-[20px]"
-                />
-              }
-              onClick={() => console.log("영상 생성")}
-              className="
-                absolute
-                top-[calc(100%+19px)]                /* 컨테이너 아래에서 19px 아래 */
-                left-[calc(100%+39px)]        /* 컨테이너 오른쪽에서 39px 오른쪽 */
-                w-[207px] h-[64px]
-                flex items-center justify-center gap-[26px]
-                font-nanumGothic font-semibold text-[20px] text-black
-              "
-            >
-              영상생성
-            </CommonButton>
+            <div className="flex justify-between mt-8 mb-8 w-full">
+              <CommonButton
+                icon={
+                  <img
+                    src={BackIcon}
+                    alt="뒤로가기"
+                    className="w-[20px] h-[20px]"
+                  />
+                }
+                onClick={handleGoBack}
+                className="
+                  w-[280px] h-[64px]
+                  flex items-center justify-center gap-[21px]
+                  font-nanumGothic font-semibold text-[20px] text-black
+                "
+              >
+                인물선택으로 돌아가기
+              </CommonButton>
+              <CommonButton
+                icon={
+                  <img
+                    src={VideoIcon}
+                    alt="영상 생성"
+                    className="w-[20px] h-[20px]"
+                  />
+                }
+                onClick={() => navigate("/create")}
+                className="
+                  w-[207px] h-[64px]
+                  flex items-center justify-center gap-[26px]
+                  font-nanumGothic font-semibold text-[20px] text-black
+                "
+              >
+                영상생성
+              </CommonButton>
+            </div>
           </div>
         </div>
       </div>
