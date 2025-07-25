@@ -12,6 +12,7 @@ import VideoIcon from "../assets/Icons/VideoIcon.svg"; // 영상 생성 아이�
 import { createScript, type ScriptApiResponse } from "../api/characterApi";
 import { useAppStore } from "../stores/appStore";
 import ConfirmModal from "../components/ConfirmModal";
+import { createVideo } from "../api/videoApi";
 
 const ScriptPage: React.FC = () => {
   const location = useLocation();
@@ -211,6 +212,29 @@ const ScriptPage: React.FC = () => {
     }
   };
 
+  const handelCreateVideo = async () => {
+    const scriptId = currentScriptData?.script_id;
+    if (!scriptId) return;
+
+    try {
+      const { videoUrl, videoId } = await createVideo(scriptId);
+
+      navigate("/create", {
+        state: {
+          videoUrl,
+          videoId,
+          scriptId,
+          //title: currentScriptData?.title || "무제", 제목은 나중에 물어보자
+          characterName: characterName || "무명",
+        },
+      });
+      console.log("videoUrl in VideoCreatePage:", videoUrl);
+    } catch (error) {
+      console.error("영상 생성 실패:", error);
+      alert("영상 생성에 실패했습니다. 다시 시도해주세요.");
+    }
+  };
+
   const scripts = getScriptsFromData();
 
   return (
@@ -395,7 +419,7 @@ const ScriptPage: React.FC = () => {
                     className="w-[20px] h-[20px]"
                   />
                 }
-                onClick={() => navigate("/create")}
+                onClick={() => handelCreateVideo()}
                 className="
                   w-[207px] h-[64px]
                   flex items-center justify-center gap-[26px]

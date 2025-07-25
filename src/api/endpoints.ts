@@ -34,6 +34,13 @@ export const ENDPOINTS = {
     getByVideoId: (videoId: string) => API_URL(`/${videoId}`),
     // getByBookId:`${API_BASE_URL}/books/{bookId}/videos`,
     getByBookId: (bookId: string) => API_URL(`/books/${bookId}/videos`),
+
+    // 영상 생성 요청
+    createVideo: () => API_URL(`/videos`),
+    // 아래 함수들은 임시 -> 영상 생성 먼저 처리 후
+    // bookmarkVideo: (videoId: number) => `/bookmarks/videos/${videoId}`,
+    // getBookmarkedVideos: () => "/bookmarks/bookmarked",
+    // shareVideo: (videoId: number) => `/videos/${videoId}/share`,
   },
   booksmarks: {
     get: API_URL("/bookmarked"), // 책 북마크 목록 조회

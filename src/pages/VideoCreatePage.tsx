@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Header from "../components/Header";
 import CommonButton from "../components/CommonButton"; // 뒤로가기
 import Home from "../assets/Icons/Home.svg";
@@ -9,6 +9,14 @@ import Stepper from "../components/Stepper";
 const VideoCreatePage: React.FC = () => {
   const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
+  const location = useLocation();
+  const { videoUrl } = location.state || {};
+  const {
+    /*videoId, // 실제 api 연동하면 주석 제거
+    scriptId,
+    title,*/
+    characterName,
+  } = location.state || {};
 
   useEffect(() => {
     const handleScroll = () => {
@@ -32,15 +40,17 @@ const VideoCreatePage: React.FC = () => {
             브이로그 완성!
           </div>
           <div className="mt-1 mb-2 text-base text-[#958A7A] font-NanumMyeongjo">
-            000의 브이로그가 완성되었습니다
+            {characterName} 의 브이로그가 완성되었습니다
           </div>
         </div>
 
         <section className="flex flex-col items-center justify-center w-full">
           <div className="w-full flex justify-center">
-            <img
-              src="https://t1.daumcdn.net/cfile/tistory/998D344B5BF5070114"
-              alt="썸네일"
+            <iframe
+              src={videoUrl}
+              title="생성된 영상"
+              allow="autoplay; encrypted-media"
+              allowFullScreen
               className="w-[1120px] h-[630px] object-cover border border-gray-400"
               style={{
                 borderRadius: "24px",
@@ -53,10 +63,11 @@ const VideoCreatePage: React.FC = () => {
 
         <div className="text-left w-full mt-2 font-NanumMyeongjo">
           <div className="font-bold text-[28px] bg-transparent">
-            나의 작은 별 B-612에서의 하루
+            {/* {title} */}
+            데모 제목
           </div>
           <div className="font-bold text-[18px] bg-transparent">
-            - 어린왕자 -
+            - {characterName} -
           </div>
         </div>
 
