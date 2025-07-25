@@ -12,7 +12,6 @@ import VideoIcon from "../assets/icons/VideoIcon.svg"; // 영상 생성 아이�
 import { createScript, type ScriptApiResponse } from "../api/characterApi";
 import { useAppStore } from "../stores/appStore";
 import ConfirmModal from "../components/ConfirmModal";
-import { createVideo } from "../api/videoApi";
 
 const ScriptPage: React.FC = () => {
   const location = useLocation();
@@ -244,7 +243,10 @@ const ScriptPage: React.FC = () => {
       setIsLoading(false);
       navigate("/create", {
         state: {
-          videoUrl: "https://www.youtube.com/embed/kBHIhq_meAI",
+          videoUrl:
+            // "https://drive.google.com/file/d/1XdDq9NdkR9Oy7vmjN2zMQmnyT2j63uXl/view?usp=sharing", // 이렇게 ㄴㄴ
+            // "https://drive.google.com/file/d/1XdDq9NdkR9Oy7vmjN2zMQmnyT2j63uXl/preview",
+            "https://www.youtube.com/embed/kBHIhq_meAI",
           videoId: "9999",
           scriptId: 123, // 데모용
           characterName: characterName || "무명",
