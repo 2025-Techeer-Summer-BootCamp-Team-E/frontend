@@ -33,7 +33,7 @@ const MyVideosPage: React.FC = () => {
                 <span className="font-bold text-[#604317]">
                   총 {videoCount}개
                 </span>
-                <span className="text-[#B1AAA2] ml-2">의 영상</span>
+                <span className="text-[#B1AAA2]">의 영상</span>
               </div>
             </div>
 
