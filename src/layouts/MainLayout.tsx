@@ -38,7 +38,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
   // Toggle이 필요한 페이지인지 확인
   const shouldShowToggle =
-    location.pathname === "/main" || location.pathname === "/myvid";
+    location.pathname === "/" || location.pathname === "/myvid";
 
   return (
     <div className="flex flex-col min-h-screen w-full bg-[#F8F3ED]">

@@ -40,7 +40,7 @@ const Toggle: React.FC<ToggleProps> = ({
       <button
         onClick={() => {
           handleSelection("books");
-          navigate("/main");
+          navigate("/");
         }}
         className={`w-[180px] h-[56px] rounded-full flex items-center justify-center gap-[1rem]
         font-crimson text-[24px] font-bold shadow-[0_0_8px_rgba(0,0,0,0.25)]
