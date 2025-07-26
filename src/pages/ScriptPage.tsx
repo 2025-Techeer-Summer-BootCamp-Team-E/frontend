@@ -212,6 +212,7 @@ const ScriptPage: React.FC = () => {
     }
   };
 
+  // 영상 생성 api 연동
   const handelCreateVideo = async () => {
     const scriptId = currentScriptData?.script_id;
     if (!scriptId) return;
