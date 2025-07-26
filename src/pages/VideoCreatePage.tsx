@@ -130,7 +130,7 @@ const VideoCreatePage: React.FC = () => {
           )}
         </section>
 
-        <div className="text-left w-full mt-2 font-NanumMyeongjo">
+        <div className="text-left w-full mt-2 mb-8 font-NanumMyeongjo">
           <div className="font-bold text-[28px] bg-transparent">
             {/* {title} */}
             데모 제목
@@ -143,17 +143,17 @@ const VideoCreatePage: React.FC = () => {
         <div className="fixed right-8 bottom-8 flex flex-col items-end gap-3 z-20">
           <CommonButton
             icon={<img src={Plus} alt="더 만들기" />}
-            className="w-[207px] h-[64px]"
+            className="w-[180px] h-[60px]"
             onClick={() => navigate("/")}
           >
-            <span className="text-[24px]">더 만들기</span>
+            <span className="text-[20px]">더 만들기</span>
           </CommonButton>
           <CommonButton
             icon={<img src={Home} alt="처음으로" />}
-            className="w-[207px] h-[64px]"
+            className="w-[180px] h-[60px]"
             onClick={() => navigate("/")}
           >
-            <span className="text-[24px]">처음으로</span>
+            <span className="text-[20px]">처음으로</span>
           </CommonButton>
         </div>
       </main>
