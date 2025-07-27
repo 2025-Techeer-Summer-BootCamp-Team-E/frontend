@@ -1,29 +1,28 @@
 import React from "react";
 
 export interface VideoInfoProps {
-  videoId?: number;
+  id?: number;
   title?: string;
-  from?: string; // bookid
-  description?: string;
-  character?: string; //char_id
-  duration?: string;
-  createdAt?: string;
-  videoUrl?: string;
+  from?: string;
+  prompt?: string;
+  character?: string;
+  created_at?: string;
+  video_uri?: string;
   thumbnailUrl?: string;
   isBookmarked?: boolean;
 }
 
+// 현재 영상 전체 조회 api의 request body의 응답 필드 수가 부족 -> 나중에 수정 필요
 const VideoInfo: React.FC<VideoInfoProps> = ({
-  videoId,
+  id,
   title,
-  from,
-  character,
-  description,
-  duration,
-  createdAt,
-  videoUrl,
-  thumbnailUrl,
-  isBookmarked = false,
+  from, // X
+  character, // X
+  prompt,
+  created_at,
+  video_uri,
+  thumbnailUrl, // X
+  isBookmarked = false, // X
 }) => {
   return (
     <div className="w-[1206px] [h-256px] flex rounded-[16px] border border-gray-300 bg-white shadow-md overflow-hidden hover:shadow-lg transition-shadow relative">
@@ -50,12 +49,13 @@ const VideoInfo: React.FC<VideoInfoProps> = ({
                 className="w-[398px] h-[224px] border-2 rounded-[12px] object-cover"
                 style={{ borderColor: "#AEAEAE" }}
               />
-              {/* Duration overlay */}
+
+              {/* Duration overlay
               {duration && (
                 <div className="absolute bottom-4 right-4 bg-black bg-opacity-75 text-white px-2 py-1 rounded text-sm font-medium">
                   {duration}
                 </div>
-              )}
+              )} */}
             </div>
           ) : (
             <div className="w-[398px] h-[224px] rounded-xl bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
@@ -69,9 +69,9 @@ const VideoInfo: React.FC<VideoInfoProps> = ({
       <div className="flex flex-col justify-center flex-1 gap-2 pr-4">
         <div className="flex justify-between items-start">
           <div className="text-[24px] font-bold">{title}</div>
-          {createdAt && (
+          {created_at && (
             <div className="text-[12px] text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-              {new Date(createdAt).toLocaleDateString("ko-KR", {
+              {new Date(created_at).toLocaleDateString("ko-KR", {
                 year: "numeric",
                 month: "long",
                 day: "numeric",
@@ -94,7 +94,7 @@ const VideoInfo: React.FC<VideoInfoProps> = ({
             </span>
           </div>
           <div className="text-gray-700 text-[14px] leading-relaxed">
-            {description}
+            {prompt}
           </div>
         </div>
       </div>

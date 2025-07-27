@@ -30,12 +30,12 @@ export const ENDPOINTS = {
       API_URL(`/characters/${characterId}/script/`), // 인물을 바탕으로 스크립트 생성
   },
   videos: {
-    get: API_URL("/videos"), // 저장된 영상 목록 조회
+    get: API_URL("/veo3Video/videos"), // 저장된 영상 목록 조회
     getByVideoId: (videoId: string) => API_URL(`/videos/${videoId}`),
     // getByBookId:`${API_BASE_URL}/books/{bookId}/videos`,
     getByBookId: (bookId: string) => API_URL(`/books/${bookId}/videos`),
 
-    createVideo: () => API_URL(`/videos`), // 영상 생성 요청
+    createVideo: () => API_URL(`/veo3Video/generate`), // 영상 생성 요청
     getBookmarkedVideos: () => "/bookmarks/bookmarked", // 북마크된 영상 조회
     // shareVideo: (videoId: number) => `/videos/${videoId}/share`,
   },
