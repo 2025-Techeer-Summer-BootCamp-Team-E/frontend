@@ -246,7 +246,8 @@ const ScriptPage: React.FC = () => {
           videoUrl:
             // "https://drive.google.com/file/d/1XdDq9NdkR9Oy7vmjN2zMQmnyT2j63uXl/view?usp=sharing", // 이렇게 ㄴㄴ
             // "https://drive.google.com/file/d/1XdDq9NdkR9Oy7vmjN2zMQmnyT2j63uXl/preview",
-            "https://www.youtube.com/embed/kBHIhq_meAI",
+            // "https://www.youtube.com/embed/kBHIhq_meAI",
+            "https://storage.googleapis.com/techer/generated_videos/%ED%91%9C%EB%8F%84%EB%A5%B4_%ED%8C%8C%EB%B8%94%EB%A1%9C%EB%B9%84%EC%B9%98_%EC%B9%B4%EB%9D%BC%EB%A7%88%EC%A1%B0%ED%94%84___Scene_2.mp4",
           videoId: "9999",
           scriptId: 123, // 데모용
           characterName: characterName || "무명",
