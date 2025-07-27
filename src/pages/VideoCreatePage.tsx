@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Header from "../components/Header";
-import CommonButton from "../components/CommonButton"; //뒤로가기
-// import BackIcon from "../assets/icons/BackIcon.svg"; // 뒤로가기
+import CommonButton from "../components/CommonButton";
 import Home from "../assets/icons/Home.svg";
 import Plus from "../assets/icons/Plus.svg";
 import Stepper from "../components/Stepper";
@@ -13,9 +12,12 @@ const VideoCreatePage: React.FC = () => {
   const location = useLocation();
   const { videoUrl } = location.state || {};
   const {
-    /*videoId, // 실제 api 연동하면 주석 제거
+    // 실제 api 연동하면 주석 제거
+    /*
+    videoId,
     scriptId,
     title,*/
+
     characterName,
   } = location.state || {};
 

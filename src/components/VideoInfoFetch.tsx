@@ -2,17 +2,6 @@ import React, { useState, useEffect } from "react";
 import VideoInfo from "./VideoInfo";
 import type { VideoInfoProps } from "./VideoInfo";
 
-// 예시 데이터
-/*const sampleData = [
-  {
-    imageUrl: "https://t1.daumcdn.net/cfile/tistory/998D344B5BF5070114",
-    title: "나의 작은 별 B-612에서의 하루",
-    from: "어린 왕자",
-    character: "어린 왕자",
-    description: "자신이 사는 작은 별을 사랑하고, 장미와의 관계를 통해 사랑의 의미를 배워가는 순수한 영혼"
-  }
-];*/
-
 interface VideoInfoFetchProps {
   sortBy?: "latest" | "oldest" | "title";
   onDataLoaded?: (count: number) => void;
@@ -37,10 +26,6 @@ const VideoInfoFetch: React.FC<VideoInfoFetchProps> = ({
           onDataLoaded(data.length);
         }
       });
-
-    // 예시 데이터 사용
-    /*setVideoList(sampleData);
-    setLoading(false);*/
   }, [onDataLoaded]);
 
   // 정렬된 비디오 목록
