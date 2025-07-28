@@ -13,7 +13,7 @@ export const ENDPOINTS = {
   books: {
     getOfficial: API_URL("/books/official"),
     getPersonal: API_URL("/books/personal"),
-    uploadPdf: API_URL("/books/pdf"), // PDF 업로드로 책 생성
+    uploadPdf: API_URL("/books/pdf"), // PDF 업로드로 책 생성, 비동기 구현
     // create: API_URL("/books"),
     // update: "/books/:id",
     // delete: "/books/:id",
@@ -23,16 +23,15 @@ export const ENDPOINTS = {
   characters: {
     // getByBookId: (bookId: string) => API_URL(`/books/${bookId}/characters`),
     createOrGetByBookId: (bookId: string) =>
-      API_URL(`/characters/books/${bookId}/`), // 소설을 바탕으로 인물 생성 OR 조회. GET으로 하게 될 듯
+      API_URL(`/books/${bookId}/characters`), // 소설을 바탕으로 인물 생성 OR 조회. GET으로 하게 될 듯
   },
   scripts: {
     create: (characterId: string) =>
-      API_URL(`/characters/${characterId}/script/`), // 인물을 바탕으로 스크립트 생성
+      API_URL(`/characters/${characterId}/script`), // 인물을 바탕으로 스크립트 생성
   },
   videos: {
     get: API_URL("/veo3Video/videos"), // 저장된 영상 목록 조회
-    getByVideoId: (videoId: string) => API_URL(`/videos/${videoId}`),
-    // getByBookId:`${API_BASE_URL}/books/{bookId}/videos`,
+    getByVideoId: (videoId: string) => API_URL(`/videos/${videoId}`), // 검색할 떄 사용하면 될 듯?
     getByBookId: (bookId: string) => API_URL(`/books/${bookId}/videos`),
 
     createVideo: () => API_URL(`/veo3Video/generate`), // 영상 생성 요청
