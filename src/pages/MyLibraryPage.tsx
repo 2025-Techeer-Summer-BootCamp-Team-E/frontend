@@ -151,11 +151,36 @@ const MyLibraryPage: React.FC = () => {
   // 인증 로딩 중이면 로딩 화면 표시
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-[#F8F3ED] flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#DCAC62] mx-auto mb-4"></div>
-          <p className="text-lg text-gray-600">인증 확인 중...</p>
-        </div>
+      <div
+        className="min-h-screen bg-[#F8F3ED] relative overflow-auto"
+        style={{ contain: "layout" }}
+      >
+        {/* 로딩 중에도 동일한 레이아웃 구조 유지 */}
+        <main
+          className="pt-[160px] flex flex-col items-center relative"
+          style={{ contain: "layout" }}
+        >
+          <section className="text-center py-[80px] px-4">
+            <h1 className="text-[48px] font-bold text-black mb-4 font-NanumMyeongjo">
+              어떤 이야기로 VLOG를 만들어볼까요?
+            </h1>
+            <p className="text-[20px] text-gray-600">
+              책을 선택하거나, 직접 텍스트를 업로드하여 시작해보세요.
+            </p>
+          </section>
+
+          <div
+            className="xl:w-[84rem] 2xl:w-[107rem] mx-4 mb-0 bg-white rounded-t-[50px] drop-shadow-[0_8px_32px_rgba(0,0,0,0.25)] relative h-[800px]"
+            style={{ contain: "layout" }}
+          >
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#DCAC62] mx-auto mb-4"></div>
+                <p className="text-lg text-gray-600">인증 확인 중...</p>
+              </div>
+            </div>
+          </div>
+        </main>
       </div>
     );
   }
@@ -286,7 +311,10 @@ const MyLibraryPage: React.FC = () => {
       )}
 
       {/* Main Content - with top padding to account for fixed header */}
-      <main className="pt-[180px] flex flex-col items-center">
+      <main
+        className="pt-[160px] flex flex-col items-center relative"
+        style={{ contain: "layout" }}
+      >
         {/* Hero Section */}
         <section className="text-center py-[80px] px-4">
           <h1 className="text-[48px] font-bold text-black mb-4 font-NanumMyeongjo">
