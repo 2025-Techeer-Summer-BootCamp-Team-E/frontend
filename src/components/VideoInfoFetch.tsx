@@ -1,17 +1,7 @@
 import React, { useState, useEffect } from "react";
 import VideoInfo from "./VideoInfo";
 import type { VideoInfoProps } from "./VideoInfo";
-
-// 예시 데이터
-/*const sampleData = [
-  {
-    imageUrl: "https://t1.daumcdn.net/cfile/tistory/998D344B5BF5070114",
-    title: "나의 작은 별 B-612에서의 하루",
-    from: "어린 왕자",
-    character: "어린 왕자",
-    description: "자신이 사는 작은 별을 사랑하고, 장미와의 관계를 통해 사랑의 의미를 배워가는 순수한 영혼"
-  }
-];*/
+import { getVideos } from "../api/videoApi";
 
 interface VideoInfoFetchProps {
   sortBy?: "latest" | "oldest" | "title";
@@ -26,35 +16,37 @@ const VideoInfoFetch: React.FC<VideoInfoFetchProps> = ({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // fetch로 외부 데이터 받아오기 (예시: /api/videoList)
-    fetch("public/SampleVideoInfo.json")
-      .then((res) => res.json())
-      .then((data) => {
-        setVideoList(data); // 배열 저장
-        setLoading(false);
-        // 부모 컴포넌트에 데이터 개수 전달
-        if (onDataLoaded) {
-          onDataLoaded(data.length);
-        }
-      });
+    const fetchData = async () => {
+      try {
+        const response = await getVideos(); // 실제 API 호출
 
-    // 예시 데이터 사용
-    /*setVideoList(sampleData);
-    setLoading(false);*/
+        //const data = response.data?.data || []; 왜 안되는지 모르겠음
+        const data = response.data?.data || response.data || []; // 응답 구조 { status, message, data }
+
+        setVideoList(data);
+        if (onDataLoaded) onDataLoaded(data.length);
+      } catch (error) {
+        console.error("영상 목록 불러오기 실패:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, [onDataLoaded]);
 
   // 정렬된 비디오 목록
   const sortedVideoList = [...videoList].sort((a, b) => {
     switch (sortBy) {
       case "latest":
-        if (!a.createdAt || !b.createdAt) return 0;
+        if (!a.created_at || !b.created_at) return 0;
         return (
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         );
       case "oldest":
-        if (!a.createdAt || !b.createdAt) return 0;
+        if (!a.created_at || !b.created_at) return 0;
         return (
-          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
         );
       case "title":
         if (!a.title || !b.title) return 0;
@@ -96,7 +88,7 @@ const VideoInfoFetch: React.FC<VideoInfoFetchProps> = ({
           첫 번째 VLOG를 만들어보시겠어요?
         </p>
         <button
-          onClick={() => (window.location.href = "/main")}
+          onClick={() => (window.location.href = "/")}
           className="bg-[#DCAC62] text-black px-8 py-3 rounded-full text-[18px] font-bold hover:bg-[#C49952] transition-colors"
         >
           영상 만들러 가기

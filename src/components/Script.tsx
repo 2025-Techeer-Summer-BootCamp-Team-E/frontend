@@ -8,7 +8,7 @@ export interface ScriptProps {
 
 const Script: React.FC<ScriptProps> = ({ sceneTitle, children }) => {
   return (
-    <div className="flex flex-col bg-[#F8F9FA] rounded-[30px] w-[1102px] h-[170px] p-6">
+    <div className="flex flex-col bg-[#F8F9FA] rounded-[30px] w-[1000px] h-[170px] p-6">
       {/* Scene Badge */}
       {sceneTitle && (
         <span
