@@ -235,6 +235,7 @@ export const createBookProcessingStream = async (
   try {
     const headers: Record<string, string> = {
       Accept: "text/event-stream",
+      // Accept: "application/json", // 임시
     };
 
     // 토큰이 있으면 Authorization 헤더 추가
