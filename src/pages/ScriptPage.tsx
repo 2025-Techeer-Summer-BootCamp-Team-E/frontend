@@ -12,6 +12,7 @@ import VideoIcon from "../assets/icons/VideoIcon.svg"; // 영상 생성 아이�
 import { createScript, type ScriptApiResponse } from "../api/characterApi";
 import { useAppStore } from "../stores/appStore";
 import ConfirmModal from "../components/ConfirmModal";
+import { createVideo } from "../api/videoApi";
 
 const ScriptPage: React.FC = () => {
   const location = useLocation();
@@ -121,7 +122,7 @@ const ScriptPage: React.FC = () => {
 
   // API 응답에서 스크립트 텍스트 추출
   const getScriptsFromData = () => {
-    if (!currentScriptData?.scenes) {
+    if (!currentScriptData || !Array.isArray(currentScriptData.scenes)) {
       return fallbackScripts;
     }
     // 짧게 대사만 넣은 버전
@@ -132,11 +133,15 @@ const ScriptPage: React.FC = () => {
     // });
     // 길게 한 버전
     return currentScriptData.scenes.map((scene) => {
-      const lines = scene.lines
-        .map((line) => `${line.speaker}: ${line.line_ko}`)
-        .join("\n");
+      const lines = Array.isArray(scene.lines)
+        ? scene.lines
+            .map((line) => `${line.speaker}: ${line.line_ko}`)
+            .join("\n")
+        : "대사가 없습니다.";
+
       const background = scene.background ? `배경: ${scene.background}` : "";
       const mood = scene.mood ? `분위기: ${scene.mood}` : "";
+
       return `${background ? background + "\n" : ""}${mood ? mood + "\n" : ""}${lines}`;
     });
   };

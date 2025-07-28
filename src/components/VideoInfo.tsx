@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
+import { bookmarkVideo } from "../api/videoApi";
+import { unbookmarkVideo } from "../api/videoApi";
 
 export interface VideoInfoProps {
   id?: number;
@@ -10,6 +12,7 @@ export interface VideoInfoProps {
   video_uri?: string;
   thumbnailUrl?: string;
   isBookmarked?: boolean;
+  onClick?: (videoUrl: string) => void;
 }
 
 // 현재 영상 전체 조회 api의 request body의 응답 필드 수가 부족 -> 나중에 수정 필요
@@ -23,23 +26,54 @@ const VideoInfo: React.FC<VideoInfoProps> = ({
   video_uri,
   thumbnailUrl, // X
   isBookmarked = false, // X
+  onClick,
 }) => {
+  const [bookmark, setBookmark] = useState(isBookmarked);
+
+  // 북마크 버튼 토글 함수
+  const handleBookmarkClick = async () => {
+    if (typeof id !== "number") return;
+
+    try {
+      if (bookmark) {
+        await unbookmarkVideo(id);
+        setBookmark(false);
+      } else {
+        await bookmarkVideo(id);
+        setBookmark(true);
+      }
+    } catch (err) {
+      console.error("북마크 처리 실패:", err);
+    }
+  };
+
   return (
     <div className="w-[1206px] [h-256px] flex rounded-[16px] border border-gray-300 bg-white shadow-md overflow-hidden hover:shadow-lg transition-shadow relative">
       {/* 북마크 표시 */}
-      {isBookmarked && (
-        <div className="absolute top-4 right-4 z-10">
-          <div className="bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1">
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" />
-            </svg>
-            북마크
+      <button onClick={handleBookmarkClick}>
+        {bookmark ? (
+          <div className="absolute top-4 right-4 z-10">
+            <div className="bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" />
+              </svg>
+              북마크
+            </div>
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="absolute top-4 right-4 z-10">
+            <div className="bg-gray-400 text-black-900 px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" />
+              </svg>
+              북마크
+            </div>
+          </div>
+        )}
+      </button>
 
       {/* 왼쪽: 이미지 */}
-      <button>
+      <button onClick={() => onClick?.(video_uri || "")}>
         <div className="flex-shrink-0 p-3 relative">
           {thumbnailUrl ? (
             <div className="relative">

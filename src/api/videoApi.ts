@@ -11,6 +11,7 @@ export interface VideoApiResponse {
   created_at?: string;
 }
 
+// 영상 생성 함수
 export const createVideo = async (scriptId: string) => {
   //   try {
   //     const response = await axios.post(ENDPOINTS.videos.createVideo(), {
@@ -29,6 +30,7 @@ export const createVideo = async (scriptId: string) => {
   };
 };
 
+// 전체 영상 조회 함수
 export const getVideos = () => {
   return axios.get(ENDPOINTS.videos.get);
 };

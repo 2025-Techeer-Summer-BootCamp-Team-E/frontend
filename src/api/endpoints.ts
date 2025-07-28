@@ -27,7 +27,7 @@ export const ENDPOINTS = {
   },
   scripts: {
     create: (characterId: string) =>
-      API_URL(`/characters/${characterId}/script`), // 인물을 바탕으로 스크립트 생성
+      API_URL(`/characters/${characterId}/scripts`), // 인물을 바탕으로 스크립트 생성
   },
   videos: {
     get: API_URL("/veo3Video/videos"), // 저장된 영상 목록 조회
@@ -40,6 +40,7 @@ export const ENDPOINTS = {
   },
   booksmarks: {
     get: API_URL("/bookmarked"), // 책 북마크 목록 조회
-    update: (videoId: number /*string*/) => API_URL(`/videos/${videoId}`), // 책 북마크 추가/삭제
+    update: (videoId: number /*string*/) =>
+      API_URL(`/veo3Video/bookmarks/videos/${videoId}`), // 책 북마크 추가/삭제, // 책 북마크 추가/삭제
   },
 };
