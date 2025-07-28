@@ -11,6 +11,7 @@ import {
 import { getCharactersByBookId } from "../api/characterApi";
 import type { BookApiResponse, VideoApiResponse } from "../api/bookApi";
 import { useAppStore } from "../stores/appStore";
+import VideoModal from "../components/VideoModal";
 
 // utils (한글 조사 구분 함수)
 import { getKoreanParticle } from "../utils/koreanUtils";
@@ -75,6 +76,8 @@ const MyLibraryPage: React.FC = () => {
   const [videos, setVideos] = useState<VideoData[]>([]);
   // 영상 목록 로딩 상태
   const [videosLoading, setVideosLoading] = useState(false);
+  // 선택한 영상의 url 상태
+  const [selectedVideoUrl, setSelectedVideoUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchBooks = async () => {
@@ -490,7 +493,13 @@ const MyLibraryPage: React.FC = () => {
                   <div className="overflow-x-auto scrollbar-hide">
                     <div className="flex gap-[40px] pb-4 px-12">
                       {selectedBookVideos.map((video, index) => (
-                        <VideoThumbnail key={index} imageUrl={video.imageUrl} />
+                        <div
+                          key={index}
+                          onClick={() => setSelectedVideoUrl(video.videoUrl)}
+                          className="cursor-pointer transition-transform transform hover:scale-105 hover:shadow-lg rounded-lg"
+                        >
+                          <VideoThumbnail imageUrl={video.imageUrl} />
+                        </div>
                       ))}
                       {/* Add empty card for "더 만들어볼까요?" */}
                       <div
@@ -548,6 +557,13 @@ const MyLibraryPage: React.FC = () => {
         onUpload={handleBookUpload}
         isLoading={isUploadLoading}
       />
+
+      {selectedVideoUrl && (
+        <VideoModal
+          videoUrl={selectedVideoUrl}
+          onClose={() => setSelectedVideoUrl(null)}
+        />
+      )}
     </div>
   );
 };

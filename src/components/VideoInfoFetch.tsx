@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import VideoInfo from "./VideoInfo";
 import type { VideoInfoProps } from "./VideoInfo";
 import { getVideos } from "../api/videoApi";
+import VideoModal from "./VideoModal";
 
 interface VideoInfoFetchProps {
   sortBy?: "latest" | "oldest" | "title";
@@ -14,6 +15,7 @@ const VideoInfoFetch: React.FC<VideoInfoFetchProps> = ({
 }) => {
   const [videoList, setVideoList] = useState<VideoInfoProps[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedVideoUrl, setSelectedVideoUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -98,11 +100,24 @@ const VideoInfoFetch: React.FC<VideoInfoFetchProps> = ({
   }
 
   return (
-    <div className="flex flex-col gap-[40px]">
-      {sortedVideoList.map((info, idx) => (
-        <VideoInfo key={idx} {...info} />
-      ))}
-    </div>
+    <>
+      <div className="flex flex-col gap-[40px]">
+        {sortedVideoList.map((info, idx) => (
+          <VideoInfo
+            key={idx}
+            {...info}
+            onClick={(url) => setSelectedVideoUrl(url)}
+          />
+        ))}
+      </div>
+
+      {selectedVideoUrl && (
+        <VideoModal
+          videoUrl={selectedVideoUrl}
+          onClose={() => setSelectedVideoUrl(null)}
+        />
+      )}
+    </>
   );
 };
 

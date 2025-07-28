@@ -12,6 +12,7 @@ export interface VideoInfoProps {
   video_uri?: string;
   thumbnailUrl?: string;
   isBookmarked?: boolean;
+  onClick?: (videoUrl: string) => void;
 }
 
 // 현재 영상 전체 조회 api의 request body의 응답 필드 수가 부족 -> 나중에 수정 필요
@@ -25,6 +26,7 @@ const VideoInfo: React.FC<VideoInfoProps> = ({
   video_uri,
   thumbnailUrl, // X
   isBookmarked = false, // X
+  onClick,
 }) => {
   const [bookmark, setBookmark] = useState(isBookmarked);
 
@@ -71,7 +73,7 @@ const VideoInfo: React.FC<VideoInfoProps> = ({
       </button>
 
       {/* 왼쪽: 이미지 */}
-      <button>
+      <button onClick={() => onClick?.(video_uri || "")}>
         <div className="flex-shrink-0 p-3 relative">
           {thumbnailUrl ? (
             <div className="relative">

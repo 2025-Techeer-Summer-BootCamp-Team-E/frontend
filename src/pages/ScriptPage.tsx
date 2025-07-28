@@ -12,6 +12,7 @@ import VideoIcon from "../assets/icons/VideoIcon.svg"; // 영상 생성 아이�
 import { createScript, type ScriptApiResponse } from "../api/characterApi";
 import { useAppStore } from "../stores/appStore";
 import ConfirmModal from "../components/ConfirmModal";
+import { createVideo } from "../api/videoApi";
 
 const ScriptPage: React.FC = () => {
   const location = useLocation();
