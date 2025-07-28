@@ -40,6 +40,7 @@ export const ENDPOINTS = {
   },
   booksmarks: {
     get: API_URL("/bookmarked"), // 책 북마크 목록 조회
-    update: (videoId: number /*string*/) => API_URL(`/videos/${videoId}`), // 책 북마크 추가/삭제
+    update: (videoId: number /*string*/) =>
+      API_URL(`/veo3Video/bookmarks/videos/${videoId}`), // 책 북마크 추가/삭제, // 책 북마크 추가/삭제
   },
 };
