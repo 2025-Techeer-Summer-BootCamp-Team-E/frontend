@@ -6,10 +6,16 @@ import { useAuth } from "../hooks/useAuth";
 import {
   getOfficialBooks,
   getVideosByBookId,
-  uploadBook,
+  uploadBookAsync,
+  createBookProcessingStream,
 } from "../api/bookApi";
 import { getCharactersByBookId } from "../api/characterApi";
-import type { BookApiResponse, VideoApiResponse } from "../api/bookApi";
+import type {
+  BookApiResponse,
+  VideoApiResponse,
+  AsyncUploadResponse,
+  SSEEventData,
+} from "../api/bookApi";
 import { useAppStore } from "../stores/appStore";
 
 // utils (한글 조사 구분 함수)
@@ -67,6 +73,11 @@ const MyLibraryPage: React.FC = () => {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isUploadLoading, setIsUploadLoading] = useState(false);
 
+  // 새로운 비동기 업로드 관련 상태
+  const [uploadProgress, setUploadProgress] = useState<string>("");
+  const [uploadingBookId, setUploadingBookId] = useState<number | null>(null);
+  const [sseCleanup, setSseCleanup] = useState<(() => void) | null>(null);
+
   // 책 목록 데이터
   const [books, setBooks] = useState<Book[]>([]);
   // 책 목록 로딩 상태
@@ -75,6 +86,15 @@ const MyLibraryPage: React.FC = () => {
   const [videos, setVideos] = useState<VideoData[]>([]);
   // 영상 목록 로딩 상태
   const [videosLoading, setVideosLoading] = useState(false);
+
+  // SSE 연결 정리
+  useEffect(() => {
+    return () => {
+      if (sseCleanup) {
+        sseCleanup();
+      }
+    };
+  }, [sseCleanup]);
 
   useEffect(() => {
     const fetchBooks = async () => {
@@ -226,32 +246,117 @@ const MyLibraryPage: React.FC = () => {
     }
   };
 
-  // 책 업로드 핸들러
+  // 기존 동기 책 업로드 핸들러 (주석처리)
+  // const handleBookUpload = async (title: string, pdfFile: File) => {
+  //   setIsUploadLoading(true);
+  //   try {
+  //     // 책 업로드 API 호출
+  //     const newBook = await uploadBook(title, pdfFile);
+
+  //     // 새 책을 책 목록에 추가
+  //     const transformedBook = {
+  //       id: newBook.book_id,
+  //       src:
+  //         newBook.pdf_url ||
+  //         `https://via.placeholder.com/400x600/DCAC62/FFFFFF?text=${encodeURIComponent(newBook.title)}`,
+  //       alt: newBook.title,
+  //       title: newBook.title,
+  //     };
+
+  //     setBooks((prevBooks) => [...prevBooks, transformedBook]);
+
+  //     // 새 책을 선택하고 모달 닫기
+  //     setSelectedBookIndex(books.length);
+  //     setIsUploadModalOpen(false);
+
+  //     alert(`'${title}' 책이 성공적으로 추가되었습니다!`);
+  //   } catch (error) {
+  //     console.error("Book upload failed:", error);
+  //     alert("책 업로드에 실패했습니다. 다시 시도해주세요.");
+  //   } finally {
+  //     setIsUploadLoading(false);
+  //   }
+  // };
+
+  // 새로운 비동기 책 업로드 핸들러 (SSE 포함)
   const handleBookUpload = async (title: string, pdfFile: File) => {
     setIsUploadLoading(true);
-    try {
-      // 책 업로드 API 호출
-      const newBook = await uploadBook(title, pdfFile);
+    setUploadProgress("업로드 시작 중...");
 
-      // 새 책을 책 목록에 추가
-      const transformedBook = {
-        id: newBook.book_id,
-        src:
-          newBook.pdf_url ||
-          `https://via.placeholder.com/400x600/DCAC62/FFFFFF?text=${encodeURIComponent(newBook.title)}`,
-        alt: newBook.title,
-        title: newBook.title,
+    try {
+      // 비동기 책 업로드 API 호출
+      const uploadResponse: AsyncUploadResponse = await uploadBookAsync(
+        title,
+        pdfFile
+      );
+
+      console.log("Upload response:", uploadResponse);
+      setUploadingBookId(uploadResponse.book_id);
+      setUploadProgress(`업로드 완료! ${uploadResponse.message}`);
+
+      // SSE 연결 설정 - cleanup 함수를 미리 정의
+      let cleanupFunc: (() => void) | null = null;
+
+      const createSSEConnection = async () => {
+        cleanupFunc = await createBookProcessingStream(
+          uploadResponse.book_id,
+          (eventData: SSEEventData) => {
+            console.log("SSE Event received:", eventData);
+
+            if (eventData.event === "status") {
+              setUploadProgress(`처리 중: ${eventData.data.message}`);
+            } else if (eventData.event === "completed") {
+              setUploadProgress("처리 완료!");
+
+              // 완료된 책을 목록에 추가
+              const transformedBook = {
+                id: uploadResponse.book_id,
+                src:
+                  eventData.data.pdf_url ||
+                  `https://via.placeholder.com/400x600/DCAC62/FFFFFF?text=${encodeURIComponent(title)}`,
+                alt: title,
+                title: title,
+              };
+
+              setBooks((prevBooks) => [...prevBooks, transformedBook]);
+              setSelectedBookIndex(books.length);
+
+              // 연결 정리 및 모달 닫기
+              setSseCleanup(null);
+              setIsUploadModalOpen(false);
+              setUploadingBookId(null);
+              setUploadProgress("");
+
+              alert(`'${title}' 책이 성공적으로 처리되었습니다!`);
+            } else if (eventData.event === "error") {
+              setUploadProgress(`오류 발생: ${eventData.data.message}`);
+              setSseCleanup(null);
+              setUploadingBookId(null);
+              alert(`처리 중 오류가 발생했습니다: ${eventData.data.message}`);
+            }
+          },
+          (error) => {
+            console.error("SSE Error:", error);
+            setUploadProgress("연결 오류 발생");
+            setSseCleanup(null);
+            setUploadingBookId(null);
+          },
+          () => {
+            console.log("SSE stream completed");
+            setSseCleanup(null);
+          }
+        );
+
+        if (cleanupFunc) {
+          setSseCleanup(() => cleanupFunc);
+        }
       };
 
-      setBooks((prevBooks) => [...prevBooks, transformedBook]);
-
-      // 새 책을 선택하고 모달 닫기
-      setSelectedBookIndex(books.length);
-      setIsUploadModalOpen(false);
-
-      alert(`'${title}' 책이 성공적으로 추가되었습니다!`);
+      await createSSEConnection();
     } catch (error) {
       console.error("Book upload failed:", error);
+      setUploadProgress("");
+      setUploadingBookId(null);
       alert("책 업로드에 실패했습니다. 다시 시도해주세요.");
     } finally {
       setIsUploadLoading(false);
@@ -547,6 +652,8 @@ const MyLibraryPage: React.FC = () => {
         onClose={() => setIsUploadModalOpen(false)}
         onUpload={handleBookUpload}
         isLoading={isUploadLoading}
+        uploadProgress={uploadProgress}
+        uploadingBookId={uploadingBookId}
       />
     </div>
   );

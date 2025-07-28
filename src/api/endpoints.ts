@@ -13,7 +13,11 @@ export const ENDPOINTS = {
   books: {
     getOfficial: API_URL("/books/official"),
     getPersonal: API_URL("/books/personal"),
-    uploadPdf: API_URL("/books/pdf"), // PDF 업로드로 책 생성
+    uploadPdf: API_URL("/books/pdf"), // PDF 업로드로 책 생성 (기존 동기 방식)
+    uploadPdfAsync: API_URL("/books/pdf/async"), // PDF 업로드로 책 생성 (새로운 비동기 방식)
+    getStatus: (bookId: string) => API_URL(`/books/${bookId}/status`), // 책 처리 상태 조회
+    getEventStream: (bookId: string) =>
+      API_URL(`/books/${bookId}/eventstream/processing`), // SSE 모니터링
     // create: API_URL("/books"),
     // update: "/books/:id",
     // delete: "/books/:id",
@@ -23,7 +27,7 @@ export const ENDPOINTS = {
   characters: {
     // getByBookId: (bookId: string) => API_URL(`/books/${bookId}/characters`),
     createOrGetByBookId: (bookId: string) =>
-      API_URL(`/characters/books/${bookId}/`), // 소설을 바탕으로 인물 생성 OR 조회. GET으로 하게 될 듯
+      API_URL(`/books/${bookId}/characters`), // 소설을 바탕으로 인물 생성 OR 조회. GET으로 하게 될 듯
   },
   scripts: {
     create: (characterId: string) =>

@@ -9,6 +9,45 @@ export interface BookApiResponse {
   pdf_url: string;
 }
 
+// 새로운 비동기 업로드 응답 타입
+export interface AsyncUploadResponse {
+  book_id: number;
+  title: string;
+  processing_status: "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED";
+  task_id: string;
+  message: string;
+}
+
+// 책 상태 조회 응답 타입
+export interface BookStatusResponse {
+  book_id: number;
+  title: string;
+  processing_status: "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED";
+  message?: string;
+  content?: string; // COMPLETED 상태일 때만 있음
+  pdf_url?: string; // COMPLETED 상태일 때만 있음
+}
+
+// SSE 연결 응답 타입
+export interface SSEConnectionResponse {
+  message: string;
+  channel: string;
+  eventstream_url: string;
+  current_status: "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED";
+}
+
+// SSE 이벤트 데이터 타입
+export interface SSEEventData {
+  event: "status" | "completed" | "error";
+  data: {
+    status: "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED";
+    message: string;
+    progress?: number; // 진행률 (0-100)
+    content?: string; // 완료시에만
+    pdf_url?: string; // 완료시에만
+  };
+}
+
 export interface VideoApiResponse {
   video_id: number;
   character_id: number;
@@ -89,6 +128,214 @@ export const uploadBook = async (
   } catch (error) {
     console.error("Failed to upload book:", error);
     throw error;
+  }
+};
+
+// 새로운 비동기 PDF 업로드로 책 생성
+export const uploadBookAsync = async (
+  title: string,
+  pdfFile: File
+): Promise<AsyncUploadResponse> => {
+  try {
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("pdf", pdfFile);
+
+    const response = await axios.post<AsyncUploadResponse>(
+      ENDPOINTS.books.uploadPdfAsync,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Failed to upload book asynchronously:", error);
+    throw error;
+  }
+};
+
+// 책 처리 상태 조회
+export const getBookStatus = async (
+  bookId: number
+): Promise<BookStatusResponse> => {
+  try {
+    const response = await axios.get<BookStatusResponse>(
+      ENDPOINTS.books.getStatus(bookId.toString())
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to get book status for book ${bookId}:`, error);
+    throw error;
+  }
+};
+
+// SSE 연결 설정
+export const connectToBookProcessingSSE = async (
+  bookId: number
+): Promise<SSEConnectionResponse> => {
+  try {
+    const response = await axios.get<SSEConnectionResponse>(
+      ENDPOINTS.books.getEventStream(bookId.toString())
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to connect to SSE for book ${bookId}:`, error);
+    throw error;
+  }
+};
+
+// SSE EventSource 생성 헬퍼 함수
+export const createBookProcessingEventSource = (
+  bookId: number,
+  onMessage: (event: SSEEventData) => void,
+  onError: (error: Event) => void
+): EventSource => {
+  const eventSource = new EventSource(
+    `${ENDPOINTS.books.getEventStream(bookId.toString())}`
+  );
+
+  eventSource.onmessage = (event) => {
+    try {
+      const data = JSON.parse(event.data);
+      onMessage(data);
+    } catch (error) {
+      console.error("Failed to parse SSE message:", error);
+    }
+  };
+
+  eventSource.onerror = (error) => {
+    console.error("SSE connection error:", error);
+    onError(error);
+  };
+
+  return eventSource;
+};
+
+// 새로운 fetch 기반 SSE 스트림 처리 함수 (AuthContext 토큰 사용)
+export const createBookProcessingStream = async (
+  bookId: number,
+  onMessage: (event: SSEEventData) => void,
+  onError: (error: string) => void,
+  onComplete: () => void
+): Promise<() => void> => {
+  let isAborted = false;
+  const abortController = new AbortController();
+
+  // AuthContext에서 토큰 가져오기
+  const token = localStorage.getItem("auth_token");
+  console.log("🔐 SSE 요청 토큰:", token ? "토큰 있음" : "토큰 없음");
+  console.log(
+    "🔐 SSE 요청 URL:",
+    ENDPOINTS.books.getEventStream(bookId.toString())
+  );
+
+  try {
+    const headers: Record<string, string> = {
+      Accept: "text/event-stream",
+    };
+
+    // 토큰이 있으면 Authorization 헤더 추가
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+      console.log("🔐 Authorization 헤더 추가됨");
+    } else {
+      console.log("⚠️ 토큰이 없어서 Authorization 헤더 없음");
+    }
+
+    console.log("🔐 SSE 요청 헤더:", headers);
+
+    const response = await fetch(
+      ENDPOINTS.books.getEventStream(bookId.toString()),
+      {
+        method: "GET",
+        headers,
+        signal: abortController.signal,
+      }
+    );
+
+    console.log("🔐 SSE 응답 상태:", response.status, response.statusText);
+    console.log(
+      "🔐 SSE 응답 헤더:",
+      Object.fromEntries(response.headers.entries())
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    if (!response.body) {
+      throw new Error("Response body is null");
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+
+    const readStream = async () => {
+      try {
+        while (!isAborted) {
+          const { done, value } = await reader.read();
+
+          if (done) {
+            console.log("SSE stream completed");
+            onComplete();
+            break;
+          }
+
+          const chunk = decoder.decode(value, { stream: true });
+          console.log("📡 SSE 데이터 청크:", chunk);
+          const lines = chunk.split("\n");
+
+          for (const line of lines) {
+            if (line.startsWith("data: ") && line.length > 6) {
+              try {
+                const data = JSON.parse(line.slice(6));
+                console.log("📡 SSE 파싱된 데이터:", data);
+                onMessage(data);
+              } catch (error) {
+                console.error("Failed to parse SSE data:", error);
+              }
+            }
+          }
+        }
+      } catch (error) {
+        if (!isAborted) {
+          console.error("Stream reading error:", error);
+          onError(
+            error instanceof Error ? error.message : "Stream reading error"
+          );
+        }
+      } finally {
+        try {
+          reader.releaseLock();
+        } catch {
+          // 이미 릴리즈된 경우 무시
+        }
+      }
+    };
+
+    readStream();
+
+    // cleanup 함수 반환
+    return () => {
+      isAborted = true;
+      abortController.abort();
+      try {
+        reader.releaseLock();
+      } catch {
+        // 이미 릴리즈된 경우 무시
+      }
+    };
+  } catch (error) {
+    console.error("Failed to create SSE stream:", error);
+    onError(
+      error instanceof Error ? error.message : "Failed to create SSE stream"
+    );
+
+    // 빈 cleanup 함수 반환
+    return () => {};
   }
 };
 

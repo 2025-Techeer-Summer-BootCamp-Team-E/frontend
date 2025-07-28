@@ -6,6 +6,8 @@ interface BookUploadModalProps {
   onClose: () => void;
   onUpload: (title: string, file: File) => void;
   isLoading?: boolean;
+  uploadProgress?: string;
+  uploadingBookId?: number | null;
 }
 
 const BookUploadModal: React.FC<BookUploadModalProps> = ({
@@ -13,6 +15,8 @@ const BookUploadModal: React.FC<BookUploadModalProps> = ({
   onClose,
   onUpload,
   isLoading = false,
+  uploadProgress = "",
+  uploadingBookId = null,
 }) => {
   const [title, setTitle] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -172,6 +176,21 @@ const BookUploadModal: React.FC<BookUploadModalProps> = ({
             )}
           </div>
         </div>
+
+        {/* 업로드 진행 상태 표시 */}
+        {uploadProgress && (
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+            <div className="flex items-center">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+              <span className="text-sm text-blue-800">{uploadProgress}</span>
+            </div>
+            {uploadingBookId && (
+              <p className="text-xs text-blue-600 mt-1">
+                책 ID: {uploadingBookId}
+              </p>
+            )}
+          </div>
+        )}
 
         {/* 버튼들 */}
         <div className="flex gap-3">
