@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from "react";
 import VideoInfo from "./VideoInfo";
 import type { VideoInfoProps } from "./VideoInfo";
-import { getVideos } from "../api/videoApi";
+import { getBookmarkedVideos, getVideos } from "../api/videoApi";
 import VideoModal from "./VideoModal";
 import { useAuth } from "../hooks/useAuth";
 
 interface VideoInfoFetchProps {
   sortBy?: "latest" | "oldest" | "title";
+  bookmarkedOnly?: boolean;
   onDataLoaded?: (count: number) => void;
 }
 
 const VideoInfoFetch: React.FC<VideoInfoFetchProps> = ({
   sortBy = "latest",
+  bookmarkedOnly = false,
   onDataLoaded,
 }) => {
   const [videoList, setVideoList] = useState<VideoInfoProps[]>([]);
@@ -22,13 +24,14 @@ const VideoInfoFetch: React.FC<VideoInfoFetchProps> = ({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await getVideos(); // 실제 API 호출
+        const response = bookmarkedOnly
+          ? await getBookmarkedVideos()
+          : await getVideos(); // 실제 API 호출
 
         //const data = response.data?.data || []; 왜 안되는지 모르겠음
         const data = response.data?.data || response.data || []; // 응답 구조 { status, message, data }
 
         setVideoList(data);
-        if (onDataLoaded) onDataLoaded(data.length);
       } catch (error) {
         console.error("영상 목록 불러오기 실패:", error);
       } finally {
@@ -40,7 +43,7 @@ const VideoInfoFetch: React.FC<VideoInfoFetchProps> = ({
     if (!authLoading && isAuthenticated) {
       fetchData();
     }
-  }, [authLoading, isAuthenticated]);
+  }, [authLoading, isAuthenticated, bookmarkedOnly]);
 
   // 정렬된 비디오 목록
   const sortedVideoList = [...videoList].sort((a, b) => {
@@ -62,6 +65,13 @@ const VideoInfoFetch: React.FC<VideoInfoFetchProps> = ({
         return 0;
     }
   });
+
+  // 영상 갯수
+  useEffect(() => {
+    if (!loading && onDataLoaded) {
+      onDataLoaded(sortedVideoList.length);
+    }
+  }, [sortedVideoList, loading, onDataLoaded]);
 
   if (loading)
     return (
@@ -88,18 +98,32 @@ const VideoInfoFetch: React.FC<VideoInfoFetchProps> = ({
             />
           </svg>
         </div>
-        <h3 className="text-[24px] font-bold text-gray-700 mb-4">
-          아직 만든 영상이 없네요!
-        </h3>
-        <p className="text-[18px] text-gray-500 mb-8">
-          첫 번째 VLOG를 만들어보시겠어요?
-        </p>
-        <button
-          onClick={() => (window.location.href = "/")}
-          className="bg-[#DCAC62] text-black px-8 py-3 rounded-full text-[18px] font-bold hover:bg-[#C49952] transition-colors"
-        >
-          영상 만들러 가기
-        </button>
+
+        {bookmarkedOnly ? (
+          <>
+            <h3 className="text-[24px] font-bold text-gray-700 mb-4">
+              북마크된 영상이 아직 없습니다!
+            </h3>
+            <p className="text-[18px] text-gray-500">
+              북마크 표시를 눌러 영상을 북마크해보세요.
+            </p>
+          </>
+        ) : (
+          <>
+            <h3 className="text-[24px] font-bold text-gray-700 mb-4">
+              아직 만든 영상이 없네요!
+            </h3>
+            <p className="text-[18px] text-gray-500 mb-8">
+              첫 번째 VLOG를 만들어보시겠어요?
+            </p>
+            <button
+              onClick={() => (window.location.href = "/")}
+              className="bg-[#DCAC62] text-black px-8 py-3 rounded-full text-[18px] font-bold hover:bg-[#C49952] transition-colors"
+            >
+              영상 만들러 가기
+            </button>
+          </>
+        )}
       </div>
     );
   }

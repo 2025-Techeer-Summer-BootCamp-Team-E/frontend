@@ -35,6 +35,10 @@ export const getVideos = () => {
   return axios.get(ENDPOINTS.videos.get);
 };
 
+export const getBookmarkedVideos = () => {
+  return axios.get(ENDPOINTS.booksmarks.get);
+};
+
 // 북마크 함수
 export const bookmarkVideo = (videoId: number) => {
   return axios.patch(ENDPOINTS.booksmarks.update(videoId), {
