@@ -108,8 +108,11 @@ const MyLibraryPage: React.FC = () => {
       }
     };
 
-    fetchBooks(); // 함수 실행
-  }, []); // 의존성 배열이 빈 배열이 컴포넌트 마운트 시에만 실행
+    // 🔒 인증 완료 && 로그인된 상태에서만 호출
+    if (!authLoading && isAuthenticated) {
+      fetchBooks();
+    }
+  }, [authLoading, isAuthenticated]); // 의존성 배열이 빈 배열이 컴포넌트 마운트 시에만 실행
 
   // 현재 선택된 책 객체
   const selectedBook = books[selectedBookIndex];

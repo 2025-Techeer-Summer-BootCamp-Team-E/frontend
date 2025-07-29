@@ -4,6 +4,7 @@ import VideoInfoFetch from "../components/VideoInfoFetch";
 const MyVideosPage: React.FC = () => {
   const [sortBy, setSortBy] = useState<"latest" | "oldest" | "title">("latest");
   const [videoCount, setVideoCount] = useState<number>(0);
+  const [videolist, setVideoList] = useState(false);
 
   const handleDataLoaded = (count: number) => {
     setVideoCount(count);
@@ -28,8 +29,32 @@ const MyVideosPage: React.FC = () => {
           {/* Filter and Sort Section */}
           <section className="flex justify-between items-center mb-[80px] p-[2rem]">
             {/* Stats */}
-            <div className="flex gap-8 mx-4">
+            <div className="flex flex-col gap-8 mx-4">
               <div className="text-[20px]">
+                <button
+                  className={`mr-4 border-b-2 font-bold transition-colors ${
+                    !videolist
+                      ? "border-[#604317] text-[#604317]"
+                      : "border-transparent text-[#604317] hover:border-[#C4B9AC]"
+                  }`}
+                  onClick={() => setVideoList(false)}
+                >
+                  <span>전체 영상</span>
+                </button>
+
+                <button
+                  className={`border-b-2 font-bold transition-colors ${
+                    videolist
+                      ? "border-[#604317] text-[#604317]"
+                      : "border-transparent text-[#604317] hover:border-[#C4B9AC]"
+                  }`}
+                  onClick={() => setVideoList(true)}
+                >
+                  <span>북마크된 영상</span>
+                </button>
+              </div>
+
+              <div className="flex">
                 <span className="font-bold text-[#604317]">
                   총 {videoCount}개
                 </span>
@@ -77,7 +102,11 @@ const MyVideosPage: React.FC = () => {
           {/* Videos List Section */}
           <section className="px-[2rem]">
             <div className="flex flex-col items-center">
-              <VideoInfoFetch sortBy={sortBy} onDataLoaded={handleDataLoaded} />
+              <VideoInfoFetch
+                sortBy={sortBy}
+                onDataLoaded={handleDataLoaded}
+                bookmarkedOnly={videolist}
+              />
             </div>
           </section>
         </div>
