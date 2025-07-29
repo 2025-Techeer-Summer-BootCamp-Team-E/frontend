@@ -16,8 +16,8 @@ export const ENDPOINTS = {
     uploadPdf: API_URL("/books/pdf"), // PDF 업로드로 책 생성 (기존 동기 방식)
     uploadPdfAsync: API_URL("/books/pdf/async"), // PDF 업로드로 책 생성 (새로운 비동기 방식)
     getStatus: (bookId: string) => API_URL(`/books/${bookId}/status`), // 책 처리 상태 조회
-    getEventStream: (bookId: string) =>
-      API_URL(`/books/${bookId}/eventstream/processing`), // SSE 모니터링
+    getEventStream: (taskId: string) =>
+      API_URL(`/books/tasks/${taskId}/eventstream`), // SSE 모니터링 (vite 프록시 사용)
     // create: API_URL("/books"),
     // update: "/books/:id",
     // delete: "/books/:id",

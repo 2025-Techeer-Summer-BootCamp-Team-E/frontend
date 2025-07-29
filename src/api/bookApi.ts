@@ -36,15 +36,22 @@ export interface SSEConnectionResponse {
   current_status: "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED";
 }
 
-// SSE 이벤트 데이터 타입
+// SSE 이벤트 데이터 타입 (직접 SSE 구현용)
 export interface SSEEventData {
-  event: "status" | "completed" | "error";
+  event: "connected" | "test" | "started" | "progress" | "completed" | "error";
   data: {
-    status: "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED";
-    message: string;
-    progress?: number; // 진행률 (0-100)
-    content?: string; // 완료시에만
-    pdf_url?: string; // 완료시에만
+    // 백엔드에서 오는 데이터와 필드명을 일치시킵니다.
+    message?: string;
+    channel?: string;
+    progress?: number;
+    s3_url?: string; // completed 이벤트에서 사용
+    // 아래 필드는 프론트엔드에서 직접 사용하지 않지만, 백엔드 응답에 포함될 수 있습니다.
+    book_id?: number;
+    book_title?: string;
+    content_length?: number;
+    error_message?: string;
+    task_id?: string;
+    timestamp?: string;
   };
 }
 
@@ -216,7 +223,7 @@ export const createBookProcessingEventSource = (
 
 // 새로운 fetch 기반 SSE 스트림 처리 함수 (AuthContext 토큰 사용)
 export const createBookProcessingStream = async (
-  bookId: number,
+  taskId: string,
   onMessage: (event: SSEEventData) => void,
   onError: (error: string) => void,
   onComplete: () => void
@@ -229,7 +236,7 @@ export const createBookProcessingStream = async (
   console.log("🔐 SSE 요청 토큰:", token ? "토큰 있음" : "토큰 없음");
   console.log(
     "🔐 SSE 요청 URL:",
-    ENDPOINTS.books.getEventStream(bookId.toString())
+    ENDPOINTS.books.getEventStream(taskId.toString())
   );
 
   try {
@@ -249,7 +256,7 @@ export const createBookProcessingStream = async (
     console.log("🔐 SSE 요청 헤더:", headers);
 
     const response = await fetch(
-      ENDPOINTS.books.getEventStream(bookId.toString()),
+      ENDPOINTS.books.getEventStream(taskId.toString()),
       {
         method: "GET",
         headers,
@@ -273,6 +280,7 @@ export const createBookProcessingStream = async (
 
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
+    let currentEvent = "message"; // 기본 이벤트 타입
 
     const readStream = async () => {
       try {
@@ -290,11 +298,23 @@ export const createBookProcessingStream = async (
           const lines = chunk.split("\n");
 
           for (const line of lines) {
-            if (line.startsWith("data: ") && line.length > 6) {
+            if (line.startsWith("event: ")) {
+              currentEvent = line.slice(7).trim();
+            } else if (line.startsWith("data: ") && line.length > 6) {
               try {
-                const data = JSON.parse(line.slice(6));
-                console.log("📡 SSE 파싱된 데이터:", data);
-                onMessage(data);
+                const jsonData = JSON.parse(line.slice(6));
+                const eventData: SSEEventData = {
+                  event: currentEvent as
+                    | "connected"
+                    | "test"
+                    | "started"
+                    | "progress"
+                    | "completed"
+                    | "error",
+                  data: jsonData,
+                };
+                console.log("SSE 파싱된 데이터:", eventData);
+                onMessage(eventData);
               } catch (error) {
                 console.error("Failed to parse SSE data:", error);
               }
