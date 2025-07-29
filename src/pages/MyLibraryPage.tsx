@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import BooksSection from "../components/BooksSection";
 import BookUploadModal from "../components/BookUploadModal";
@@ -67,6 +67,7 @@ const MyLibraryPage: React.FC = () => {
   // 책 업로드 모달 상태
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isUploadLoading, setIsUploadLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState(""); // 검색어 상태
 
   // 책 목록 데이터
   const [books, setBooks] = useState<Book[]>([]);
@@ -113,6 +114,20 @@ const MyLibraryPage: React.FC = () => {
       fetchBooks();
     }
   }, [authLoading, isAuthenticated]); // 의존성 배열이 빈 배열이 컴포넌트 마운트 시에만 실행
+
+  // const filteredBooks = () => {
+  //   if (!searchTerm) return books; // 검색어가 없으면 전체 목록 반환
+  //   return books.filter((book) =>
+  //     book.title.toLowerCase().includes(searchTerm.toLowerCase())
+  //   );
+  // }
+  // useMemo로 성능 최적화
+  const filteredBooks = useMemo(() => {
+    if (!searchTerm) return books; // 검색어가 없으면 전체 목록 반환
+    return books.filter((book) =>
+      book.title.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [books, searchTerm]);
 
   // 현재 선택된 책 객체
   const selectedBook = books[selectedBookIndex];
@@ -369,6 +384,8 @@ const MyLibraryPage: React.FC = () => {
                   type="text"
                   placeholder="작품명으로 검색"
                   className="w-full bg-[#E4E4E4] px-4 py-3 pr-10 rounded-full text-[16px] text-[#9F9494] focus:outline-none"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                 />
                 <img
                   src={SearchIcon}
@@ -422,7 +439,7 @@ const MyLibraryPage: React.FC = () => {
               </div>
             ) : (
               <BooksSection
-                books={books}
+                books={filteredBooks}
                 selectedIndex={selectedBookIndex}
                 onBookSelect={setSelectedBookIndex}
                 onAddBook={() => setIsUploadModalOpen(true)}
