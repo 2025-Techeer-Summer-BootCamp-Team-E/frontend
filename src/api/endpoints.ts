@@ -30,17 +30,16 @@ export const ENDPOINTS = {
       API_URL(`/characters/${characterId}/scripts`), // 인물을 바탕으로 스크립트 생성
   },
   videos: {
-    get: API_URL("/veo3Video/videos"), // 저장된 영상 목록 조회
-    getByVideoId: (videoId: string) => API_URL(`/videos/${videoId}`), // 검색할 떄 사용하면 될 듯?
+    get: API_URL("/videos"), // 저장된 영상 목록 조회
+    getByVideoId: (videoId: string) => API_URL(`/videos/${videoId}`),
     getByBookId: (bookId: string) => API_URL(`/books/${bookId}/videos`),
 
-    createVideo: () => API_URL(`/veo3Video/generate`), // 영상 생성 요청
-    getBookmarkedVideos: () => "/bookmarks/bookmarked", // 북마크된 영상 조회
+    createVideo: () => API_URL(`/videos`), // 영상 생성 요청
     // shareVideo: (videoId: number) => `/videos/${videoId}/share`,
   },
   booksmarks: {
-    get: API_URL("/bookmarked"), // 책 북마크 목록 조회
+    getBookmarkedVideos: () => API_URL(`/videos/bookmarks/bookmarked`), // 북마크된 영상 조회
     update: (videoId: number /*string*/) =>
-      API_URL(`/veo3Video/bookmarks/videos/${videoId}`), // 책 북마크 추가/삭제, // 책 북마크 추가/삭제
+      API_URL(`videos/bookmarks/${videoId}`), // 책 북마크 추가/삭제, // 책 북마크 추가/삭제
   },
 };

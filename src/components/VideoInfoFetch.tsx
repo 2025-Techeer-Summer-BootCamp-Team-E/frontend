@@ -3,6 +3,7 @@ import VideoInfo from "./VideoInfo";
 import type { VideoInfoProps } from "./VideoInfo";
 import { getVideos } from "../api/videoApi";
 import VideoModal from "./VideoModal";
+import { useAuth } from "../hooks/useAuth";
 
 interface VideoInfoFetchProps {
   sortBy?: "latest" | "oldest" | "title";
@@ -16,6 +17,7 @@ const VideoInfoFetch: React.FC<VideoInfoFetchProps> = ({
   const [videoList, setVideoList] = useState<VideoInfoProps[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedVideoUrl, setSelectedVideoUrl] = useState<string | null>(null);
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,8 +36,11 @@ const VideoInfoFetch: React.FC<VideoInfoFetchProps> = ({
       }
     };
 
-    fetchData();
-  }, [onDataLoaded]);
+    // ✅ 인증 완료 후에만 실행
+    if (!authLoading && isAuthenticated) {
+      fetchData();
+    }
+  }, [authLoading, isAuthenticated]);
 
   // 정렬된 비디오 목록
   const sortedVideoList = [...videoList].sort((a, b) => {
