@@ -17,7 +17,11 @@ const CharacterSelectPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [showMore, setShowMore] = useState(false);
-  const [modalName, setModalName] = useState<string | null>(null);
+  //const [modalName, setModalName] = useState<string | null>(null);
+  const [modalCharacter, setModalCharacter] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -114,21 +118,25 @@ const CharacterSelectPage: React.FC = () => {
   };
 
   const handleConfirm = () => {
-    setModalVisible(false); // 먼저 숨기기
-    setTimeout(() => {
-      setModalName(null); // 애니메이션 후 완전 제거
-      navigate("/script");
-    }, 220); // ConfirmModal.tsx의 duration과 맞추세요
+    if (!modalCharacter) return;
+    handleScriptCreate(modalCharacter.id, modalCharacter.name);
+    setModalCharacter(null);
+    setModalVisible(false);
   };
 
   const handleNameClick = (name: string) => {
-    setModalName(name);
-    setModalVisible(true); // 모달 등장
+    const character = (characters as ApiCharacterType[]).find(
+      (c) => c.characterName === name
+    );
+    if (character) {
+      setModalCharacter({ id: character.id, name: character.characterName }); // ✅ 변경됨
+      setModalVisible(true);
+    }
   };
 
   const handleCancel = () => {
     setModalVisible(false);
-    setTimeout(() => setModalName(null), 220);
+    setTimeout(() => setModalCharacter(null), 220);
   };
 
   useEffect(() => {
@@ -285,9 +293,9 @@ const CharacterSelectPage: React.FC = () => {
           </CommonButton>
         </span>
 
-        {modalName && (
+        {modalCharacter && (
           <ConfirmModal
-            name={modalName}
+            name={modalCharacter.name}
             onConfirm={handleConfirm}
             onCancel={handleCancel}
             visible={modalVisible}

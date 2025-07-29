@@ -1,6 +1,6 @@
 import React from "react";
-import man from "../assets/icons/man.svg";
-import woman from "../assets/icons/woman.svg";
+import man from "../assets/icons/man.png";
+import woman from "../assets/icons/woman.png";
 
 interface FrontProps {
   name: string;

@@ -12,6 +12,7 @@ import VideoIcon from "../assets/icons/VideoIcon.svg"; // 영상 생성 아이�
 import { createScript, type ScriptApiResponse } from "../api/characterApi";
 import { useAppStore } from "../stores/appStore";
 import ConfirmModal from "../components/ConfirmModal";
+import { createVideo } from "../api/videoApi";
 
 const ScriptPage: React.FC = () => {
   const location = useLocation();
@@ -121,7 +122,7 @@ const ScriptPage: React.FC = () => {
 
   // API 응답에서 스크립트 텍스트 추출
   const getScriptsFromData = () => {
-    if (!currentScriptData?.scenes) {
+    if (!currentScriptData || !Array.isArray(currentScriptData.scenes)) {
       return fallbackScripts;
     }
     // 짧게 대사만 넣은 버전
@@ -132,11 +133,15 @@ const ScriptPage: React.FC = () => {
     // });
     // 길게 한 버전
     return currentScriptData.scenes.map((scene) => {
-      const lines = scene.lines
-        .map((line) => `${line.speaker}: ${line.line_ko}`)
-        .join("\n");
+      const lines = Array.isArray(scene.lines)
+        ? scene.lines
+            .map((line) => `${line.speaker}: ${line.line_ko}`)
+            .join("\n")
+        : "대사가 없습니다.";
+
       const background = scene.background ? `배경: ${scene.background}` : "";
       const mood = scene.mood ? `분위기: ${scene.mood}` : "";
+
       return `${background ? background + "\n" : ""}${mood ? mood + "\n" : ""}${lines}`;
     });
   };
@@ -212,6 +217,7 @@ const ScriptPage: React.FC = () => {
     }
   };
 
+  // 영상 생성 api 연동
   const handelCreateVideo = async () => {
     const scriptId = currentScriptData?.script_id;
     if (!scriptId) return;
@@ -283,7 +289,7 @@ const ScriptPage: React.FC = () => {
       {/* 3) 캐릭터 카드 + 대본 박스 */}
       <div className="flex justify-center items-start mt-[22px] mr-[80px]">
         {/* 캐릭터 카드 */}
-        <div className="flex-none w-[183.74px] h-[194px]">
+        <div className="flex-none w-[200px] h-[250px] ml-2">
           <FrontCharacterCard name={selectedName} sex={selectedSex} />
         </div>
 
@@ -295,11 +301,11 @@ const ScriptPage: React.FC = () => {
             {/* 실제 컨테이너 (패딩 포함) */}
             <div
               className="
-                w-[1206px] h-[661px]
+                w-[1100px] h-[661px]
                 bg-white rounded-[30px]
                 shadow-[0_4px_8.7px_rgba(0,0,0,0.25)]
                 p-[23.78px_20px_57.78px_41px]
-                box-border
+                box-border mb-18
               "
             >
               {/* 스크롤 래퍼 */}
@@ -328,7 +334,7 @@ const ScriptPage: React.FC = () => {
                 [&::-webkit-scrollbar-thumb]:bg-clip-content
               `}
               >
-                <div className="space-y-[34px] w-[1102px]">
+                <div className="space-y-[30px] w-[1100px]">
                   {scripts.map((text, idx) => (
                     <Script
                       key={`${currentScriptData?.script_id || "fallback"}-${idx}`}
@@ -447,9 +453,10 @@ const ScriptPage: React.FC = () => {
                 }
                 onClick={handleGoBack}
                 className="
-                  w-[280px] h-[64px]
-                  flex items-center justify-center gap-[21px]
+                  w-[240px] h-[60px]
+                  fixed flex items-center justify-center gap-[21px]
                   font-nanumGothic font-semibold text-[20px] text-black
+                  left-6 bottom-6 z-20
                 "
               >
                 인물선택으로 돌아가기
@@ -464,9 +471,10 @@ const ScriptPage: React.FC = () => {
                 }
                 onClick={() => handelCreateVideo()}
                 className="
-                  w-[207px] h-[64px]
-                  flex items-center justify-center gap-[26px]
+                  w-[180px] h-[60px]
+                  fixed flex items-center justify-center gap-[26px]
                   font-nanumGothic font-semibold text-[20px] text-black
+                  right-6 bottom-6 z-20
                 "
               >
                 영상생성

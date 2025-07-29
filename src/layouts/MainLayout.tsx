@@ -38,22 +38,28 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
   // Toggle이 필요한 페이지인지 확인
   const shouldShowToggle =
-    location.pathname === "/main" || location.pathname === "/myvid";
+    location.pathname === "/" || location.pathname === "/myvid";
 
   return (
-    <div className="flex flex-col min-h-screen w-full bg-[#F8F3ED]">
-      {shouldShowToggle ? (
-        <Header
-          showNavigation={true}
-          navigationComponent={
+    <div
+      className="flex flex-col min-h-screen w-full bg-[#F8F3ED]"
+      style={{ contain: "layout" }}
+    >
+      <Header
+        showNavigation={shouldShowToggle}
+        navigationComponent={
+          shouldShowToggle ? (
             <Toggle selected={activeTab} onSelectionChange={setActiveTab} />
-          }
-          isScrolled={isScrolled}
-        />
-      ) : (
-        <Header />
-      )}
-      <main className="flex flex-1 justify-center">{children}</main>
+          ) : null
+        }
+        isScrolled={isScrolled}
+      />
+      <main
+        className="flex flex-1 justify-center"
+        style={{ contain: "layout" }}
+      >
+        {children}
+      </main>
     </div>
   );
 };

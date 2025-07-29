@@ -17,6 +17,7 @@ import type {
   SSEEventData,
 } from "../api/bookApi";
 import { useAppStore } from "../stores/appStore";
+import VideoModal from "../components/VideoModal";
 
 // utils (한글 조사 구분 함수)
 import { getKoreanParticle } from "../utils/koreanUtils";
@@ -86,6 +87,8 @@ const MyLibraryPage: React.FC = () => {
   const [videos, setVideos] = useState<VideoData[]>([]);
   // 영상 목록 로딩 상태
   const [videosLoading, setVideosLoading] = useState(false);
+  // 선택한 영상의 url 상태
+  const [selectedVideoUrl, setSelectedVideoUrl] = useState<string | null>(null);
 
   // SSE 연결 정리
   useEffect(() => {
@@ -171,11 +174,36 @@ const MyLibraryPage: React.FC = () => {
   // 인증 로딩 중이면 로딩 화면 표시
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-[#F8F3ED] flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#DCAC62] mx-auto mb-4"></div>
-          <p className="text-lg text-gray-600">인증 확인 중...</p>
-        </div>
+      <div
+        className="min-h-screen bg-[#F8F3ED] relative overflow-auto"
+        style={{ contain: "layout" }}
+      >
+        {/* 로딩 중에도 동일한 레이아웃 구조 유지 */}
+        <main
+          className="pt-[160px] flex flex-col items-center relative"
+          style={{ contain: "layout" }}
+        >
+          <section className="text-center py-[80px] px-4">
+            <h1 className="text-[48px] font-bold text-black mb-4 font-NanumMyeongjo">
+              어떤 이야기로 VLOG를 만들어볼까요?
+            </h1>
+            <p className="text-[20px] text-gray-600">
+              책을 선택하거나, 직접 텍스트를 업로드하여 시작해보세요.
+            </p>
+          </section>
+
+          <div
+            className="xl:w-[84rem] 2xl:w-[107rem] mx-4 mb-0 bg-white rounded-t-[50px] drop-shadow-[0_8px_32px_rgba(0,0,0,0.25)] relative h-[800px]"
+            style={{ contain: "layout" }}
+          >
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#DCAC62] mx-auto mb-4"></div>
+                <p className="text-lg text-gray-600">인증 확인 중...</p>
+              </div>
+            </div>
+          </div>
+        </main>
       </div>
     );
   }
@@ -411,7 +439,10 @@ const MyLibraryPage: React.FC = () => {
       )}
 
       {/* Main Content - with top padding to account for fixed header */}
-      <main className="pt-[180px] flex flex-col items-center">
+      <main
+        className="pt-[160px] flex flex-col items-center relative"
+        style={{ contain: "layout" }}
+      >
         {/* Hero Section */}
         <section className="text-center py-[80px] px-4">
           <h1 className="text-[48px] font-bold text-black mb-4 font-NanumMyeongjo">
@@ -615,7 +646,13 @@ const MyLibraryPage: React.FC = () => {
                   <div className="overflow-x-auto scrollbar-hide">
                     <div className="flex gap-[40px] pb-4 px-12">
                       {selectedBookVideos.map((video, index) => (
-                        <VideoThumbnail key={index} imageUrl={video.imageUrl} />
+                        <div
+                          key={index}
+                          onClick={() => setSelectedVideoUrl(video.videoUrl)}
+                          className="cursor-pointer transition-transform transform hover:scale-105 hover:shadow-lg rounded-lg"
+                        >
+                          <VideoThumbnail imageUrl={video.imageUrl} />
+                        </div>
                       ))}
                       {/* Add empty card for "더 만들어볼까요?" */}
                       <div
@@ -675,6 +712,13 @@ const MyLibraryPage: React.FC = () => {
         uploadProgress={uploadProgress}
         uploadingBookId={uploadingBookId}
       />
+
+      {selectedVideoUrl && (
+        <VideoModal
+          videoUrl={selectedVideoUrl}
+          onClose={() => setSelectedVideoUrl(null)}
+        />
+      )}
     </div>
   );
 };
