@@ -36,13 +36,9 @@ const VideoInfo: React.FC<VideoInfoProps> = ({
     try {
       if (bookmark) {
         await unbookmarkVideo(video_id);
-        console.log(video_url);
-
         setBookmark(false);
       } else {
         await bookmarkVideo(video_id);
-        console.log(video_url);
-
         setBookmark(true);
       }
     } catch (err) {
