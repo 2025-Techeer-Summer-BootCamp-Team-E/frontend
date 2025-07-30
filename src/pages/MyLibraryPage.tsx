@@ -345,12 +345,28 @@ const MyLibraryPage: React.FC = () => {
 
       const createSSEConnection = async () => {
         cleanupFunc = await createBookProcessingStream(
-          uploadResponse.book_id,
+          uploadResponse.task_id,
           (eventData: SSEEventData) => {
             console.log("SSE Event received:", eventData);
 
-            if (eventData.event === "status") {
-              setUploadProgress(`처리 중: ${eventData.data.message}`);
+            if (eventData.event === "connected") {
+              setUploadProgress(
+                `연결 성공: ${eventData.data.message || "SSE 연결됨"}`
+              );
+              console.log("🔗 [SSE] 연결 성공:", eventData);
+            } else if (eventData.event === "test") {
+              setUploadProgress(
+                `테스트 이벤트: ${eventData.data.message || "테스트"}`
+              );
+              console.log("🧪 [TEST] 즉시 테스트 이벤트 수신:", eventData);
+            } else if (eventData.event === "started") {
+              setUploadProgress(
+                `처리 시작: ${eventData.data.message || "작업 시작됨"}`
+              );
+            } else if (eventData.event === "progress") {
+              setUploadProgress(
+                `처리 중: ${eventData.data.message || "진행 중"}`
+              );
             } else if (eventData.event === "completed") {
               setUploadProgress("처리 완료!");
 
@@ -358,7 +374,7 @@ const MyLibraryPage: React.FC = () => {
               const transformedBook = {
                 id: uploadResponse.book_id,
                 src:
-                  eventData.data.pdf_url ||
+                  eventData.data.s3_url || // pdf_url → s3_url 변경
                   `https://via.placeholder.com/400x600/DCAC62/FFFFFF?text=${encodeURIComponent(title)}`,
                 alt: title,
                 title: title,
@@ -375,10 +391,14 @@ const MyLibraryPage: React.FC = () => {
 
               alert(`'${title}' 책이 성공적으로 처리되었습니다!`);
             } else if (eventData.event === "error") {
-              setUploadProgress(`오류 발생: ${eventData.data.message}`);
+              setUploadProgress(
+                `오류 발생: ${eventData.data.message || eventData.data.error_message || "알 수 없는 오류"}`
+              );
               setSseCleanup(null);
               setUploadingBookId(null);
-              alert(`처리 중 오류가 발생했습니다: ${eventData.data.message}`);
+              alert(
+                `처리 중 오류가 발생했습니다: ${eventData.data.message || eventData.data.error_message || "알 수 없는 오류"}`
+              );
             }
           },
           (error) => {
