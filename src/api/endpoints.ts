@@ -28,10 +28,19 @@ export const ENDPOINTS = {
     // getByBookId: (bookId: string) => API_URL(`/books/${bookId}/characters`),
     createOrGetByBookId: (bookId: string) =>
       API_URL(`/books/${bookId}/characters`), // 소설을 바탕으로 인물 생성 OR 조회. GET으로 하게 될 듯
+    // 새로운 비동기 인물 생성 엔드포인트
+    createOrGetByBookIdAsync: (bookId: string) =>
+      API_URL(`/books/${bookId}/characters/async`), // 비동기 인물 생성
+    // 인물 생성 SSE 엔드포인트
+    getCharacterEventStream: (taskId: string) =>
+      API_URL(`/characters/tasks/${taskId}/eventstream`), // 인물 생성 SSE 모니터링
   },
   scripts: {
     create: (characterId: string) =>
       API_URL(`/characters/${characterId}/scripts`), // 인물을 바탕으로 스크립트 생성
+    // 새로운 비동기 대본 생성 엔드포인트
+    createAsync: (characterId: string) =>
+      API_URL(`/characters/${characterId}/scripts/async`), // 비동기 대본 생성
   },
   videos: {
     get: API_URL("/videos"), // 저장된 영상 목록 조회

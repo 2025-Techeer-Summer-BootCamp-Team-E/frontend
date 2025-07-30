@@ -9,7 +9,11 @@ import {
   uploadBookAsync,
   createBookProcessingStream,
 } from "../api/bookApi";
-import { getCharactersByBookId } from "../api/characterApi";
+import {
+  getCharactersByBookIdAsync,
+  createCharacterProcessingStream,
+  type CharacterSSEEventData,
+} from "../api/characterApi";
 import type {
   BookApiResponse,
   VideoApiResponse,
@@ -85,6 +89,14 @@ const MyLibraryPage: React.FC = () => {
   // 완료 상태 추가
   const [isUploadCompleted, setIsUploadCompleted] = useState(false);
 
+  // 인물 생성 관련 상태 추가
+  const [isCharacterProcessing, setIsCharacterProcessing] = useState(false);
+  const [characterProgress, setCharacterProgress] = useState<string>("");
+  const [characterBookTitle, setCharacterBookTitle] = useState<string>("");
+  const [characterCleanup, setCharacterCleanup] = useState<(() => void) | null>(
+    null
+  );
+
   // 책 목록 데이터
   const [books, setBooks] = useState<Book[]>([]);
   // 책 목록 로딩 상태
@@ -107,8 +119,11 @@ const MyLibraryPage: React.FC = () => {
       if (sseCleanup) {
         sseCleanup();
       }
+      if (characterCleanup) {
+        characterCleanup();
+      }
     };
-  }, [sseCleanup]);
+  }, [sseCleanup, characterCleanup]);
 
   useEffect(() => {
     const fetchBooks = async () => {
@@ -236,7 +251,7 @@ const MyLibraryPage: React.FC = () => {
     );
   }
 
-  // 영상 생성 클릭 핸들러
+  // 인물 생성 클릭 핸들러
   const handleCreateVideo = async () => {
     if (!selectedBook) {
       alert("책을 선택해주세요.");
@@ -246,36 +261,144 @@ const MyLibraryPage: React.FC = () => {
     setIsLoading(true); // 로딩 화면 표시
 
     try {
-      // 선택된 책의 캐릭터 목록 API 호출
-      // const charactersData = await getCharactersByBookId(selectedBook.id);
+      // 비동기 인물 생성 API 호출
+      const characterResponse = await getCharactersByBookIdAsync(
+        selectedBook.id
+      );
 
-      // (개발용)API 호출과 최소 1초 로딩을 동시에 실행
-      const [charactersData] = await Promise.all([
-        getCharactersByBookId(selectedBook.id),
-        new Promise((resolve) => setTimeout(resolve, 1000)), // 최소 1초 대기
-      ]);
+      // 응답 타입에 따라 처리
+      if ("task_id" in characterResponse) {
+        // 새로운 인물 생성이 필요한 경우 (비동기)
+        console.log("새로운 인물 생성 시작:", characterResponse);
+        setCharacterBookTitle(characterResponse.book_title);
+        setCharacterProgress("인물 생성 시작 중...");
+        setIsCharacterProcessing(true);
 
-      // 캐릭터 정보에서 scenes를 제외한 최소 정보만 저장
-      const minimalCharacters = charactersData.map((c) => ({
-        id: c.id,
-        characterName: c.characterName,
-        isMain: c.isMain,
-        age: c.age,
-        gender: c.gender,
-        characterDescription: c.characterDescription,
-      }));
+        // SSE 연결 설정
+        let cleanupFunc: (() => void) | null = null;
 
-      // Zustand store에 책 세션 정보 저장
-      setBookSession(selectedBook.id, selectedBook.title, minimalCharacters);
+        const createCharacterSSEConnection = async () => {
+          cleanupFunc = await createCharacterProcessingStream(
+            characterResponse.task_id,
+            (eventData: CharacterSSEEventData) => {
+              console.log("Character SSE Event received:", eventData);
 
-      // API 응답 완료 후 캐릭터 데이터와 함께 페이지 이동
-      navigate("/char", {
-        state: {
-          characters: minimalCharacters,
-          bookTitle: selectedBook.title,
-          bookId: selectedBook.id,
-        },
-      });
+              if (eventData.event === "connected") {
+                const message = "연결 성공! AI가 등장인물을 분석하고 있어요";
+                console.log("🔗 [Character SSE] 연결 성공 - 메시지:", message);
+                setCharacterProgress(message);
+              } else if (eventData.event === "progress") {
+                let message = "인물 분석 중...";
+
+                if (eventData.data.step === "character_extraction") {
+                  message = `캐릭터 추출 중... (${eventData.data.processed_chunks}/${eventData.data.total_chunks})`;
+                } else if (eventData.data.step === "character_merging") {
+                  message = "캐릭터 병합 및 중복 제거 중...";
+                } else if (eventData.data.step === "scene_generation") {
+                  message = `장면 생성 및 저장 중... (${eventData.data.processed_characters}/${eventData.data.total_characters})`;
+                }
+
+                console.log("📊 [Character SSE] 진행 중 - 메시지:", message);
+                setCharacterProgress(message);
+              } else if (eventData.event === "completed") {
+                const message = `인물 생성 완료! 총 ${eventData.data.total_characters}명의 캐릭터가 생성되었습니다.`;
+                console.log("✅ [Character SSE] 완료 - 메시지:", message);
+                setCharacterProgress(message);
+
+                // 완료된 캐릭터 정보 저장
+                if (eventData.data.characters) {
+                  const minimalCharacters = eventData.data.characters.map(
+                    (c) => ({
+                      id: c.id,
+                      characterName: c.characterName,
+                      isMain: c.isMain,
+                      age: c.age,
+                      gender: c.gender,
+                      characterDescription: c.characterDescription,
+                    })
+                  );
+
+                  // Zustand store에 책 세션 정보 저장
+                  setBookSession(
+                    selectedBook.id,
+                    selectedBook.title,
+                    minimalCharacters
+                  );
+
+                  // 페이지 이동
+                  navigate("/char", {
+                    state: {
+                      characters: minimalCharacters,
+                      bookTitle: selectedBook.title,
+                      bookId: selectedBook.id,
+                    },
+                  });
+                }
+
+                // 2초 후 모달 닫기
+                setTimeout(() => {
+                  setCharacterCleanup(null);
+                  setIsCharacterProcessing(false);
+                  setCharacterProgress("");
+                  setCharacterBookTitle("");
+                }, 2000);
+              } else if (eventData.event === "error") {
+                const message = `오류가 발생했어요: ${eventData.data.error_message || "알 수 없는 오류"}`;
+                console.log("❌ [Character SSE] 오류 - 메시지:", message);
+                setCharacterProgress(message);
+                setCharacterCleanup(null);
+                setIsCharacterProcessing(false);
+                setCharacterProgress("");
+                setCharacterBookTitle("");
+                alert(
+                  `인물 생성 중 오류가 발생했습니다: ${eventData.data.error_message || "알 수 없는 오류"}`
+                );
+              }
+            },
+            (error) => {
+              console.error("Character SSE Error:", error);
+              setCharacterProgress("연결 오류가 발생했어요");
+              setCharacterCleanup(null);
+              setIsCharacterProcessing(false);
+              setCharacterProgress("");
+              setCharacterBookTitle("");
+            },
+            () => {
+              console.log("Character SSE stream completed");
+              setCharacterCleanup(null);
+            }
+          );
+
+          if (cleanupFunc) {
+            setCharacterCleanup(() => cleanupFunc);
+          }
+        };
+
+        await createCharacterSSEConnection();
+      } else {
+        // 이미 인물이 존재하는 경우 (동기)
+        console.log("기존 인물 조회:", characterResponse);
+        const minimalCharacters = characterResponse.characters.map((c) => ({
+          id: c.id,
+          characterName: c.characterName,
+          isMain: c.isMain,
+          age: c.age,
+          gender: c.gender,
+          characterDescription: c.characterDescription,
+        }));
+
+        // Zustand store에 책 세션 정보 저장
+        setBookSession(selectedBook.id, selectedBook.title, minimalCharacters);
+
+        // 페이지 이동
+        navigate("/char", {
+          state: {
+            characters: minimalCharacters,
+            bookTitle: selectedBook.title,
+            bookId: selectedBook.id,
+          },
+        });
+      }
     } catch (error) {
       console.error("Failed to fetch characters:", error);
 
@@ -504,6 +627,26 @@ const MyLibraryPage: React.FC = () => {
         </div>
       )}
 
+      {/* 인물 생성 처리 로딩 모달 */}
+      {isCharacterProcessing && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 flex flex-col items-center max-w-md">
+            <div className="w-24 h-24 mb-4">
+              {/* 로딩 애니메이션 - 회전하는 원 */}
+              <div className="animate-spin rounded-full h-24 w-24 border-b-2 border-[#DCAC62]"></div>
+            </div>
+            <p className="text-lg font-semibold text-gray-700 text-center mb-3">
+              『{characterBookTitle}』의 등장인물을 분석하고 있어요!
+            </p>
+            <div className="text-sm text-gray-500 text-center space-y-1">
+              <p>🤖 AI가 책 내용을 분석 중입니다</p>
+              <p>👥 등장인물의 성격과 관계를 파악 중입니다</p>
+              <p className="text-xs text-gray-400 mt-2">{characterProgress}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 업로드 처리 로딩 모달 */}
       {isUploadProcessing && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
@@ -556,7 +699,7 @@ const MyLibraryPage: React.FC = () => {
               </div>
             )}
             {/* <div className="text-sm text-gray-500 text-center space-y-1">
-              
+
               <p>📚 PDF 파일을 분석 중입니다</p>
               <p>🤖 AI가 책 내용을 이해하고 있어요</p>
               <p className="text-xs text-gray-400 mt-2">{uploadProgress}</p>
