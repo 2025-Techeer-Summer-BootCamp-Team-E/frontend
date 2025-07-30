@@ -31,23 +31,19 @@ export const ENDPOINTS = {
   },
   scripts: {
     create: (characterId: string) =>
-      API_URL(`/characters/${characterId}/script/`), // 인물을 바탕으로 스크립트 생성
+      API_URL(`/characters/${characterId}/scripts`), // 인물을 바탕으로 스크립트 생성
   },
   videos: {
-    get: API_URL(""), // 저장된 영상 목록 조회
-    getByVideoId: (videoId: string) => API_URL(`/${videoId}`),
-    // getByBookId:`${API_BASE_URL}/books/{bookId}/videos`,
+    get: API_URL("/videos"), // 저장된 영상 목록 조회
+    getByVideoId: (videoId: string) => API_URL(`/videos/${videoId}`),
     getByBookId: (bookId: string) => API_URL(`/books/${bookId}/videos`),
 
-    // 영상 생성 요청
-    createVideo: () => API_URL(`/videos`),
-    // 아래 함수들은 임시 -> 영상 생성 먼저 처리 후
-    // bookmarkVideo: (videoId: number) => `/bookmarks/videos/${videoId}`,
-    // getBookmarkedVideos: () => "/bookmarks/bookmarked",
+    createVideo: API_URL("/videos"), // 영상 생성 요청
     // shareVideo: (videoId: number) => `/videos/${videoId}/share`,
   },
   booksmarks: {
-    get: API_URL("/bookmarked"), // 책 북마크 목록 조회
-    update: (videoId: string) => API_URL(`/videos/${videoId}`), // 책 북마크 추가/삭제
+    get: API_URL("/videos/bookmarks/bookmarked"), // 북마크된 영상 조회
+    update: (videoId: number /*string*/) =>
+      API_URL(`videos/bookmarks/${videoId}`), // 책 북마크 추가/삭제, // 책 북마크 추가/삭제
   },
 };

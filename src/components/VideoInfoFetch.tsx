@@ -1,60 +1,62 @@
 import React, { useState, useEffect } from "react";
 import VideoInfo from "./VideoInfo";
 import type { VideoInfoProps } from "./VideoInfo";
-
-// 예시 데이터
-/*const sampleData = [
-  {
-    imageUrl: "https://t1.daumcdn.net/cfile/tistory/998D344B5BF5070114",
-    title: "나의 작은 별 B-612에서의 하루",
-    from: "어린 왕자",
-    character: "어린 왕자",
-    description: "자신이 사는 작은 별을 사랑하고, 장미와의 관계를 통해 사랑의 의미를 배워가는 순수한 영혼"
-  }
-];*/
+import { getBookmarkedVideos, getVideos } from "../api/videoApi";
+import VideoModal from "./VideoModal";
+import { useAuth } from "../hooks/useAuth";
 
 interface VideoInfoFetchProps {
   sortBy?: "latest" | "oldest" | "title";
+  bookmarkedOnly?: boolean;
   onDataLoaded?: (count: number) => void;
 }
 
 const VideoInfoFetch: React.FC<VideoInfoFetchProps> = ({
   sortBy = "latest",
+  bookmarkedOnly = false,
   onDataLoaded,
 }) => {
   const [videoList, setVideoList] = useState<VideoInfoProps[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedVideoUrl, setSelectedVideoUrl] = useState<string | null>(null);
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
 
   useEffect(() => {
-    // fetch로 외부 데이터 받아오기 (예시: /api/videoList)
-    fetch("public/SampleVideoInfo.json")
-      .then((res) => res.json())
-      .then((data) => {
-        setVideoList(data); // 배열 저장
-        setLoading(false);
-        // 부모 컴포넌트에 데이터 개수 전달
-        if (onDataLoaded) {
-          onDataLoaded(data.length);
-        }
-      });
+    const fetchData = async () => {
+      try {
+        const response = bookmarkedOnly
+          ? await getBookmarkedVideos()
+          : await getVideos(); // 실제 API 호출
 
-    // 예시 데이터 사용
-    /*setVideoList(sampleData);
-    setLoading(false);*/
-  }, [onDataLoaded]);
+        //const data = response.data?.data || []; 왜 안되는지 모르겠음
+        const data = response.data?.data || response.data || []; // 응답 구조 { status, message, data }
+
+        setVideoList(data);
+      } catch (error) {
+        console.error("영상 목록 불러오기 실패:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // ✅ 인증 완료 후에만 실행
+    if (!authLoading && isAuthenticated) {
+      fetchData();
+    }
+  }, [authLoading, isAuthenticated, bookmarkedOnly]);
 
   // 정렬된 비디오 목록
   const sortedVideoList = [...videoList].sort((a, b) => {
     switch (sortBy) {
       case "latest":
-        if (!a.createdAt || !b.createdAt) return 0;
+        if (!a.created_at || !b.created_at) return 0;
         return (
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         );
       case "oldest":
-        if (!a.createdAt || !b.createdAt) return 0;
+        if (!a.created_at || !b.created_at) return 0;
         return (
-          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
         );
       case "title":
         if (!a.title || !b.title) return 0;
@@ -63,6 +65,13 @@ const VideoInfoFetch: React.FC<VideoInfoFetchProps> = ({
         return 0;
     }
   });
+
+  // 영상 갯수
+  useEffect(() => {
+    if (!loading && onDataLoaded) {
+      onDataLoaded(sortedVideoList.length);
+    }
+  }, [sortedVideoList, loading, onDataLoaded]);
 
   if (loading)
     return (
@@ -89,28 +98,55 @@ const VideoInfoFetch: React.FC<VideoInfoFetchProps> = ({
             />
           </svg>
         </div>
-        <h3 className="text-[24px] font-bold text-gray-700 mb-4">
-          아직 만든 영상이 없네요!
-        </h3>
-        <p className="text-[18px] text-gray-500 mb-8">
-          첫 번째 VLOG를 만들어보시겠어요?
-        </p>
-        <button
-          onClick={() => (window.location.href = "/main")}
-          className="bg-[#DCAC62] text-black px-8 py-3 rounded-full text-[18px] font-bold hover:bg-[#C49952] transition-colors"
-        >
-          영상 만들러 가기
-        </button>
+
+        {bookmarkedOnly ? (
+          <>
+            <h3 className="text-[24px] font-bold text-gray-700 mb-4">
+              북마크된 영상이 아직 없습니다!
+            </h3>
+            <p className="text-[18px] text-gray-500">
+              북마크 표시를 눌러 영상을 북마크해보세요.
+            </p>
+          </>
+        ) : (
+          <>
+            <h3 className="text-[24px] font-bold text-gray-700 mb-4">
+              아직 만든 영상이 없네요!
+            </h3>
+            <p className="text-[18px] text-gray-500 mb-8">
+              첫 번째 VLOG를 만들어보시겠어요?
+            </p>
+            <button
+              onClick={() => (window.location.href = "/")}
+              className="bg-[#DCAC62] text-black px-8 py-3 rounded-full text-[18px] font-bold hover:bg-[#C49952] transition-colors"
+            >
+              영상 만들러 가기
+            </button>
+          </>
+        )}
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-[40px]">
-      {sortedVideoList.map((info, idx) => (
-        <VideoInfo key={idx} {...info} />
-      ))}
-    </div>
+    <>
+      <div className="flex flex-col gap-[40px]">
+        {sortedVideoList.map((info, idx) => (
+          <VideoInfo
+            key={idx}
+            {...info}
+            onClick={(url) => setSelectedVideoUrl(url)}
+          />
+        ))}
+      </div>
+
+      {selectedVideoUrl && (
+        <VideoModal
+          videoUrl={selectedVideoUrl}
+          onClose={() => setSelectedVideoUrl(null)}
+        />
+      )}
+    </>
   );
 };
 
