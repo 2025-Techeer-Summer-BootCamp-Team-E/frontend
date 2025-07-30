@@ -82,6 +82,8 @@ const MyLibraryPage: React.FC = () => {
   // 업로드 로딩 모달 상태 추가
   const [isUploadProcessing, setIsUploadProcessing] = useState(false);
   const [uploadBookTitle, setUploadBookTitle] = useState<string>("");
+  // 완료 상태 추가
+  const [isUploadCompleted, setIsUploadCompleted] = useState(false);
 
   // 책 목록 데이터
   const [books, setBooks] = useState<Book[]>([]);
@@ -93,6 +95,11 @@ const MyLibraryPage: React.FC = () => {
   const [videosLoading, setVideosLoading] = useState(false);
   // 선택한 영상의 url 상태
   const [selectedVideoUrl, setSelectedVideoUrl] = useState<string | null>(null);
+
+  // uploadProgress 상태 변화 모니터링
+  useEffect(() => {
+    console.log("uploadProgress 상태 변경됨:", uploadProgress);
+  }, [uploadProgress]);
 
   // SSE 연결 정리
   useEffect(() => {
@@ -332,6 +339,7 @@ const MyLibraryPage: React.FC = () => {
     setIsUploadLoading(true);
     setUploadProgress("업로드 시작 중...");
     setUploadBookTitle(title);
+    setIsUploadCompleted(false); // 완료 상태 초기화
 
     // 기존 업로드 모달 닫고 새로운 로딩 모달 시작
     setIsUploadModalOpen(false);
@@ -356,19 +364,44 @@ const MyLibraryPage: React.FC = () => {
           uploadResponse.task_id,
           (eventData: SSEEventData) => {
             console.log("SSE Event received:", eventData);
+            console.log("현재 uploadProgress 상태:", uploadProgress);
 
             if (eventData.event === "connected") {
-              setUploadProgress("연결 성공! AI가 책을 분석하고 있어요");
-              console.log("🔗 [SSE] 연결 성공:", eventData);
+              const message = "연결 성공! AI가 책을 분석하고 있어요";
+              console.log("🔗 [SSE] 연결 성공 - 메시지:", message);
+              setUploadProgress(() => {
+                console.log("setUploadProgress 함수형 호출 - connected");
+                return message;
+              });
             } else if (eventData.event === "test") {
-              setUploadProgress("테스트 연결 확인 중...");
-              console.log("🧪 [TEST] 즉시 테스트 이벤트 수신:", eventData);
+              const message = "테스트 연결 확인 중...";
+              console.log("🧪 [TEST] 테스트 이벤트 - 메시지:", message);
+              setUploadProgress(() => {
+                console.log("setUploadProgress 함수형 호출 - test");
+                return message;
+              });
             } else if (eventData.event === "started") {
-              setUploadProgress("PDF 분석을 시작했어요! 잠시만 기다려주세요");
+              const message = "PDF 분석을 시작했어요! 잠시만 기다려주세요";
+              console.log("🚀 [STARTED] 처리 시작 - 메시지:", message);
+              setUploadProgress(() => {
+                console.log("setUploadProgress 함수형 호출 - started");
+                return message;
+              });
             } else if (eventData.event === "progress") {
-              setUploadProgress("AI가 책 내용을 분석하고 있어요...");
+              const message = "AI가 책 내용을 분석하고 있어요...";
+              console.log("📊 [PROGRESS] 진행 중 - 메시지:", message);
+              setUploadProgress(() => {
+                console.log("setUploadProgress 함수형 호출 - progress");
+                return message;
+              });
             } else if (eventData.event === "completed") {
-              setUploadProgress("완료!");
+              const message = "처리 완료!";
+              console.log("✅ [COMPLETED] 완료 - 메시지:", message);
+              setUploadProgress(() => {
+                console.log("setUploadProgress 함수형 호출 - completed");
+                return message;
+              });
+              setIsUploadCompleted(true); // 완료 상태 설정
 
               // 완료된 책을 목록에 추가
               const transformedBook = {
@@ -383,23 +416,28 @@ const MyLibraryPage: React.FC = () => {
               setBooks((prevBooks) => [...prevBooks, transformedBook]);
               setSelectedBookIndex(books.length);
 
-              // 연결 정리 및 모달 닫기
-              setSseCleanup(null);
-              setIsUploadModalOpen(false);
-              setUploadingBookId(null);
-              setUploadProgress("");
-              setIsUploadProcessing(false); // 업로드 처리 모달 종료
-              setUploadBookTitle("");
-
-              alert(`'${title}' 책이 성공적으로 처리되었습니다!`);
+              // 2초 후 모달 닫기 (체크 표시 애니메이션을 보여주기 위해)
+              setTimeout(() => {
+                setSseCleanup(null);
+                setIsUploadModalOpen(false);
+                setUploadingBookId(null);
+                setUploadProgress("");
+                setIsUploadProcessing(false);
+                setUploadBookTitle("");
+                setIsUploadCompleted(false);
+              }, 1000);
             } else if (eventData.event === "error") {
-              setUploadProgress(
-                `오류가 발생했어요: ${eventData.data.message || eventData.data.error_message || "알 수 없는 오류"}`
-              );
+              const message = `오류가 발생했어요: ${eventData.data.message || eventData.data.error_message || "알 수 없는 오류"}`;
+              console.log("❌ [ERROR] 오류 - 메시지:", message);
+              setUploadProgress(() => {
+                console.log("setUploadProgress 함수형 호출 - error");
+                return message;
+              });
               setSseCleanup(null);
               setUploadingBookId(null);
-              setIsUploadProcessing(false); // 업로드 처리 모달 종료
+              setIsUploadProcessing(false);
               setUploadBookTitle("");
+              setIsUploadCompleted(false);
               alert(
                 `처리 중 오류가 발생했습니다: ${eventData.data.message || eventData.data.error_message || "알 수 없는 오류"}`
               );
@@ -410,8 +448,9 @@ const MyLibraryPage: React.FC = () => {
             setUploadProgress("연결 오류가 발생했어요");
             setSseCleanup(null);
             setUploadingBookId(null);
-            setIsUploadProcessing(false); // 업로드 처리 모달 종료
+            setIsUploadProcessing(false);
             setUploadBookTitle("");
+            setIsUploadCompleted(false);
           },
           () => {
             console.log("SSE stream completed");
@@ -429,8 +468,9 @@ const MyLibraryPage: React.FC = () => {
       console.error("Book upload failed:", error);
       setUploadProgress("");
       setUploadingBookId(null);
-      setIsUploadProcessing(false); // 업로드 처리 모달 종료
+      setIsUploadProcessing(false);
       setUploadBookTitle("");
+      setIsUploadCompleted(false);
       alert("책 업로드에 실패했습니다. 다시 시도해주세요.");
     } finally {
       setIsUploadLoading(false);
@@ -469,17 +509,58 @@ const MyLibraryPage: React.FC = () => {
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-8 flex flex-col items-center max-w-md">
             <div className="w-24 h-24 mb-4">
-              {/* 로딩 애니메이션 - 회전하는 원 */}
-              <div className="animate-spin rounded-full h-24 w-24 border-b-2 border-[#DCAC62]"></div>
+              {isUploadCompleted ? (
+                // 완료 시 체크 표시 애니메이션
+                <div className="w-24 h-24 flex items-center justify-center">
+                  <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center animate-pulse">
+                    <svg
+                      className="w-8 h-8 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={3}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              ) : (
+                // 로딩 애니메이션 - 회전하는 원
+                <div className="animate-spin rounded-full h-24 w-24 border-b-2 border-[#DCAC62]"></div>
+              )}
             </div>
-            <p className="text-lg font-semibold text-gray-700 text-center mb-3">
-              『{uploadBookTitle}』을 처리하고 있어요!
-            </p>
-            <div className="text-sm text-gray-500 text-center space-y-1">
+
+            {uploadProgress !== "처리 완료!" ? (
+              <p className="text-lg font-semibold text-gray-700 text-center mb-3">
+                『{uploadBookTitle}』을 처리하고 있어요!
+              </p>
+            ) : (
+              <p className="text-lg font-semibold text-gray-700 text-center mb-3">
+                『{uploadBookTitle}』 분석 완료!
+              </p>
+            )}
+
+            {uploadProgress !== "처리 완료!" ? (
+              <div className="text-sm text-gray-500 text-center space-y-1">
+                <p>📚 PDF 파일을 분석 중입니다</p>
+                <p>🤖 AI가 책 내용을 이해하고 있어요</p>
+                <p className="text-xs text-gray-400 mt-2">{uploadProgress}</p>
+              </div>
+            ) : (
+              <div className="text-sm text-gray-500 text-center space-y-1">
+                {/* <p className="text-xs text-gray-400 mt-2">{uploadProgress}</p> */}
+              </div>
+            )}
+            {/* <div className="text-sm text-gray-500 text-center space-y-1">
+              
               <p>📚 PDF 파일을 분석 중입니다</p>
               <p>🤖 AI가 책 내용을 이해하고 있어요</p>
               <p className="text-xs text-gray-400 mt-2">{uploadProgress}</p>
-            </div>
+            </div> */}
           </div>
         </div>
       )}
