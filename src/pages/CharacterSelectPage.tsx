@@ -10,7 +10,11 @@ import MoreCharacters from "../components/MoreCharacters";
 import Up_flag from "../assets/icons/up_flag.svg";
 import Down_flag from "../assets/icons/down_flag.svg";
 import ConfirmModal from "../components/ConfirmModal";
-import { createScript } from "../api/characterApi";
+import {
+  createScriptAsync,
+  createScriptProcessingStream,
+  type ScriptSSEEventData,
+} from "../api/characterApi";
 import { useAppStore } from "../stores/appStore";
 
 const CharacterSelectPage: React.FC = () => {
@@ -28,6 +32,11 @@ const CharacterSelectPage: React.FC = () => {
   // 대본 생성 로딩 상태
   const [isScriptLoading, setIsScriptLoading] = useState(false);
   const [scriptCharacterName, setScriptCharacterName] = useState<string>("");
+
+  // 대본 생성 관련 상태 추가
+  const [isScriptProcessing, setIsScriptProcessing] = useState(false);
+  const [scriptProgress, setScriptProgress] = useState<string>("");
+  const [scriptCleanup, setScriptCleanup] = useState<(() => void) | null>(null);
 
   // Zustand store 사용
   const {
@@ -89,31 +98,149 @@ const CharacterSelectPage: React.FC = () => {
       return;
     }
 
-    // 캐시된 스크립트가 없으면 API 호출
+    // 캐시된 스크립트가 없으면 비동기 API 호출
     setIsScriptLoading(true);
     setScriptCharacterName(characterName);
+    setScriptProgress("대본 생성 시작 중...");
+    setIsScriptProcessing(true);
 
     try {
-      // 스크립트 생성 API 호출
-      const scriptData = await createScript(characterId);
+      // 비동기 대본 생성 API 호출
+      const scriptResponse = await createScriptAsync(characterId);
 
-      // 새로 생성된 스크립트를 캐시에 저장 (원본으로)
-      setScriptCache(characterId, characterName, scriptData, false);
+      // 응답 타입에 따라 처리
+      if ("task_id" in scriptResponse) {
+        // 새로운 대본 생성이 필요한 경우 (비동기)
+        console.log("새로운 대본 생성 시작:", scriptResponse);
+        setScriptProgress("대본 생성 중...");
 
-      // ScriptPage로 네비게이션하면서 스크립트 데이터 전달
-      navigate("/script", {
-        state: {
-          scriptData,
-          characterName,
-          characterId,
-        },
-      });
+        // SSE 연결 설정
+        let cleanupFunc: (() => void) | null = null;
+
+        const createScriptSSEConnection = async () => {
+          cleanupFunc = await createScriptProcessingStream(
+            scriptResponse.task_id,
+            (eventData: ScriptSSEEventData) => {
+              console.log("Script SSE Event received:", eventData);
+
+              if (eventData.event === "connected") {
+                const message = "연결 성공! AI가 대본을 생성하고 있어요";
+                console.log("🔗 [Script SSE] 연결 성공 - 메시지:", message);
+                setScriptProgress(message);
+              } else if (eventData.event === "progress") {
+                const message = "대본 생성 중... 잠시만 기다려주세요";
+                console.log("📊 [Script SSE] 진행 중 - 메시지:", message);
+                setScriptProgress(message);
+              } else if (eventData.event === "completed") {
+                const message = `대본 생성 완료! ${eventData.data.scene_count}개의 장면이 생성되었습니다.`;
+                console.log("✅ [Script SSE] 완료 - 메시지:", message);
+                setScriptProgress(message);
+
+                // 완료된 대본 정보 저장
+                if (eventData.data.scenes) {
+                  const scriptData = {
+                    script_id: eventData.data.script_id || "",
+                    characterId: characterId,
+                    scenes: eventData.data.scenes,
+                  };
+
+                  // 새로 생성된 스크립트를 캐시에 저장 (원본으로)
+                  setScriptCache(characterId, characterName, scriptData, false);
+
+                  // 페이지 이동
+                  navigate("/script", {
+                    state: {
+                      scriptData,
+                      characterName,
+                      characterId,
+                    },
+                  });
+                }
+
+                // 2초 후 모달 닫기
+                setTimeout(() => {
+                  setScriptCleanup(null);
+                  setIsScriptProcessing(false);
+                  setScriptProgress("");
+                  setScriptCharacterName("");
+                }, 2000);
+              } else if (eventData.event === "error") {
+                const message = `오류가 발생했어요: ${eventData.data.error_message || "알 수 없는 오류"}`;
+                console.log("❌ [Script SSE] 오류 - 메시지:", message);
+                setScriptProgress(message);
+                setScriptCleanup(null);
+                setIsScriptProcessing(false);
+                setScriptProgress("");
+                setScriptCharacterName("");
+                alert(
+                  `대본 생성 중 오류가 발생했습니다: ${eventData.data.error_message || "알 수 없는 오류"}`
+                );
+              }
+            },
+            (error) => {
+              console.error("Script SSE Error:", error);
+              setScriptProgress("연결 오류가 발생했어요");
+              setScriptCleanup(null);
+              setIsScriptProcessing(false);
+              setScriptProgress("");
+              setScriptCharacterName("");
+            },
+            () => {
+              console.log("Script SSE stream completed");
+              setScriptCleanup(null);
+            }
+          );
+
+          if (cleanupFunc) {
+            setScriptCleanup(() => cleanupFunc);
+          }
+        };
+
+        await createScriptSSEConnection();
+      } else {
+        // 이미 대본이 존재하는 경우 (동기)
+        console.log("기존 대본 조회:", scriptResponse);
+        const scriptData = {
+          script_id: scriptResponse.script_id,
+          characterId: characterId,
+          scenes: scriptResponse.scenes,
+        };
+
+        // 기존 대본을 캐시에 저장 (원본으로)
+        setScriptCache(characterId, characterName, scriptData, false);
+
+        // 페이지 이동
+        navigate("/script", {
+          state: {
+            scriptData,
+            characterName,
+            characterId,
+          },
+        });
+      }
     } catch (error) {
-      console.error("스크립트 생성 실패:", error);
-      alert("스크립트 생성에 실패했습니다. 다시 시도해주세요.");
+      console.error("Failed to create script:", error);
+
+      // 에러 타입에 따른 상세 메시지
+      let errorMessage = "대본 생성에 실패했습니다.";
+
+      if (error && typeof error === "object" && "response" in error) {
+        const axiosError = error as {
+          response?: { status?: number };
+          code?: string;
+        };
+        if (axiosError.response?.status === 500) {
+          errorMessage = `서버에서 대본 생성 중 오류가 발생했습니다.`;
+        } else if (axiosError.response?.status === 404) {
+          errorMessage = "해당 캐릭터를 찾을 수 없습니다.";
+        } else if (axiosError.code === "ERR_NETWORK") {
+          errorMessage = "네트워크 연결을 확인해주세요.";
+        }
+      }
+
+      alert(errorMessage);
     } finally {
       setIsScriptLoading(false);
-      setScriptCharacterName("");
     }
   };
 
@@ -181,6 +308,15 @@ const CharacterSelectPage: React.FC = () => {
     setShowGoHomeModal(false);
   };
 
+  // SSE 연결 정리
+  useEffect(() => {
+    return () => {
+      if (scriptCleanup) {
+        scriptCleanup();
+      }
+    };
+  }, [scriptCleanup]);
+
   return (
     <div className="min-h-screen bg-[#F8F3ED]">
       {/* 대본 생성 로딩 모달 */}
@@ -204,6 +340,26 @@ const CharacterSelectPage: React.FC = () => {
                 잠시만 기다려주세요
                 <br />곧 완성됩니다!
               </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 대본 생성 처리 로딩 모달 */}
+      {isScriptProcessing && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 flex flex-col items-center max-w-md">
+            <div className="w-24 h-24 mb-4">
+              {/* 로딩 애니메이션 - 회전하는 원 */}
+              <div className="animate-spin rounded-full h-24 w-24 border-b-2 border-[#DCAC62]"></div>
+            </div>
+            <p className="text-lg font-semibold text-gray-700 text-center mb-3">
+              『{scriptCharacterName}』의 대본을 생성하고 있어요!
+            </p>
+            <div className="text-sm text-gray-500 text-center space-y-1">
+              <p>🤖 AI가 캐릭터를 분석 중입니다</p>
+              <p>📝 대본과 장면을 생성하고 있어요</p>
+              <p className="text-xs text-gray-400 mt-2">{scriptProgress}</p>
             </div>
           </div>
         </div>
