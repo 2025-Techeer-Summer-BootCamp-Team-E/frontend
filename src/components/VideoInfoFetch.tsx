@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import VideoInfo from "./VideoInfo";
 import type { VideoInfoProps } from "./VideoInfo";
-import { getBookmarkedVideos, getVideos } from "../api/videoApi";
+import { /*getBookmarkedVideos,*/ getVideos } from "../api/videoApi"; // 북마크 조회
 import VideoModal from "./VideoModal";
 import { useAuth } from "../hooks/useAuth";
 
@@ -24,14 +24,14 @@ const VideoInfoFetch: React.FC<VideoInfoFetchProps> = ({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = bookmarkedOnly
-          ? await getBookmarkedVideos()
-          : await getVideos(); // 실제 API 호출
+        const response = await getVideos();
+        const data = response.data?.data || response.data || [];
 
-        //const data = response.data?.data || []; 왜 안되는지 모르겠음
-        const data = response.data?.data || response.data || []; // 응답 구조 { status, message, data }
+        const filteredData = bookmarkedOnly
+          ? data.filter((video: VideoInfoProps) => video.is_bookmarked)
+          : data;
 
-        setVideoList(data);
+        setVideoList(filteredData);
       } catch (error) {
         console.error("영상 목록 불러오기 실패:", error);
       } finally {
@@ -39,7 +39,7 @@ const VideoInfoFetch: React.FC<VideoInfoFetchProps> = ({
       }
     };
 
-    // ✅ 인증 완료 후에만 실행
+    // 인증 완료 후에만 실행
     if (!authLoading && isAuthenticated) {
       fetchData();
     }
@@ -59,8 +59,8 @@ const VideoInfoFetch: React.FC<VideoInfoFetchProps> = ({
           new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
         );
       case "title":
-        if (!a.title || !b.title) return 0;
-        return a.title.localeCompare(b.title);
+        if (!a.video_title || !b.video_title) return 0;
+        return a.video_title.localeCompare(b.video_title);
       default:
         return 0;
     }

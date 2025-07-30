@@ -3,43 +3,46 @@ import { bookmarkVideo } from "../api/videoApi";
 import { unbookmarkVideo } from "../api/videoApi";
 
 export interface VideoInfoProps {
-  id?: number;
-  title?: string;
-  from?: string;
-  prompt?: string;
-  character?: string;
+  video_id?: number;
+  video_title?: string;
+  book_name?: string;
+  character_description?: string;
+  character_name?: string;
   created_at?: string;
-  video_uri?: string;
-  thumbnailUrl?: string;
-  isBookmarked?: boolean;
+  video_url?: string;
+  thumbnail_url?: string;
+  is_bookmarked?: boolean;
   onClick?: (videoUrl: string) => void;
 }
 
-// 현재 영상 전체 조회 api의 request body의 응답 필드 수가 부족 -> 나중에 수정 필요
 const VideoInfo: React.FC<VideoInfoProps> = ({
-  id,
-  title,
-  from, // X
-  character, // X
-  prompt,
+  video_id,
+  video_title,
+  book_name,
+  character_name,
+  character_description,
   created_at,
-  video_uri,
-  thumbnailUrl, // X
-  isBookmarked = false, // X
+  video_url,
+  thumbnail_url,
+  is_bookmarked = false,
   onClick,
 }) => {
-  const [bookmark, setBookmark] = useState(isBookmarked);
+  const [bookmark, setBookmark] = useState(is_bookmarked);
 
   // 북마크 버튼 토글 함수
   const handleBookmarkClick = async () => {
-    if (typeof id !== "number") return;
+    if (typeof video_id !== "number") return;
 
     try {
       if (bookmark) {
-        await unbookmarkVideo(id);
+        await unbookmarkVideo(video_id);
+        console.log(video_url);
+
         setBookmark(false);
       } else {
-        await bookmarkVideo(id);
+        await bookmarkVideo(video_id);
+        console.log(video_url);
+
         setBookmark(true);
       }
     } catch (err) {
@@ -73,12 +76,12 @@ const VideoInfo: React.FC<VideoInfoProps> = ({
       </button>
 
       {/* 왼쪽: 이미지 */}
-      <button onClick={() => onClick?.(video_uri || "")}>
+      <button onClick={() => onClick?.(video_url || "")}>
         <div className="flex-shrink-0 p-3 relative">
-          {thumbnailUrl ? (
+          {thumbnail_url ? (
             <div className="relative">
               <img
-                src={thumbnailUrl}
+                src={thumbnail_url}
                 alt="Video thumbnail"
                 className="w-[398px] h-[224px] border-2 rounded-[12px] object-cover"
                 style={{ borderColor: "#AEAEAE" }}
@@ -102,9 +105,17 @@ const VideoInfo: React.FC<VideoInfoProps> = ({
       {/* 오른쪽: 텍스트 */}
       <div className="flex flex-col justify-center flex-1 gap-2 pr-4">
         <div className="flex justify-between items-start">
-          <div className="text-[24px] font-bold">{title}</div>
+          <div className="text-[24px] font-bold">{video_title}</div>
+        </div>
+        <div className="flex justify-between mb-2">
+          {book_name && (
+            <p className="text-[18px] text-[#DCAC62] font-semibold">
+              from: {book_name}
+            </p>
+          )}
+
           {created_at && (
-            <div className="text-[12px] text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+            <div className="text-[12px] text-gray-500 bg-gray-100 px-3 py-1 mb-4 rounded-full">
               {new Date(created_at).toLocaleDateString("ko-KR", {
                 year: "numeric",
                 month: "long",
@@ -113,22 +124,17 @@ const VideoInfo: React.FC<VideoInfoProps> = ({
             </div>
           )}
         </div>
-        {from && (
-          <p className="text-[18px] text-[#DCAC62] mb-4 font-semibold">
-            from: {from}
-          </p>
-        )}
         <div className="w-[700px] h-[95px] rounded-[12px] bg-gray-100 px-4 py-3">
           <div className="mb-2">
             <span className="font-bold text-[16px] text-gray-700">
               Character:{" "}
             </span>
             <span className="font-semibold text-[16px] text-gray-800">
-              {character}
+              {character_name}
             </span>
           </div>
           <div className="text-gray-700 text-[14px] leading-relaxed">
-            {prompt}
+            {character_description}
           </div>
         </div>
       </div>

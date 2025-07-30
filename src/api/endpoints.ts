@@ -39,7 +39,6 @@ export const ENDPOINTS = {
   },
   booksmarks: {
     get: API_URL("/videos/bookmarks/bookmarked"), // 북마크된 영상 조회
-    update: (videoId: number /*string*/) =>
-      API_URL(`videos/bookmarks/${videoId}`), // 책 북마크 추가/삭제, // 책 북마크 추가/삭제
+    update: (videoId: number) => API_URL(`/videos/bookmarks/${videoId}`), // 책 북마크 추가/삭제
   },
 };
