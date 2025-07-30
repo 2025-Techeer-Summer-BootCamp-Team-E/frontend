@@ -31,6 +31,12 @@ import { getKoreanParticle } from "../utils/koreanUtils";
 import BookFloor from "../assets/images/BookFloor.svg";
 import SearchIcon from "../assets/icons/SearchIcon.svg";
 
+// 랜덤 placeholder 이미지 import
+import sampleCover1 from "../assets/images/sample_cover1.png";
+import sampleCover2 from "../assets/images/sample_cover2.png";
+import sampleCover3 from "../assets/images/sample_cover3.png";
+import sampleCover4 from "../assets/images/sample_cover4.png";
+
 // 책 데이터 타입
 interface Book {
   id: number;
@@ -133,16 +139,26 @@ const MyLibraryPage: React.FC = () => {
         // bookApi를 사용하여 공식 책 목록 API 호출
         const data = await getOfficialBooks();
 
+        console.log(data);
+
         // API 응답을 Book 타입(interface)에 맞게 변환
-        const transformedBooks: Book[] = data.map((book: BookApiResponse) => ({
-          id: book.book_id, // book_id -> id 매핑
-          src:
-            book.pdf_url || // PDF URL이 있으면 사용, 없으면 플레이스홀더 이미지
-            "https://via.placeholder.com/400x600/DCAC62/FFFFFF?text=" +
-              encodeURIComponent(book.title),
-          alt: book.title, // 이미지 alt 속성
-          title: book.title, // 책 제목
-        }));
+        const transformedBooks: Book[] = data.map((book: BookApiResponse) => {
+          // 책 ID를 기반으로 일관된 랜덤 이미지 선택
+          const placeholderImages = [
+            sampleCover1,
+            sampleCover2,
+            sampleCover3,
+            sampleCover4,
+          ];
+          const randomIndex = book.book_id % placeholderImages.length;
+
+          return {
+            id: book.book_id, // book_id -> id 매핑
+            src: book.cover_url || placeholderImages[randomIndex],
+            alt: book.title, // 이미지 alt 속성
+            title: book.title, // 책 제목
+          };
+        });
 
         setBooks(transformedBooks); // 변환된 책 목록 상태 업데이트
       } catch (error) {
