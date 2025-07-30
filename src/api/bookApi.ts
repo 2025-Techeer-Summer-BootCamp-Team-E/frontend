@@ -6,7 +6,8 @@ export interface BookApiResponse {
   book_id: number;
   title: string;
   content: string;
-  pdf_url: string;
+  pdf_url?: string;
+  cover_url?: string;
 }
 
 // 새로운 비동기 업로드 응답 타입
