@@ -12,6 +12,7 @@ import { getCharactersByBookId } from "../api/characterApi";
 import type { BookApiResponse, VideoApiResponse } from "../api/bookApi";
 import { useAppStore } from "../stores/appStore";
 import VideoModal from "../components/VideoModal";
+import VideoCarousel from "../components/VideoCarousel";
 
 // utils (한글 조사 구분 함수)
 import { getKoreanParticle } from "../utils/koreanUtils";
@@ -19,7 +20,6 @@ import { getKoreanParticle } from "../utils/koreanUtils";
 // assets
 import BookFloor from "../assets/images/BookFloor.svg";
 import SearchIcon from "../assets/icons/SearchIcon.svg";
-import VideoThumbnail from "../components/VideoThumbnail";
 
 // 책 데이터 타입
 interface Book {
@@ -505,88 +505,12 @@ const MyLibraryPage: React.FC = () => {
               ) : (
                 // 영상이 있는 경우
                 <div className="relative">
-                  {/* Navigation arrows */}
-                  <button className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50">
-                    <svg
-                      className="w-6 h-6"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M15 19l-7-7 7-7"
-                      />
-                    </svg>
-                  </button>
-                  <button className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50">
-                    <svg
-                      className="w-6 h-6"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 5l7 7-7 7"
-                      />
-                    </svg>
-                  </button>
-
                   {/* Video cards container */}
-                  <div className="overflow-x-auto scrollbar-hide">
-                    <div className="flex gap-[40px] pb-4 px-12">
-                      {selectedBookVideos.map((video, index) => (
-                        <div
-                          key={index}
-                          onClick={() => setSelectedVideoUrl(video.videoUrl)}
-                          className="cursor-pointer transition-transform transform hover:scale-105 hover:shadow-lg rounded-lg"
-                        >
-                          <VideoThumbnail imageUrl={video.imageUrl} />
-                        </div>
-                      ))}
-                      {/* Add empty card for "더 만들어볼까요?" */}
-                      <div
-                        onClick={handleCreateVideo}
-                        className="flex-shrink-0 w-[400px] h-[200px] border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center bg-white hover:bg-gray-50 cursor-pointer transition-colors"
-                      >
-                        <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
-                          <svg
-                            className="w-8 h-8 text-gray-400"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                            />
-                          </svg>
-                        </div>
-                        <p className="text-gray-600 text-lg font-medium">
-                          영상을 하나 더 만들어볼까요?
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Pagination dots - only show when there are videos */}
-              {selectedBookVideos.length > 0 && (
-                <div className="flex justify-center mt-8 gap-2">
-                  <div className="w-2 h-2 rounded-full bg-[#DCAC62]"></div>
-                  <div className="w-2 h-2 rounded-full bg-gray-300"></div>
-                  <div className="w-2 h-2 rounded-full bg-gray-300"></div>
-                  <div className="w-2 h-2 rounded-full bg-gray-300"></div>
-                  <div className="w-2 h-2 rounded-full bg-gray-300"></div>
-                  <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+                  <VideoCarousel
+                    videos={selectedBookVideos}
+                    onClickVideo={setSelectedVideoUrl}
+                    onClickCreate={handleCreateVideo}
+                  />
                 </div>
               )}
             </>
